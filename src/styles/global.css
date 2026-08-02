@@ -1,0 +1,683 @@
+/* =============================================================================
+ * INK/PXL — Design System
+ * CSS-first Tailwind 4 theme + design tokens, typography, utilities & patterns.
+ * Single source of truth. Prototype reference preserved under /docs/prototype.
+ * ============================================================================= */
+
+@import "tailwindcss";
+@import "./clerk.css";
+@import "@fontsource/archivo-black";
+@import "@fontsource/space-mono/400.css";
+@import "@fontsource/space-mono/700.css";
+@import "@fontsource-variable/noto-sans-jp";
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("@fontsource-variable/inter/files/inter-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("@fontsource-variable/inter/files/inter-latin-ext-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+20C1,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+
+/* -----------------------------------------------------------------------------
+ * Theme tokens (Tailwind 4 CSS-first config)
+ * All colors, spacing, fonts and effects live here. Use them via Tailwind
+ * utilities (`bg-paper`, `text-ink`, `font-display`...) or `var(--*)` in CSS.
+ * --------------------------------------------------------------------------- */
+@theme {
+  /* Brand palette — primary 4 */
+  --color-paper: #f2ede4;
+  --color-ink: #0a0a0a;
+  --color-red: #e63946;
+  --color-yellow: #ffb703;
+
+  /* Cover art palettes (one per title) */
+  --color-cover-one-piece: #c62828;
+  --color-cover-berserk: #1a0a0a;
+  --color-cover-tdkr: #1b1b1b;
+  --color-cover-chainsaw-man: #e65100;
+  --color-cover-vagabond: #3e2723;
+  --color-cover-watchmen: #ffd600;
+  --color-cover-jujutsu-kaisen: #4a148c;
+  --color-cover-saga: #00838f;
+  --color-cover-vinland-saga: #2e7d32;
+  --color-cover-invincible: #1565c0;
+  --color-cover-monster: #37474f;
+  --color-cover-walking-dead: #546e7a;
+
+  /* Cover patterns — exposed as tokens. Alphas reference the alpha tokens below
+     so they automatically flip with [data-theme="dark"]. */
+  --pattern-dots: radial-gradient(circle, var(--color-paper-alpha-15) 1.4px, transparent 1.7px);
+  --pattern-dots-dark: radial-gradient(circle, var(--color-ink-alpha-20) 1.4px, transparent 1.7px);
+  --pattern-lines: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 3px,
+    var(--color-paper-alpha-10) 3px,
+    var(--color-paper-alpha-10) 4px
+  );
+  --pattern-cross:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      var(--color-paper-alpha-08) 2px,
+      var(--color-paper-alpha-08) 3px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      var(--color-paper-alpha-08) 2px,
+      var(--color-paper-alpha-08) 3px
+    );
+  --pattern-wash: linear-gradient(160deg, var(--color-paper-alpha-15) 0%, transparent 45%);
+
+  /* Ink-tinted alphas — dividers, hover tints, hairlines, halftone dots.
+     Flipped via [data-theme="dark"] so they read on either surface. */
+  --color-ink-alpha-04: rgb(10 10 10 / 0.04);
+  --color-ink-alpha-06: rgb(10 10 10 / 0.06);
+  --color-ink-alpha-08: rgb(10 10 10 / 0.08);
+  --color-ink-alpha-10: rgb(10 10 10 / 0.10);
+  --color-ink-alpha-20: rgb(10 10 10 / 0.20);
+  --color-ink-alpha-32: rgb(10 10 10 / 0.32);
+  --color-ink-alpha-40: rgb(10 10 10 / 0.40);
+
+  /* Paper-tinted alphas — used in patterns and overlays on ink surfaces.
+     In dark mode flipped to ink-tinted translucency for legibility. */
+  --color-paper-alpha-08: rgb(242 237 228 / 0.08);
+  --color-paper-alpha-10: rgb(242 237 228 / 0.10);
+  --color-paper-alpha-15: rgb(242 237 228 / 0.15);
+  --color-paper-alpha-22: rgb(242 237 228 / 0.22);
+
+  /* Spacing scale — 4/8/12/16/24/32 */
+  --spacing: 4px;
+  --container-px: 1.5rem;
+
+  /* Fonts */
+  --font-display: "Archivo Black", system-ui, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, monospace;
+  --font-jp: "Noto Sans JP Variable", sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+
+  /* Font sizes — fluid type scale (mobile → desktop) */
+  --text-hero: clamp(3.5rem, 12vw, 11rem);
+  --text-page: clamp(2.8rem, 8vw, 7rem);
+  --text-final: clamp(2rem, 6vw, 5rem);
+
+  /* Animation */
+  --animate-marquee: marquee 38s linear infinite;
+  --animate-rise: rise 0.7s ease-out both;
+}
+
+/* -----------------------------------------------------------------------------
+ * Base — minimal resets + smooth scroll + selection + body
+ * --------------------------------------------------------------------------- */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  ::selection {
+    background-color: var(--color-ink);
+    color: var(--color-paper);
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-red);
+    outline-offset: 2px;
+  }
+
+  /* Native form controls + browser UI follow the active theme. */
+  :root {
+    color-scheme: light;
+  }
+  [data-theme="dark"] {
+    color-scheme: dark;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+ * Dark theme — token overrides only. Activated by [data-theme="dark"] on <html>.
+ * Light mode is the identity; dark derives by flipping paper/ink + their alphas.
+ * Brand colors (red, yellow) and per-title covers stay constant.
+ * --------------------------------------------------------------------------- */
+[data-theme="dark"] {
+  --color-paper: #0e0e0e;
+  --color-ink: #ece4d3;
+
+  --color-ink-alpha-04: rgb(236 228 211 / 0.05);
+  --color-ink-alpha-06: rgb(236 228 211 / 0.08);
+  --color-ink-alpha-08: rgb(236 228 211 / 0.10);
+  --color-ink-alpha-10: rgb(236 228 211 / 0.12);
+  --color-ink-alpha-20: rgb(236 228 211 / 0.22);
+  --color-ink-alpha-32: rgb(236 228 211 / 0.30);
+  --color-ink-alpha-40: rgb(236 228 211 / 0.42);
+
+  --color-paper-alpha-08: rgb(10 10 10 / 0.08);
+  --color-paper-alpha-10: rgb(10 10 10 / 0.10);
+  --color-paper-alpha-15: rgb(10 10 10 / 0.15);
+  --color-paper-alpha-22: rgb(10 10 10 / 0.22);
+}
+
+/* Theme-flip transition — applied only to the root canvas so cards keep their
+   brutalist hard-cut feel. Disabled under reduced motion. */
+:where(html) {
+  transition:
+    background-color 200ms ease,
+    color 200ms ease,
+    border-color 200ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  :where(html) {
+    transition: none;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+ * Components — reusable patterns
+ * --------------------------------------------------------------------------- */
+@layer components {
+  /* Cover artwork base — aspect 3/4 container with optional patterns */
+  .cover-frame {
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Hide scrollbar on horizontal scroll containers */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Trending horizontal scroll with snap */
+  .trend-scroll {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  .trend-scroll > * {
+    scroll-snap-align: start;
+  }
+
+  /* Trending mini-card size: 150px mobile / 170px desktop */
+  .trend-card {
+    flex: 0 0 auto;
+    width: 150px;
+  }
+  @media (min-width: 768px) {
+    .trend-card {
+      width: 170px;
+    }
+  }
+
+  /* Chapter row grid — 3 columns: number / title / date */
+  .chapter-row {
+    display: grid;
+    grid-template-columns: 5rem 1fr auto;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--color-ink-alpha-10);
+    transition: background-color 150ms ease;
+  }
+  .chapter-row:last-child {
+    border-bottom: 0;
+  }
+  .chapter-row:hover {
+    background-color: var(--color-ink-alpha-04);
+  }
+
+  /* Card hover lift — only when hover is supported (no touch tap) */
+  .card-hover {
+    transition:
+      transform 0.25s ease,
+      box-shadow 0.25s ease;
+  }
+  @media (hover: hover) {
+    .card-hover:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: 9px 9px 0 0 var(--color-ink);
+    }
+  }
+
+  /* Logo hover — yellow plate slides further */
+  .logo-mark {
+    position: relative;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  .logo-mark__plate {
+    position: absolute;
+    inset: 0;
+    border: 3px solid var(--color-ink);
+    background-color: var(--color-yellow);
+    transform: translate(3px, 3px);
+    transition: transform 0.2s ease;
+  }
+  .logo-mark__glyph {
+    position: absolute;
+    inset: 0;
+    border: 3px solid var(--color-ink);
+    background-color: var(--color-paper);
+    display: grid;
+    place-items: center;
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+  }
+  .logo-link:hover .logo-mark__plate {
+    transform: translate(5px, 5px);
+  }
+
+  /* CTA — primary brutalist button */
+  .cta-primary {
+    border: 3px solid var(--color-ink);
+    box-shadow: 6px 6px 0 0 var(--color-red);
+    background-color: var(--color-red);
+    color: var(--color-paper);
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  .cta-primary:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 0 0 transparent;
+  }
+
+  /* Stats hero & tile lifts */
+  .tile-lift {
+    border: 3px solid var(--color-ink);
+  }
+
+  /* Chip — interactive filter */
+  .chip {
+    border: 3px solid var(--color-ink);
+    background-color: var(--color-paper);
+    transition: background-color 0.15s ease;
+  }
+  .chip:hover,
+  .chip[aria-pressed="true"] {
+    background-color: var(--color-ink);
+    color: var(--color-paper);
+  }
+
+  /* Invert-on-hover secondary button */
+  .btn-invert {
+    border: 3px solid var(--color-ink);
+    background-color: var(--color-paper);
+    transition: background-color 0.15s ease;
+  }
+  .btn-invert:hover {
+    background-color: var(--color-ink);
+    color: var(--color-paper);
+  }
+}
+
+/* -----------------------------------------------------------------------------
+ * Utilities — direct class → CSS mapping
+ * --------------------------------------------------------------------------- */
+@utility font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.045em;
+  line-height: 0.85;
+}
+
+@utility font-mono {
+  font-family: var(--font-mono);
+}
+
+@utility font-jp {
+  font-family: var(--font-jp);
+}
+
+@utility font-body {
+  font-family: var(--font-body);
+}
+
+@utility vertical-rl {
+  writing-mode: vertical-rl;
+}
+
+@utility brutal-border {
+  border: 3px solid var(--color-ink);
+}
+
+@utility brutal-shadow {
+  box-shadow: 6px 6px 0 0 var(--color-ink);
+}
+
+@utility brutal-shadow-red {
+  box-shadow: 6px 6px 0 0 var(--color-red);
+}
+
+@utility brutal-shadow-yellow {
+  box-shadow: 6px 6px 0 0 var(--color-yellow);
+}
+
+@utility brutal-shadow-paper {
+  box-shadow: 6px 6px 0 0 var(--color-paper);
+}
+
+/* Double brutal shadow — ink + colored highlight underneath (use sparingly). */
+@utility brutal-shadow-double {
+  box-shadow:
+    6px 6px 0 0 var(--color-red),
+    12px 12px 0 0 var(--color-ink);
+}
+
+@utility brutal-shadow-double-yellow {
+  box-shadow:
+    6px 6px 0 0 var(--color-yellow),
+    12px 12px 0 0 var(--color-ink);
+}
+
+@utility brutal-shadow-double-paper {
+  box-shadow:
+    6px 6px 0 0 var(--color-paper),
+    12px 12px 0 0 var(--color-ink);
+}
+
+@utility halftone {
+  background-image: radial-gradient(circle, var(--color-ink-alpha-32) 1.1px, transparent 1.4px);
+  background-size: 9px 9px;
+}
+
+@utility halftone-red {
+  background-image: radial-gradient(circle, var(--color-red) 1.4px, transparent 1.8px);
+  background-size: 8px 8px;
+}
+
+/* Light halftone — paper-tinted dots for use on dark surfaces (e.g. ink). */
+@utility halftone-light {
+  background-image: radial-gradient(circle, rgba(242, 237, 228, 0.22) 1.3px, transparent 1.7px);
+  background-size: 9px 9px;
+}
+
+@utility grid-bg {
+  background-image:
+    linear-gradient(var(--color-ink-alpha-06) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-ink-alpha-06) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: -1px -1px;
+}
+
+@utility pat-dots {
+  background-image: var(--pattern-dots);
+  background-size: 8px 8px;
+}
+
+@utility pat-dots-dark {
+  background-image: var(--pattern-dots-dark);
+  background-size: 8px 8px;
+}
+
+@utility pat-lines {
+  background-image: var(--pattern-lines);
+  background-size: 9px 9px;
+}
+
+@utility pat-cross {
+  background-image: var(--pattern-cross);
+  background-size: 14px 14px;
+}
+
+@utility pat-wash {
+  background: var(--pattern-wash);
+}
+
+/* Diagonal stripes — used for highlight strips and stamp backings. */
+@utility pat-stripes {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--color-ink) 0,
+    var(--color-ink) 2px,
+    transparent 2px,
+    transparent 8px
+  );
+}
+
+@utility pat-stripes-light {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--color-paper) 0,
+    var(--color-paper) 2px,
+    transparent 2px,
+    transparent 8px
+  );
+}
+
+/* Vertical hairlines — for "ledger"/account paper. */
+@utility pat-paper-rules {
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 27px,
+    var(--color-ink-alpha-08) 27px,
+    var(--color-ink-alpha-08) 28px
+  );
+}
+
+/* Perforated edge — for tear-off tickets. */
+@utility pat-perforation {
+  background-image: radial-gradient(circle, var(--color-paper) 3px, transparent 3.5px);
+  background-size: 14px 14px;
+  background-position: 0 7px;
+}
+
+/* Marquee — news ticker loop */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@utility marquee-track {
+  animation: var(--animate-marquee);
+}
+
+/* Rise on load — page entrance */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@utility rise {
+  animation: var(--animate-rise);
+}
+
+/* Stagger delays (50–450ms) */
+@utility d1 {
+  animation-delay: 0.05s;
+}
+@utility d2 {
+  animation-delay: 0.15s;
+}
+@utility d3 {
+  animation-delay: 0.25s;
+}
+@utility d4 {
+  animation-delay: 0.35s;
+}
+@utility d5 {
+  animation-delay: 0.45s;
+}
+
+/* Cut a corner off a box (clip-path). Use clip="corner-tr" etc. */
+@utility corner-tr {
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+}
+@utility corner-tl {
+  clip-path: polygon(18px 0, 100% 0, 100% 100%, 0 100%, 0 18px);
+}
+@utility corner-bl {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+}
+@utility corner-br {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%);
+}
+
+/* Stamp wobble — gentle rocking for rotated badges. */
+@keyframes stamp {
+  0%, 100% { transform: var(--stamp-rest, rotate(-3deg)); }
+  50%      { transform: var(--stamp-peak, rotate(-1deg)); }
+}
+@utility stamp-wobble {
+  animation: stamp 6s ease-in-out infinite;
+}
+
+/* Slow vertical drift — used for the giant background index number. */
+@keyframes drift {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(0, -6px, 0); }
+}
+@utility drift {
+  animation: drift 9s ease-in-out infinite;
+}
+
+/* Slow horizontal ticker for the bottom strip (different speed from marquee). */
+@keyframes ticker-x {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@utility ticker-x {
+  animation: ticker-x 28s linear infinite;
+}
+
+/* Caret blink — used for the cursor in the reset-code field. */
+@keyframes blink {
+  0%, 49%  { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+@utility blink {
+  animation: blink 1.05s steps(1, end) infinite;
+}
+
+/* ── Auth-specific motion ──────────────────────────────────────────────── */
+
+/* Stronger entrance — for Clerk forms (they render late, so we want a
+   visible nudge when they appear). Slightly larger Y offset than `rise`. */
+@keyframes auth-rise {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@utility auth-rise {
+  animation: auth-rise 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+/* Soft stat pulse — for stat numbers in side panels. */
+@keyframes auth-pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.06); }
+}
+@utility auth-pulse {
+  animation: auth-pulse 2.4s ease-in-out infinite;
+}
+
+/* Loading-bar slide-in — for the brutalist top loading indicator. */
+@keyframes auth-load-bar {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+@utility auth-load-bar {
+  animation: auth-load-bar 1.4s ease-in-out infinite;
+}
+
+/* Brutalist square spinner — rotates a square outline 90deg every step. */
+@keyframes auth-spin {
+  to { transform: rotate(90deg); }
+}
+@utility auth-spin {
+  animation: auth-spin 0.9s steps(4) infinite;
+}
+
+/* Input focus pulse — used on OTP/verification code inputs when a digit lands. */
+@keyframes auth-input-focus {
+  0%   { box-shadow: 3px 3px 0 0 var(--color-red); }
+  50%  { box-shadow: 5px 5px 0 0 var(--color-red); }
+  100% { box-shadow: 3px 3px 0 0 var(--color-red); }
+}
+@utility auth-input-focus {
+  animation: auth-input-focus 0.6s ease-out;
+}
+
+/* Honor reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+ * Noscript fallback — used by viewer pages when JS is disabled.
+ * -------------------------------------------------------------------------- */
+.noscript-fallback {
+  max-width: 540px;
+  margin: 80px auto;
+  padding: 24px;
+  border: 3px solid var(--color-ink);
+  box-shadow: 8px 8px 0 0 var(--color-red);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+.noscript-fallback h1 {
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+  font-size: 28px;
+  letter-spacing: -0.045em;
+  line-height: 0.85;
+}
+.noscript-fallback p {
+  margin: 8px 0;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.noscript-fallback a {
+  color: var(--color-ink);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.noscript-fallback a:hover {
+  color: var(--color-red);
+}

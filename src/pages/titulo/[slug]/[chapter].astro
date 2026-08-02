@@ -1,0 +1,87 @@
+---
+/**
+ * /titulo/[slug]/[chapter] — manga chapter viewer.
+ * Full-screen reading experience with 3 modes (cascade, page, slider).
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getChapterPageCount, getChaptersBySlug, MANGAS } from '@data/mangas';
+import MangaViewer from '@components/MangaViewer.vue';
+
+export const prerender = false;
+
+const { slug, chapter } = Astro.params;
+if (!slug || !chapter) return Astro.redirect('/catalogo');
+const manga = MANGAS.find((m) => m.slug === slug);
+if (!manga) return Astro.redirect('/404');
+
+const chapterNum = Number(chapter);
+if (isNaN(chapterNum)) return Astro.redirect(`/titulo/${slug}`);
+
+const chapters = getChaptersBySlug(slug);
+const idx = chapters.findIndex((c) => c.number === String(chapterNum));
+if (idx < 0) return Astro.redirect(`/titulo/${slug}`);
+const ch = chapters[idx];
+
+const pageCount = getChapterPageCount(slug, chapterNum);
+
+// Prev/next chapter
+const prev = idx > 0 ? chapters[idx - 1] : null;
+const next = idx < chapters.length - 1 ? chapters[idx + 1] : null;
+
+const title = `${manga.title} — Cap. ${chapterNum} · INK/PXL`;
+const desc = `Lee ${manga.title} Cap. ${chapterNum} — ${ch.title} — en INK/PXL. Visor brutalista con tres modos.`;
+const canonical = `/titulo/${slug}/${chapter}`;
+
+// Page-specific JSON-LD schema (Book + Chapter)
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Book',
+  name: manga.title,
+  author: { '@type': 'Person', name: manga.author },
+  url: canonical,
+  inLanguage: 'es-419',
+  hasPart: {
+    '@type': 'Chapter',
+    position: chapterNum,
+    name: ch.title,
+    isPartOf: { '@type': 'Book', name: manga.title },
+  },
+};
+---
+
+<BaseLayout title={title} description={desc} ogImage={`/og/${slug}.svg?chapter=${chapterNum}`}>
+  <!-- Noscript fallback — shown when JS is disabled; MangaViewer requires JS -->
+  <noscript>
+    <div class="noscript-fallback">
+      <h1>Visor INK/PXL</h1>
+      <p>
+        Necesitás activar JavaScript para leer capítulos. Mientras tanto, abrí
+        <a href="/catalogo">el catálogo</a> y elegí un título.
+      </p>
+    </div>
+  </noscript>
+
+  <!-- Page-specific schema (Book/hasPart Chapter) — overrides the WebSite schema in BaseLayout for crawlers -->
+  <script
+    is:inline
+    type="application/ld+json"
+    set:html={JSON.stringify(jsonLd)}
+  />
+
+  <MangaViewer
+    client:load
+    mangaTitle={manga.title}
+    chapterTitle={ch.title}
+    chapterNumber={chapterNum}
+    totalPages={pageCount}
+    coverColor={manga.coverColor}
+    coverPattern={manga.coverPattern}
+    acronym={manga.acronym}
+    initialMode="cascade"
+    storageKey={`${slug}-${chapter}`}
+    prevChapterHref={prev ? `/titulo/${slug}/${prev.number}` : null}
+    nextChapterHref={next ? `/titulo/${slug}/${next.number}` : null}
+    prevChapterLabel={prev ? `Cap. ${prev.number}` : null}
+    nextChapterLabel={next ? `Cap. ${next.number}` : null}
+  />
+</BaseLayout>

@@ -1,0 +1,37 @@
+---
+export const prerender = false;
+import AuthLayout from '@layouts/AuthLayout.astro';
+import AuthCard from '@components/AuthCard.astro';
+import AuthSidePanel from '@components/AuthSidePanel.astro';
+import { SignUp } from '@clerk/astro/components';
+import { clerkAppearance } from '@lib/clerk-appearance';
+
+const title = 'Crear cuenta';
+---
+
+<AuthLayout {title} actionHref="/login" actionLabel="Ingresar">
+  <AuthSidePanel slot="side" variant="signup" />
+  <AuthSidePanel slot="mobile" variant="signup" compact />
+
+  <AuthCard stampRotation="left">
+    <span slot="stamp">AUTH · 2026</span>
+    <span slot="heading">Únete a INK/PXL</span>
+    <span slot="kicker">/02 · signup</span>
+
+    <SignUp
+      appearance={clerkAppearance}
+      signInUrl="/login"
+      fallbackRedirectUrl="/cuenta"
+      oauthFlow="auto"
+      unsafeMetadata={{ source: 'web' }}
+    />
+
+    <div slot="footer" class="contents">
+      <span>¿Ya tenés cuenta? <a href="/login">Ingresá</a></span>
+      <span>¿No te acordás de la clave? <a href="/recuperar-clave">Recuperar por email</a></span>
+      <span class="mt-1 opacity-70">Al crear la cuenta aceptás los <a href="#">Términos</a> y la <a href="#">Política de Privacidad</a>.</span>
+    </div>
+  </AuthCard>
+
+  <span slot="disclaimer">Prototipo · Cuenta gestionada de forma segura por Clerk</span>
+</AuthLayout>

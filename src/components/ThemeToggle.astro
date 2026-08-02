@@ -1,0 +1,90 @@
+---
+/**
+ * ThemeToggle — sun/moon square button.
+ * Reads/writes data-theme on <html> and persists choice to localStorage.
+ * The initial sync is already done by the inline blocking script in <head>:
+ * this component just renders the current state and wires the click handler.
+ */
+---
+
+<button
+  type="button"
+  id="theme-toggle"
+  data-theme-toggle
+  class="brutal-border bg-paper text-ink w-11 h-11 grid place-items-center font-mono text-base uppercase tracking-normal btn-invert"
+  aria-label="Cambiar tema"
+  aria-pressed="false"
+  title="Cambiar tema"
+>
+  <svg
+    data-icon="sun"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2.5"
+    stroke-linecap="square"
+    stroke-linejoin="miter"
+    class="w-5 h-5 hidden"
+    aria-hidden="true"
+  >
+    <circle cx="12" cy="12" r="4"></circle>
+    <line x1="12" y1="2" x2="12" y2="5"></line>
+    <line x1="12" y1="19" x2="12" y2="22"></line>
+    <line x1="2" y1="12" x2="5" y2="12"></line>
+    <line x1="19" y1="12" x2="22" y2="12"></line>
+    <line x1="4.9" y1="4.9" x2="6.9" y2="6.9"></line>
+    <line x1="17.1" y1="17.1" x2="19.1" y2="19.1"></line>
+    <line x1="4.9" y1="19.1" x2="6.9" y2="17.1"></line>
+    <line x1="17.1" y1="6.9" x2="19.1" y2="4.9"></line>
+  </svg>
+  <svg
+    data-icon="moon"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2.5"
+    stroke-linecap="square"
+    stroke-linejoin="miter"
+    class="w-5 h-5 hidden"
+    aria-hidden="true"
+  >
+    <path d="M20 14.5A8 8 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5Z"></path>
+  </svg>
+</button>
+
+<script>
+  type Theme = 'light' | 'dark';
+  const STORAGE_KEY = 'inkpxl-theme';
+
+  const btn = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+  if (btn) {
+    const sun = btn.querySelector<SVGElement>('[data-icon="sun"]')!;
+    const moon = btn.querySelector<SVGElement>('[data-icon="moon"]')!;
+
+    const apply = (theme: Theme) => {
+      document.documentElement.dataset.theme = theme;
+      try {
+        localStorage.setItem(STORAGE_KEY, theme);
+      } catch (_) {
+        /* storage may be unavailable (private mode) */
+      }
+      btn.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
+      btn.setAttribute('aria-label', theme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro');
+      btn.setAttribute('title', theme === 'dark' ? 'Tema claro' : 'Tema oscuro');
+      sun.classList.toggle('hidden', theme !== 'dark');
+      moon.classList.toggle('hidden', theme !== 'light');
+    };
+
+    const initial: Theme =
+      (document.documentElement.dataset.theme as Theme) === 'dark' ? 'dark' : 'light';
+    apply(initial);
+
+    btn.addEventListener('click', () => {
+      const next: Theme =
+        document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      apply(next);
+    });
+  }
+</script>

@@ -1,0 +1,42 @@
+---
+/**
+ * TrendingCard — mini horizontal card with optional rank chip.
+ * Sized via .trend-card utility (150px mobile / 170px desktop).
+ */
+import CoverArt from './CoverArt.astro';
+import type { Manga } from '@/types/manga';
+
+interface Props {
+  manga: Manga;
+  href?: string;
+}
+
+const { manga, href = `/titulo/${manga.slug}` } = Astro.props;
+
+const rankColor = manga.rank === 1 ? 'bg-red text-paper' : 'bg-ink text-paper';
+const rankColorWatchmen = manga.slug === 'watchmen' ? 'bg-ink text-yellow' : null;
+---
+
+<a href={href} class="trend-card card-hover brutal-border bg-paper overflow-hidden block">
+  <CoverArt manga={manga} acronymSize="text-3xl" title={manga.title} />
+
+  {
+    manga.rank !== undefined && (
+      <span
+        class:list={[
+          'absolute bottom-1 left-1 font-mono text-[7px] px-1 py-0.5 z-10',
+          rankColorWatchmen ?? rankColor,
+        ]}
+      >
+        #{manga.rank}
+      </span>
+    )
+  }
+
+  <div class="p-2">
+    <p class="font-display text-xs leading-tight">{manga.title}</p>
+    <p class="font-mono text-[8px] uppercase opacity-60 truncate">
+      {manga.volumeCount}
+    </p>
+  </div>
+</a>

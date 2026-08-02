@@ -1,0 +1,38 @@
+---
+/**
+ * Logo — INK/PXL mark. Yellow plate + cream square with "!" glyph.
+ * Hover: yellow plate slides 5/5 (handled by .logo-mark__plate utility).
+ */
+import { SITE } from '@/lib/site';
+
+interface Props {
+  href?: string;
+  /** Render compact (no subtitle). */
+  compact?: boolean;
+  class?: string;
+}
+
+const { href = '/', compact = false, class: className = '' } = Astro.props;
+---
+
+<a
+  href={href}
+  class:list={['logo-link group flex items-center gap-3', className]}
+  aria-label={`${SITE.name} — Inicio`}
+>
+  <span class="logo-mark" aria-hidden="true">
+    <span class="logo-mark__plate"></span>
+    <span class="logo-mark__glyph">!</span>
+  </span>
+
+  {
+    !compact && (
+      <span class="flex flex-col leading-none">
+        <span class="font-display text-xl tracking-tighter text-ink">{SITE.name}</span>
+        <span class="font-mono text-[10px] uppercase tracking-[0.22em] opacity-60 mt-1">
+          {SITE.volume}
+        </span>
+      </span>
+    )
+  }
+</a>

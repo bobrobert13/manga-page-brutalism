@@ -1,0 +1,41 @@
+---
+/**
+ * StatsTile — single metric tile. Tone controls background + text color.
+ */
+import type { Stat } from '@/types/manga';
+
+interface Props {
+  stat: Stat;
+  /** Override surrounding border on first/last items for seamless strips. */
+  trim?: boolean;
+}
+
+const { stat, trim = false } = Astro.props;
+
+const TONE = {
+  ink: 'bg-ink text-paper',
+  paper: 'bg-paper text-ink',
+  yellow: 'bg-yellow text-ink',
+  red: 'bg-red text-paper',
+} as const;
+---
+
+<div
+  class:list={[
+    'tile-lift p-6 md:p-8',
+    TONE[stat.tone],
+    trim && 'border-y-0 border-l-0 md:border-b-0',
+  ]}
+>
+  <div class="font-display text-4xl md:text-5xl">{stat.value}</div>
+  <div class="font-mono text-[10px] uppercase tracking-[0.2em] opacity-70 mt-1">
+    {stat.label}
+  </div>
+  {
+    stat.hint && (
+      <div class="font-mono text-[10px] uppercase tracking-[0.15em] opacity-50 mt-1">
+        {stat.hint}
+      </div>
+    )
+  }
+</div>

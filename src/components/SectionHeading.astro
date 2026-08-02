@@ -1,0 +1,39 @@
+---
+/**
+ * SectionHeading — title + optional accent bar + subtitle + CTA slot.
+ */
+interface Props {
+  title: string;
+  subtitle?: string;
+  /** Show the small red bar under title. */
+  accent?: boolean;
+  /** HTML element for the heading. Defaults to h2. */
+  as?: 'h1' | 'h2' | 'h3';
+  class?: string;
+}
+
+const {
+  title,
+  subtitle,
+  accent = true,
+  as: Heading = 'h2',
+  class: className = '',
+}: Props = Astro.props;
+---
+
+<header class:list={['flex items-center justify-between gap-3', className]}>
+  <div>
+    <Heading class="font-display text-2xl md:text-3xl tracking-tighter">{title}</Heading>
+    {
+      subtitle && (
+        <div class="flex items-center gap-3 mt-1">
+          {accent && <span class="w-10 h-[3px] bg-red" aria-hidden="true" />}
+          <span class="font-mono text-[10px] uppercase tracking-[0.2em] opacity-60">
+            {subtitle}
+          </span>
+        </div>
+      )
+    }
+  </div>
+  <slot />
+</header>

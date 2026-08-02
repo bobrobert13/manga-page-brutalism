@@ -1,0 +1,57 @@
+---
+/**
+ * ChapterRow — single chapter entry (number / title / date).
+ * Latest chapters highlight in red.
+ * When `slug` is provided, wraps in a link to the viewer.
+ */
+import type { Chapter } from '@/types/manga';
+
+interface Props {
+  chapter: Chapter;
+  slug?: string;
+}
+
+const { chapter, slug } = Astro.props;
+const isAccent = chapter.accent ?? false;
+---
+
+{
+  slug ? (
+    <a
+      href={`/titulo/${slug}/${chapter.number}`}
+      class="chapter-row group no-underline"
+    >
+      <span class:list={['font-mono text-xs font-bold', isAccent ? 'text-[var(--color-red)]' : 'opacity-60']}>
+        {chapter.number}
+      </span>
+      <div>
+        <span class="font-display text-base">{chapter.title}</span>
+        {chapter.volume && (
+          <span class="font-mono text-[10px] uppercase tracking-[0.1em] opacity-50 ml-2">
+            {chapter.volume}
+          </span>
+        )}
+      </div>
+      <span class="font-mono text-[10px] uppercase tracking-[0.15em] opacity-50 group-hover:opacity-100 transition-opacity">
+        {chapter.publishedAt}
+      </span>
+    </a>
+  ) : (
+    <div class="chapter-row group">
+      <span class:list={['font-mono text-xs font-bold', isAccent ? 'text-[var(--color-red)]' : 'opacity-60']}>
+        {chapter.number}
+      </span>
+      <div>
+        <span class="font-display text-base">{chapter.title}</span>
+        {chapter.volume && (
+          <span class="font-mono text-[10px] uppercase tracking-[0.1em] opacity-50 ml-2">
+            {chapter.volume}
+          </span>
+        )}
+      </div>
+      <span class="font-mono text-[10px] uppercase tracking-[0.15em] opacity-50 group-hover:opacity-100 transition-opacity">
+        {chapter.publishedAt}
+      </span>
+    </div>
+  )
+}

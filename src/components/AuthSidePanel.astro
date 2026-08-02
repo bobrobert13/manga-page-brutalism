@@ -1,0 +1,200 @@
+---
+import { BERSERK, FEATURED, TRENDING_NOW_SIDE } from '@data/mangas';
+
+interface Props {
+  variant?: 'login' | 'signup' | 'reset';
+  compact?: boolean;
+}
+
+const { variant = 'login', compact = false }: Props = Astro.props;
+
+const COPY = {
+  login: {
+    kicker: '/00 · volver',
+    before: 'Tu próxima',
+    highlight: 'página',
+    after: 'te espera.',
+    body: 'Retomá donde lo dejaste y seguís con tu lista. Sin perder el ritmo ni el capítulo.',
+    status: 'Leyendo: Berserk · Cap. 374',
+    stats: [
+      ['12.4K', 'Títulos'],
+      ['48', 'Idiomas'],
+      ['∞', 'Listas'],
+    ],
+  },
+  signup: {
+    kicker: '/00 · nuevo lector',
+    before: 'Sumate',
+    highlight: 'a la biblioteca',
+    after: 'que se toma en serio.',
+    body: 'Crear tu cuenta toma menos de un minuto. Y si querés, ni eso — entrá con Google y listo.',
+    status: '+200 lectores hoy',
+    stats: [
+      ['12.4K', 'Títulos'],
+      ['+200', 'Hoy'],
+      ['4.9★', 'Rating'],
+    ],
+  },
+  reset: {
+    kicker: '/00 · recuperar',
+    before: 'Recuperá',
+    highlight: 'el acceso',
+    after: 'sin perder el ritmo.',
+    body: 'Te mandamos un código al mail. Lo metés, elegís clave nueva y seguís leyendo.',
+    status: 'Soporte · 24/7',
+    stats: [
+      ['01', 'Paso'],
+      ['06', 'Dígitos'],
+      ['15 min', 'Vigencia'],
+    ],
+  },
+} as const;
+
+const copy = COPY[variant];
+const isReset = variant === 'reset';
+const sideSurface = variant === 'signup' ? 'bg-yellow text-ink' : isReset ? 'bg-ink text-paper' : 'bg-paper text-ink';
+const pattern = isReset ? 'halftone-light' : 'pat-dots-dark';
+const highlight = isReset ? 'bg-yellow text-ink' : 'bg-ink text-paper';
+const livePill = isReset ? 'bg-paper text-ink border-paper' : 'bg-red text-paper border-ink';
+const featured = FEATURED.slice(0, 3);
+const resetSteps = ['Ingresá tu email', 'Te mandamos un código', 'Elegí clave nueva'];
+---
+
+{
+  compact ? (
+    <section
+      class:list={[
+        'lg:hidden mb-6 brutal-border p-4',
+        isReset ? 'bg-ink text-paper' : 'bg-yellow text-ink',
+      ]}
+      aria-label="Resumen del acceso"
+    >
+      <p class="font-mono text-[10px] uppercase tracking-[0.22em] opacity-80 mb-1">
+        {copy.kicker}
+      </p>
+      <h1 class="font-display text-2xl tracking-tighter leading-[0.9]">
+        {copy.before}{' '}
+        <span class:list={['px-1 inline-block -rotate-1', highlight]}>{copy.highlight}</span>{' '}
+        {copy.after}
+      </h1>
+    </section>
+  ) : (
+    <aside
+      class:list={[
+        'relative overflow-hidden hidden lg:flex flex-col justify-between border-r-[3px] border-ink p-8 xl:p-10 col-span-5',
+        sideSurface,
+      ]}
+      aria-label="Manifiesto INK/PXL"
+    >
+      <div class:list={['absolute inset-0 opacity-40 pointer-events-none', pattern]} aria-hidden="true" />
+
+      {variant !== 'login' && (
+        <div
+          class:list={[
+            'absolute top-8 right-8 xl:top-10 xl:right-10 w-20 h-20 xl:w-24 xl:h-24 rotate-[-5deg] grid place-items-center font-display text-[9px] xl:text-[10px] uppercase tracking-[0.18em] z-10 leading-tight text-center',
+            isReset ? 'border-[3px] border-paper bg-yellow text-ink' : 'brutal-border bg-ink text-paper rotate-6',
+          ]}
+          aria-hidden="true"
+        >
+          {isReset ? <>Soporte<br />24/7<br />2026</> : <>Nuevo<br />Lector<br />2026</>}
+        </div>
+      )}
+
+      <div class="relative z-10 rise max-w-[42ch]">
+        <div class="flex items-center gap-3 mb-4 flex-wrap">
+          <span class:list={['border-[3px] font-mono text-[10px] uppercase tracking-[0.22em] px-2.5 py-1 flex items-center gap-2', livePill]}>
+            <span class="w-1.5 h-1.5 bg-red animate-pulse" aria-hidden="true" />
+            {isReset ? 'Soporte · 24/7' : 'En vivo'}
+          </span>
+          {!isReset && <span class="font-mono text-[10px] uppercase tracking-[0.22em] opacity-70">{copy.status}</span>}
+        </div>
+
+        <p class="font-mono text-[11px] uppercase tracking-[0.22em] opacity-70 mb-2">{copy.kicker}</p>
+        <h1 class="font-display text-[clamp(2.4rem,4vw,4rem)] leading-[0.86] tracking-tighter">
+          <span class="block">{copy.before}</span>
+          <span class="block"><span class:list={['inline-block px-2 -rotate-1', highlight]}>{copy.highlight}</span></span>
+          <span class="block">{copy.after}</span>
+        </h1>
+        <p class="font-mono text-xs mt-5 max-w-[36ch] leading-relaxed opacity-80">{copy.body}</p>
+      </div>
+
+      {variant === 'login' && (
+        <div class="relative z-10 mt-8 rise d2 space-y-3">
+          <div class="brutal-border brutal-shadow bg-paper text-ink p-3">
+            <div class="flex items-center justify-between mb-2 font-mono text-[9px] uppercase tracking-[0.22em] opacity-70">
+              <span class="flex items-center gap-1.5"><span class="inline-block w-1.5 h-1.5 bg-red animate-pulse" />Leyendo ahora</span>
+              <span>Vol. 41</span>
+            </div>
+            <div class="flex gap-3">
+              <div class="halftone-red w-14 aspect-[3/4] brutal-border shrink-0 relative overflow-hidden">
+                <div class="absolute inset-0 grid place-items-center"><span class="font-display text-2xl text-[var(--color-red)] rotate-[-6deg]">!?</span></div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="font-display text-base leading-none truncate">{BERSERK.title}</p>
+                <p class="font-mono text-[9px] uppercase tracking-[0.18em] opacity-70 mt-1 truncate">{BERSERK.author} · Seinen</p>
+                <div class="flex items-center gap-1.5 mt-2" aria-label="Progreso de lectura 78%">
+                  <span class="flex-1 h-[5px] bg-[color:var(--color-ink-alpha-20)] rounded-full overflow-hidden"><span class="block h-full w-[78%] bg-red rounded-full" /></span>
+                  <span class="font-mono text-[9px]">78%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="brutal-border bg-paper text-ink p-3 divide-y divide-[color:var(--color-ink-alpha-10)]">
+            <p class="font-mono text-[9px] uppercase tracking-[0.22em] mb-1.5 opacity-60">— Trending ahora</p>
+            {TRENDING_NOW_SIDE.slice(0, 3).map((entry) => (
+              <a href={`/titulo/${entry.slug}`} class="py-1.5 flex items-center justify-between hover:bg-[color:var(--color-ink-alpha-04)] -mx-1 px-1 transition-colors">
+                <span class="font-display text-xs truncate">{entry.title}</span>
+                <span class:list={['font-mono text-[9px] font-bold', entry.rank === 1 ? 'text-[var(--color-red)]' : 'opacity-50']}>#{entry.rank}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {variant === 'signup' && (
+        <div class="relative z-10 mt-8 rise d2 space-y-3">
+          <p class="font-mono text-[10px] uppercase tracking-[0.22em] opacity-80">— Lo que vas a leer hoy</p>
+          <div class="grid grid-cols-3 gap-2">
+            {featured.map((m) => (
+              <a href={`/titulo/${m.slug}`} class="brutal-border aspect-[3/4] relative overflow-hidden block" style={`background-color:${m.coverColor}`}>
+                <div class="absolute inset-0 pat-wash pointer-events-none" />
+                <div class="absolute inset-0 grid place-items-center"><span class="font-display text-paper text-base leading-none">{m.acronym}</span></div>
+                <span class="absolute bottom-1 left-1 right-1 font-mono text-[8px] uppercase tracking-[0.15em] bg-paper text-ink px-1 py-0.5 truncate">{m.genres[0]}</span>
+              </a>
+            ))}
+          </div>
+          <div class="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] opacity-90 flex-wrap">
+            <span class="w-2 h-2 bg-red animate-pulse" />+200 lectores hoy <span aria-hidden="true">·</span> Top: Berserk
+          </div>
+        </div>
+      )}
+
+      {variant === 'reset' && (
+        <div class="relative z-10 mt-8 rise d2">
+          <p class="font-mono text-[10px] uppercase tracking-[0.22em] opacity-70 mb-3">— Cómo funciona</p>
+          <ol class="space-y-2.5">
+            {resetSteps.map((label, index) => (
+              <li class="flex items-start gap-3">
+                <span class:list={['border-[3px] border-paper text-ink font-display text-xs w-8 h-8 grid place-items-center shrink-0', index === 2 ? 'bg-yellow' : 'bg-paper']} aria-hidden="true">0{index + 1}</span>
+                <span class="font-mono text-[11px] uppercase tracking-[0.18em] pt-1.5">{label}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+
+      <div class="relative z-10 mt-8 space-y-3">
+        <div class:list={['p-3 grid grid-cols-3 gap-2', isReset ? 'border-[3px] border-paper bg-paper text-ink' : 'brutal-border bg-paper text-ink']}>
+          {copy.stats.map(([value, label]) => (
+            <div class="text-center">
+              <p class="font-display text-base tracking-tighter leading-none">{value}</p>
+              <p class="font-mono text-[8px] uppercase tracking-[0.18em] opacity-70 mt-1.5 leading-tight">{label}</p>
+            </div>
+          ))}
+        </div>
+        <p class="font-mono text-[10px] uppercase tracking-[0.22em] opacity-60">INK/PXL · Vol. 001 / 2026</p>
+      </div>
+    </aside>
+  )
+}

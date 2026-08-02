@@ -1,0 +1,72 @@
+---
+/**
+ * MangaCard — full-size catalog card (cover + meta + badges).
+ * Used in /catalogo grid and / home featured section.
+ */
+import CoverArt from './CoverArt.astro';
+import type { Manga } from '@/types/manga';
+
+interface Props {
+  manga: Manga;
+  /** Render mini variant (used for trending/related strips). */
+  variant?: 'default' | 'mini';
+  /** Detail URL override; defaults to /titulo/[slug]. */
+  href?: string;
+}
+
+const { manga, variant = 'default', href = `/titulo/${manga.slug}` } = Astro.props;
+
+const isMini = variant === 'mini';
+const acronymClass = isMini ? 'text-3xl' : 'text-5xl md:text-7xl';
+const titleClass = isMini ? 'text-xs' : 'text-base md:text-xl';
+const authorClass = isMini
+  ? 'font-mono text-[8px] uppercase opacity-60 truncate'
+  : 'font-mono text-[10px] uppercase tracking-[0.15em] opacity-70 mt-0.5';
+---
+
+<a
+  href={href}
+  class="group card-hover brutal-border bg-paper overflow-hidden block focus-visible:outline-3"
+  aria-label={`${manga.title} — ${manga.author}`}
+>
+  <CoverArt
+    manga={manga}
+    badges={!isMini && manga.status !== undefined}
+    badgeSize={isMini ? 'sm' : 'md'}
+    acronymSize={acronymClass}
+  />
+
+  <div class:list={[isMini ? 'p-2' : 'p-3 md:p-4']}>
+    <h3
+      class:list={['font-display leading-tight transition-colors group-hover:text-[var(--color-red)]', titleClass]}
+    >
+      {manga.title}
+    </h3>
+    <p class={authorClass}>{manga.author}</p>
+
+    {
+      !isMini && (
+        <>
+          <div class="flex flex-wrap gap-1.5 mt-2">
+            {manga.genres.slice(0, 3).map((g) => (
+              <span class="bg-[color:var(--color-ink-alpha-10)] px-2 py-0.5 font-mono text-[8px] uppercase tracking-[0.12em]">
+                {g}
+              </span>
+            ))}
+          </div>
+
+          <div class="flex items-center justify-between mt-2 font-mono text-[9px] uppercase tracking-[0.15em] opacity-60">
+            <span>{manga.volumeCount}</span>
+            <span aria-label={`Calificación ${manga.rating}`}>★ {manga.rating}</span>
+          </div>
+        </>
+      )
+    }
+
+    {
+      isMini && manga.volumeCount && (
+        <p class="font-mono text-[8px] uppercase opacity-60 truncate mt-0.5">{manga.volumeCount}</p>
+      )
+    }
+  </div>
+</a>

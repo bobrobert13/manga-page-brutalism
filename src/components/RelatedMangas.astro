@@ -1,0 +1,30 @@
+---
+/**
+ * RelatedMangas — grid of mini cards. Used on the detail page.
+ */
+import MangaCard from './MangaCard.astro';
+import type { Manga } from '@/types/manga';
+
+interface Props {
+  items: readonly Manga[];
+  heading?: string;
+  subtitle?: string;
+}
+
+const { items, heading = 'RELACIONADOS', subtitle = 'Si te gustó esta obra' } = Astro.props;
+---
+
+<section aria-labelledby="related-heading">
+  <div class="flex items-baseline gap-4 mb-6">
+    <h2 id="related-heading" class="font-display text-2xl md:text-3xl tracking-tighter">
+      {heading}
+    </h2>
+    <span class="font-mono text-[11px] uppercase tracking-[0.2em] opacity-60">
+      {subtitle}
+    </span>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+    {items.map((manga) => <MangaCard manga={manga} variant="mini" />)}
+  </div>
+</section>

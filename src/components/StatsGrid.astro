@@ -1,0 +1,26 @@
+---
+/**
+ * StatsGrid — 4-column responsive strip that wraps {@link StatsTile}.
+ */
+import StatsTile from './StatsTile.astro';
+import type { Stat } from '@/types/manga';
+
+interface Props {
+  stats: readonly Stat[];
+  /** Apply seamless tiling (no outer borders, inner borders only). */
+  seamless?: boolean;
+}
+
+const { stats, seamless = false } = Astro.props;
+---
+
+<section
+  aria-label="Estadísticas"
+  class:list={['grid grid-cols-2 md:grid-cols-4', seamless && 'border-b-[3px] border-ink']}
+>
+  {
+    stats.map((stat, idx) => (
+      <StatsTile stat={stat} trim={seamless && (idx === stats.length - 1 || idx === 0)} />
+    ))
+  }
+</section>

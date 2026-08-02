@@ -1,0 +1,96 @@
+---
+import '@/styles/global.css';
+import { SITE } from '@/lib/site';
+import Logo from '@components/Logo.astro';
+import SiteFooter from '@components/SiteFooter.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  actionHref: string;
+  actionLabel: string;
+}
+
+const {
+  title,
+  description = SITE.description,
+  actionHref,
+  actionLabel,
+}: Props = Astro.props;
+
+const { userId } = Astro.locals.auth();
+if (userId) return Astro.redirect('/');
+
+const fullTitle = title === SITE.name ? title : `${title} — ${SITE.name}`;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url).toString();
+---
+
+<!doctype html>
+<html lang={SITE.locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="robots" content="noindex, nofollow" />
+
+    <!-- Inline blocking theme script — runs before paint to prevent FOUC. -->
+    <script is:inline>
+      (function () {
+        try {
+          const stored = localStorage.getItem('inkpxl-theme');
+          const theme =
+            stored === 'light' || stored === 'dark'
+              ? stored
+              : window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light';
+          document.documentElement.dataset.theme = theme;
+        } catch (_) {
+          /* default to light */
+        }
+      })();
+    </script>
+
+    <meta name="theme-color" content="#0A0A0A" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e0e0e" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+
+  <body class="min-h-screen overflow-x-hidden bg-paper text-ink font-body antialiased">
+    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:brutal-border focus:bg-paper focus:px-3 focus:py-1.5 focus:font-mono focus:text-xs focus:uppercase focus:tracking-[0.18em]">
+      Saltar al contenido principal
+    </a>
+
+    <header class="px-5 sm:px-8 md:px-12 py-5 flex items-center justify-between border-b-[3px] border-ink bg-paper relative z-20">
+      <Logo />
+      <div class="flex items-center gap-2 sm:gap-3">
+        <a href="/" class="brutal-border px-3 py-2 font-mono text-[10px] sm:text-xs uppercase tracking-[0.18em] bg-paper hover:bg-ink hover:text-paper transition-colors hidden sm:inline-flex items-center gap-2">
+          <span aria-hidden="true">←</span> Volver
+        </a>
+        <a href={actionHref} class="brutal-border bg-ink text-paper px-3 sm:px-4 py-2 font-mono text-[10px] sm:text-xs uppercase tracking-[0.18em] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0_0_var(--color-red)] transition-all">
+          {actionLabel} →
+        </a>
+      </div>
+    </header>
+
+    <main id="main" class="grid grid-cols-1 lg:grid-cols-12 min-h-[calc(100vh-77px)]">
+      <slot name="side" />
+
+      <section class="col-span-1 lg:col-span-7 grid-bg border-t-[3px] lg:border-t-0 border-ink flex items-start lg:items-center justify-center px-5 sm:px-8 md:px-12 py-10 lg:py-12">
+        <div class="w-full flex flex-col items-center">
+          <slot name="mobile" />
+          <slot />
+          <p class="mt-4 text-center font-mono text-[10px] uppercase tracking-[0.22em] opacity-60">
+            <slot name="disclaimer" />
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <SiteFooter />
+  </body>
+</html>

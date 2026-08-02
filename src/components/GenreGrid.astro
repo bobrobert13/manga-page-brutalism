@@ -1,0 +1,28 @@
+---
+/**
+ * GenreGrid — section listing genre chips. Used on home (#generos) and more.
+ */
+import GenreChip from './GenreChip.astro';
+
+interface Props {
+  genres: readonly string[];
+  heading?: string;
+  size?: 'sm' | 'md';
+  id?: string;
+}
+
+const { genres, heading = 'EXPLORA POR GÉNERO', size = 'md', id } = Astro.props;
+---
+
+<section id={id} class="px-6 md:px-12 py-10 md:py-14" aria-labelledby={`${id ?? 'genres'}-heading`}>
+  <div class="flex items-center gap-3 mb-6">
+    <h2 id={`${id ?? 'genres'}-heading`} class="font-display text-2xl md:text-3xl tracking-tighter">
+      {heading}
+    </h2>
+    <span class="w-8 h-[3px] bg-red" aria-hidden="true"></span>
+  </div>
+
+  <div class="flex flex-wrap gap-3">
+    {genres.map((genre) => <GenreChip label={genre} size={size} />)}
+  </div>
+</section>

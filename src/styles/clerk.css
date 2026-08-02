@@ -1,0 +1,102 @@
+/* =============================================================================
+ * INK/PXL — Clerk overrides
+ *
+ * Layer order: Tailwind 4 ships `theme, base, components, utilities`.
+ * We append `clerk` so our overrides win specificity over Clerk's internal
+ * styles (which live in shadow DOM but respect CSS layer cascade order).
+ *
+ * Configured via `appearance.cssLayerName: 'clerk'` in astro.config.mjs.
+ * ========================================================================== */
+
+@layer clerk {
+  /* Surface tokens — paper/ink flip with the theme, so the form reads as
+     "brutalist on dark" or "brutalist on paper" automatically. */
+  .cl-formFieldInput,
+  .cl-formFieldInputGroup,
+  .cl-formButtonReset,
+  .cl-otpCodeFieldInput,
+  .cl-identityPreview,
+  .cl-userPreview,
+  .cl-avatarBox,
+  .cl-alert,
+  .cl-userButtonPopoverCard {
+    background-color: var(--color-paper) !important;
+    color: var(--color-ink) !important;
+    border-color: var(--color-ink) !important;
+  }
+
+  /* Keep primary button brand-red regardless of theme (--color-red is constant). */
+  .cl-formButtonPrimary {
+    background-color: var(--color-red) !important;
+    color: var(--color-paper) !important;
+    border-color: var(--color-ink) !important;
+  }
+  .cl-formButtonPrimary:hover {
+    background-color: #d12f3c !important;
+  }
+
+  /* Hard offset shadows follow the same brutalist principle: shadow contrast
+     with surface, so flip with theme by referencing var(--color-ink). */
+  .cl-formFieldInput:focus,
+  .cl-formFieldInput:focus-visible,
+  .cl-formFieldInputGroup:focus-within,
+  .cl-formButtonPrimary,
+  .cl-userButtonPopoverCard,
+  .cl-alert,
+  .cl-socialButtonsBlockButton:hover,
+  .cl-otpCodeFieldInput:focus {
+    box-shadow: 4px 4px 0 0 var(--color-red) !important;
+  }
+  .cl-formButtonPrimary {
+    box-shadow: 6px 6px 0 0 var(--color-ink) !important;
+  }
+  .cl-userButtonPopoverCard {
+    box-shadow: 6px 6px 0 0 var(--color-ink) !important;
+  }
+
+  /* Typography — keep mono on labels, square (0) corners everywhere. */
+  .cl-formFieldLabel,
+  .cl-formFieldInputShowPasswordButton,
+  .cl-formFieldErrorText,
+  .cl-formFieldHintText,
+  .cl-formResendCodeLink,
+  .cl-socialButtonsBlockButtonText,
+  .cl-dividerText,
+  .cl-identityPreviewText,
+  .cl-alertText,
+  .cl-footerActionText,
+  .cl-footerActionLink {
+    font-family: var(--font-mono) !important;
+  }
+
+  .cl-formButtonPrimary,
+  .cl-formButtonReset,
+  .cl-otpCodeFieldInput {
+    border-radius: 0 !important;
+  }
+
+  /* Footer separator — paper-aware alpha token. */
+  .cl-footer {
+    border-top: 3px solid var(--color-ink-alpha-20) !important;
+  }
+
+  /* Hover state on social buttons mirrors the brutalist invert-on-hover pattern. */
+  .cl-socialButtonsBlockButton:hover {
+    background-color: var(--color-ink) !important;
+    color: var(--color-paper) !important;
+  }
+
+  /* Links use brand red on hover. */
+  .cl-formFieldInputShowPasswordButton:hover,
+  .cl-formResendCodeLink:hover,
+  .cl-footerActionLink:hover {
+    color: var(--color-red) !important;
+  }
+
+  /* Identity edit chip stays yellow (brand). */
+  .cl-identityPreviewEditButton {
+    background-color: var(--color-yellow) !important;
+    color: var(--color-ink) !important;
+    border-color: var(--color-ink) !important;
+  }
+}

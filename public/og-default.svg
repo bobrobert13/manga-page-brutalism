@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <rect width="1200" height="630" fill="#F2EDE4"/>
+  <defs>
+    <pattern id="grid" x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0V48" fill="none" stroke="#0A0A0A" stroke-opacity="0.06" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <g transform="translate(96 120)">
+    <rect x="6" y="6" width="120" height="120" fill="#FFB703"/>
+    <rect x="0" y="0" width="120" height="120" fill="#F2EDE4" stroke="#0A0A0A" stroke-width="6"/>
+    <text x="60" y="92" text-anchor="middle" font-family="Archivo Black, system-ui, sans-serif" font-size="84" fill="#0A0A0A">!</text>
+  </g>
+  <text x="96" y="320" font-family="Archivo Black, system-ui, sans-serif" font-size="120" fill="#0A0A0A" letter-spacing="-6">INK/PXL</text>
+  <text x="96" y="380" font-family="Space Mono, monospace" font-size="22" fill="#0A0A0A" letter-spacing="6">VOL. 001 / 2026 — MANGAS · COMICS · WEBTOONS</text>
+  <text x="96" y="510" font-family="Archivo Black, system-ui, sans-serif" font-size="64" fill="#0A0A0A" letter-spacing="-3">PÁGINAS QUE MUEVEN AL MUNDO.</text>
+  <rect x="700" y="380" width="60" height="6" fill="#E63946"/>
+  <text x="700" y="430" font-family="Space Mono, monospace" font-size="20" fill="#0A0A0A" letter-spacing="4">12,400+ TITLES · 48 IDIOMAS · BRUTALISMO AL 20%</text>
+  <line x1="96" y1="600" x2="1104" y2="600" stroke="#0A0A0A" stroke-width="6"/>
+</svg>

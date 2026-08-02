@@ -1,0 +1,8 @@
+---
+/**
+ * /detalle — permanent redirect to the new /titulo/[slug] route.
+ */
+const slug = Astro.url.searchParams.get('slug');
+if (slug) return Astro.redirect(`/titulo/${slug}`, 301);
+return Astro.redirect('/catalogo', 301);
+---

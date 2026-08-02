@@ -1,0 +1,165 @@
+---
+export const prerender = false;
+/**
+ * /cuenta — Protected dashboard for authenticated users.
+ *
+ * Demonstrates:
+ *  - Auth-gating via Astro.locals.auth() (Clerk middleware)
+ *  - Reading user data via Clerk's server SDK on the SSR layer
+ *  - Rendering the <UserButton /> popover (sign out, manage profile)
+ *
+ * Unauthenticated users get bounced to /login with a `redirect_url` so they
+ * land back here after signing in.
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Marquee from '@components/Marquee.astro';
+import SiteHeader from '@components/SiteHeader.astro';
+import SiteFooter from '@components/SiteFooter.astro';
+import StatsGrid from '@components/StatsGrid.astro';
+import { UserButton } from '@clerk/astro/components';
+import { clerkAppearance } from '@lib/clerk-appearance';
+import { SITE } from '@lib/site';
+
+// Server-side gate: redirect signed-out users to /login with a redirect_url
+// query param so they bounce back after auth.
+const auth = Astro.locals.auth();
+if (!auth.userId) {
+  return Astro.redirect(`/login?redirect_url=${encodeURIComponent(Astro.url.pathname)}`);
+}
+
+// Pull the rest of the user data on the server (cookies auto-attached).
+const clerk = (
+  Astro.locals as unknown as { clerk?: { users?: { getUser: (id: string) => Promise<unknown> } } }
+).clerk;
+const user = auth.userId
+  ? await (clerk?.users?.getUser(auth.userId) as Promise<{
+      firstName?: string | null;
+      lastName?: string | null;
+      emailAddresses?: { emailAddress: string }[];
+      imageUrl?: string;
+      createdAt?: number;
+    } | null>)
+  : null;
+
+const STATS = [
+  { label: 'Títulos leídos', value: '—', tone: 'paper' as const },
+  { label: 'Capítulos guardados', value: '—', tone: 'yellow' as const },
+  { label: 'Listas activas', value: '—', tone: 'paper' as const },
+  { label: 'Plan', value: 'Free · Reader', tone: 'ink' as const },
+];
+---
+
+<BaseLayout title="Mi cuenta" description={`Panel de lector en ${SITE.name}.`}>
+  <Marquee />
+  <SiteHeader active="home" />
+
+  <main id="main" class="px-6 md:px-12 py-10 md:py-16 grid-bg border-b-[3px] border-ink">
+    <div class="rise d1">
+      <p class="font-mono text-[11px] uppercase tracking-[0.22em] opacity-70">
+        /cuenta · reader dashboard
+      </p>
+      <div class="flex flex-wrap items-end justify-between gap-4 mt-2">
+        <h1 class="font-display text-[clamp(2.4rem,6vw,5rem)] tracking-tighter leading-[0.85]">
+          <span class="block">Hola,</span>
+          <span class="block">
+            <span class="bg-ink text-paper px-3 inline-block -rotate-1">
+              {user?.firstName ?? 'lector/a'}
+            </span>
+          </span>
+        </h1>
+        <UserButton appearance={clerkAppearance} signInUrl="/login" />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-12 gap-6 md:gap-10 mt-10 md:mt-14">
+      <section class="col-span-12 md:col-span-7" aria-labelledby="profile-heading">
+        <h2 id="profile-heading" class="font-display text-xl md:text-2xl tracking-tighter">
+          Tu perfil
+        </h2>
+        <div class="w-12 h-[3px] bg-red mt-2 mb-4" aria-hidden="true"></div>
+
+        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono text-sm">
+          <div class="brutal-border p-4">
+            <dt class="text-[10px] uppercase tracking-[0.18em] opacity-60 mb-1">ID</dt>
+            <dd class="break-all">{auth.userId}</dd>
+          </div>
+          <div class="brutal-border p-4">
+            <dt class="text-[10px] uppercase tracking-[0.18em] opacity-60 mb-1">Email</dt>
+            <dd>{user?.emailAddresses?.[0]?.emailAddress ?? '—'}</dd>
+          </div>
+          <div class="brutal-border p-4">
+            <dt class="text-[10px] uppercase tracking-[0.18em] opacity-60 mb-1">Nombre</dt>
+            <dd>{[user?.firstName, user?.lastName].filter(Boolean).join(' ') || '—'}</dd>
+          </div>
+          <div class="brutal-border p-4">
+            <dt class="text-[10px] uppercase tracking-[0.18em] opacity-60 mb-1">Miembro desde</dt>
+            <dd>
+              {
+                user?.createdAt
+                  ? new Date(user.createdAt).toLocaleDateString(SITE.locale, {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })
+                  : '—'
+              }
+            </dd>
+          </div>
+        </dl>
+
+        <div class="mt-6">
+          <a
+            href="/readlist"
+            class="cta-primary px-6 py-3 font-display text-base inline-flex items-center gap-2"
+          >
+            Mi lista de lectura <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="col-span-12 md:col-span-5" aria-labelledby="account-actions">
+        <h2 id="account-actions" class="font-display text-xl md:text-2xl tracking-tighter">
+          Acciones rápidas
+        </h2>
+        <div class="w-12 h-[3px] bg-yellow mt-2 mb-4" aria-hidden="true"></div>
+        <ul class="flex flex-col gap-2 font-mono text-xs uppercase tracking-[0.15em]">
+          <li>
+            <a
+              href="/readlist"
+              class="chip px-4 py-3 inline-flex items-center justify-between w-full"
+            >
+              <span>Mi lista de lectura</span>
+              <span aria-hidden="true">→</span>
+            </a>
+          </li>
+          <li>
+            <a
+              href="/catalogo"
+              class="chip px-4 py-3 inline-flex items-center justify-between w-full"
+            >
+              <span>Seguir explorando</span>
+              <span aria-hidden="true">→</span>
+            </a>
+          </li>
+          <li>
+            <a
+              href="/cuenta/ajustes"
+              class="chip px-4 py-3 inline-flex items-center justify-between w-full"
+            >
+              <span>Preferencias</span>
+              <span aria-hidden="true">→</span>
+            </a>
+          </li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="mt-12 md:mt-16 rise d3">
+      <h2 class="font-display text-xl md:text-2xl tracking-tighter">Tu actividad</h2>
+      <div class="w-12 h-[3px] bg-red mt-2 mb-4" aria-hidden="true"></div>
+      <StatsGrid stats={STATS} />
+    </div>
+  </main>
+
+  <SiteFooter />
+</BaseLayout>

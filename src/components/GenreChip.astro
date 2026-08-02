@@ -1,0 +1,28 @@
+---
+/**
+ * GenreChip — single interactive chip link.
+ */
+interface Props {
+  label: string;
+  href?: string;
+  /** Active state (inverts colors). */
+  active?: boolean;
+  /** Render large variant. */
+  size?: 'sm' | 'md';
+}
+
+const { label, href = '/catalogo', active = false, size = 'md' } = Astro.props;
+
+const sizeClass =
+  size === 'sm'
+    ? 'px-3 py-1.5 text-[10px] tracking-[0.18em]'
+    : 'px-5 py-3 text-xs tracking-[0.15em]';
+---
+
+<a
+  href={href}
+  aria-pressed={active ? 'true' : 'false'}
+  class:list={['chip font-mono uppercase', sizeClass, active && 'bg-ink text-paper']}
+>
+  {label}
+</a>

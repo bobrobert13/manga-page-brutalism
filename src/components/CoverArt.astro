@@ -1,0 +1,77 @@
+---
+/**
+ * CoverArt — base cover artwork (aspect 3/4, solid background, pattern overlay).
+ * Optional badges (top-left type, top-right status) and centered acronym.
+ */
+import type { Manga } from '@/types/manga';
+
+interface Props {
+  manga: Pick<Manga, 'coverColor' | 'coverPattern' | 'acronym' | 'type' | 'status' | 'title'>;
+  /** Show the type/status badges (catalog cards). */
+  badges?: boolean;
+  /** Tag size in pixels for the badges. */
+  badgeSize?: 'sm' | 'md';
+  /** Acronym text size (tw or numeric). Defaults to responsive scale. */
+  acronymSize?: string;
+  /** Title shown on hover (tooltip). */
+  title?: string;
+}
+
+const { manga, badges = false, badgeSize = 'md', acronymSize, title } = Astro.props;
+
+const patternClass = `pat-${manga.coverPattern}`;
+const size = badgeSize === 'sm' ? 'text-[7px] px-1.5 py-0.5' : 'text-[9px] px-2 py-0.5';
+---
+
+<div
+  class="cover-frame aspect-[3/4]"
+  style={`background-color:${manga.coverColor}`}
+  role="img"
+  aria-label={title ?? manga.title}
+>
+  {/* pattern overlay (always present) */}
+  <div class:list={['absolute inset-0 pointer-events-none', patternClass]}></div>
+
+  {/* optional type badge (top-left) */}
+  {
+    badges && (
+      <span
+        class:list={[
+          'absolute top-2 left-2 z-10 bg-ink text-paper font-mono uppercase tracking-[0.15em]',
+          size,
+        ]}
+      >
+        {manga.type}
+      </span>
+    )
+  }
+
+  {/* optional status badge (top-right) */}
+  {
+    badges && (
+      <span
+        class:list={[
+          'absolute top-2 right-2 z-10 font-mono uppercase tracking-[0.15em]',
+          manga.status === 'En curso' && 'bg-yellow text-ink',
+          manga.status === 'Completo' && 'bg-yellow text-ink',
+          manga.status === 'En pausa' && 'bg-red text-paper',
+          size,
+        ]}
+      >
+        {manga.status}
+      </span>
+    )
+  }
+
+  {/* centered acronym */}
+  <div class="absolute inset-0 grid place-items-center">
+    <span
+      class:list={[
+        'font-display text-white/20 transition-colors group-hover:text-white/40',
+        acronymSize,
+      ]}
+    >
+      {manga.acronym}
+    </span>
+  </div>
+</div>

@@ -1,0 +1,108 @@
+---
+/**
+ * BaseLayout — root HTML wrapper.
+ * Owns: <html lang>, <head> meta, fonts, Tailwind/stylesheet, semantic landmarks.
+ */
+import '@/styles/global.css';
+import { SITE } from '@/lib/site';
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = SITE.description,
+  ogImage = '/og-default.svg',
+  noindex = false,
+} = Astro.props;
+
+const fullTitle = title === SITE.name ? title : `${title} — ${SITE.name}`;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url).toString();
+---
+
+<!doctype html>
+<html lang={SITE.locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <!-- Inline blocking theme script — runs before paint to prevent FOUC.
+         Resolves theme from localStorage → system preference (first visit only) → light. -->
+    <script is:inline>
+      (function () {
+        try {
+          const stored = localStorage.getItem('inkpxl-theme');
+          const theme =
+            stored === 'light' || stored === 'dark'
+              ? stored
+              : window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light';
+          document.documentElement.dataset.theme = theme;
+        } catch (_) {
+          /* default to light */
+        }
+      })();
+    </script>
+
+    <!-- Theme color matches the brutalist ink background (per scheme). -->
+    <meta name="theme-color" content="#0A0A0A" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e0e0e" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light dark" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:locale" content={SITE.locale} />
+    <meta property="og:image" content={ogImage} />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:site" content={SITE.twitter} />
+
+    <!-- Icons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+
+    <!-- Local business / site schema -->
+    <script
+      is:inline
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: SITE.name,
+        description: SITE.description,
+        url: SITE.url,
+        inLanguage: SITE.locale,
+      })}
+    />
+  </head>
+
+  <body class="min-h-screen overflow-x-hidden bg-paper text-ink font-body antialiased">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:brutal-border focus:bg-paper focus:px-3 focus:py-1.5 focus:font-mono focus:text-xs focus:uppercase focus:tracking-[0.18em]"
+    >
+      Saltar al contenido principal
+    </a>
+
+    <slot />
+  </body>
+</html>

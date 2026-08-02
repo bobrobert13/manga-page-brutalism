@@ -1,0 +1,217 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Marquee from '@components/Marquee.astro';
+import SiteHeader from '@components/SiteHeader.astro';
+import SiteFooter from '@components/SiteFooter.astro';
+import TrendingStrip from '@components/TrendingStrip.astro';
+import MangaCard from '@components/MangaCard.astro';
+import StatsGrid from '@components/StatsGrid.astro';
+import GenreGrid from '@components/GenreGrid.astro';
+import FinalCTA from '@components/FinalCTA.astro';
+import SectionHeading from '@components/SectionHeading.astro';
+import { BERSERK, FEATURED, HERO_STATS, GENRES, TRENDING, TRENDING_NOW_SIDE } from '@data/mangas';
+import { SITE } from '@lib/site';
+---
+
+<BaseLayout title={SITE.name} description={SITE.description}>
+  <Marquee />
+  <SiteHeader active="home" />
+
+  <main id="main">
+    <!-- ─── HERO ─── -->
+    <section
+      class="relative grid-bg border-b-[3px] border-ink overflow-hidden"
+      aria-labelledby="hero-heading"
+    >
+      <div class="px-6 md:px-12 pt-10 md:pt-16 pb-16 md:pb-20">
+        <div class="grid grid-cols-12 gap-6 md:gap-10 items-start">
+          <!-- LEFT: Headline -->
+          <div class="col-span-12 lg:col-span-8 rise d1">
+            <div class="flex items-center gap-3 mb-5 flex-wrap">
+              <span
+                class="brutal-border bg-red text-paper font-mono text-[11px] uppercase tracking-[0.22em] px-3 py-1 animate-pulse"
+              >
+                En vivo
+              </span>
+              <span class="font-mono text-[11px] uppercase tracking-[0.22em] opacity-60">
+                — Ahora leyendo: {BERSERK.title} Cap. 374
+              </span>
+            </div>
+
+            <h1
+              id="hero-heading"
+              class="font-display text-[clamp(3.5rem,12vw,11rem)] tracking-tighter leading-[0.82]"
+            >
+              <span class="block">Páginas</span>
+              <span class="block">
+                que <span class="bg-ink text-paper px-3 inline-block -rotate-1">mueven</span>
+              </span>
+              <span class="block">al mundo<span class="text-[var(--color-red)]">.</span></span>
+            </h1>
+
+            <p class="text-base md:text-lg leading-relaxed max-w-xl mt-6 font-medium rise d2">
+              La biblioteca definitiva de
+              <span class="bg-yellow px-1 font-bold">mangas japoneses</span> y
+              <span class="bg-ink text-paper px-1 font-bold">cómics americanos</span>. Lee lo nuevo,
+              lo clásico y lo que aún no sabes que necesitas.
+            </p>
+
+            <div class="flex flex-wrap gap-3 mt-6 rise d3">
+              <a
+                href="/catalogo"
+                class="cta-primary px-6 md:px-8 py-4 font-display text-lg md:text-xl flex items-center gap-3"
+              >
+                EMPEZAR A LEER <span class="text-2xl" aria-hidden="true">→</span>
+              </a>
+              <a
+                href="#catalogo"
+                class="brutal-border px-6 md:px-8 py-4 font-display text-lg md:text-xl bg-paper btn-invert"
+              >
+                EXPLORAR
+              </a>
+            </div>
+
+            <div
+              class="flex items-center gap-4 mt-7 font-mono text-[11px] uppercase tracking-[0.18em] opacity-70 rise d3 flex-wrap"
+            >
+              <span class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 bg-red animate-pulse rounded-full"></span>
+                2,847 leyendo ahora
+              </span>
+              <span aria-hidden="true">•</span>
+              <span>12,400+ títulos</span>
+              <span aria-hidden="true">•</span>
+              <span>48 idiomas</span>
+            </div>
+          </div>
+
+          <!-- RIGHT: Featured + Trending sidebar -->
+          <aside class="col-span-12 lg:col-span-4 flex flex-col gap-4 rise d2">
+            <!-- Now reading card -->
+            <div class="brutal-border brutal-shadow bg-yellow p-4">
+              <div
+                class="flex items-center justify-between mb-3 font-mono text-[10px] uppercase tracking-[0.22em]"
+              >
+                <span class="flex items-center gap-2">
+                  <span class="inline-block w-2 h-2 bg-red animate-pulse"></span>
+                  Leyendo ahora
+                </span>
+                <span>{BERSERK.volumeCount}</span>
+              </div>
+
+              <div
+                class="halftone-red w-full aspect-[3/4] brutal-border mb-3 relative overflow-hidden"
+              >
+                <div class="absolute inset-0 grid place-items-center">
+                  <div class="font-display text-7xl text-[var(--color-red)] rotate-[-6deg]">!?</div>
+                </div>
+                <span
+                  class="absolute bottom-2 left-2 font-mono text-[9px] uppercase tracking-[0.2em] bg-paper px-2 py-0.5"
+                >
+                  Cap. 374
+                </span>
+              </div>
+
+              <div>
+                <div class="font-display text-lg leading-none">{BERSERK.title}</div>
+                <div class="font-mono text-[10px] uppercase tracking-[0.18em] opacity-70 mt-1">
+                  {BERSERK.author} · {BERSERK.genres[0]}
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 mt-3">
+                <span
+                  class="flex-1 h-[6px] bg-[color:var(--color-ink-alpha-20)] rounded-full overflow-hidden"
+                  aria-hidden="true"
+                >
+                  <span class="block h-full w-[78%] bg-red rounded-full"></span>
+                </span>
+                <span class="font-mono text-[10px]">78%</span>
+              </div>
+            </div>
+
+            <!-- Quick trending list -->
+            <div class="brutal-border bg-paper p-4 divide-y divide-[color:var(--color-ink-alpha-10)]">
+              <div class="font-mono text-[10px] uppercase tracking-[0.22em] mb-2 opacity-60">
+                — Trending ahora
+              </div>
+              {
+                TRENDING_NOW_SIDE.map((entry) => (
+                  <a
+                    href={`/titulo/${entry.slug}`}
+                    class="py-2 flex items-center justify-between group"
+                  >
+                    <div>
+                      <span class="font-display text-sm group-hover:text-[var(--color-red)] transition-colors">
+                        {entry.title}
+                      </span>
+                      <span class="font-mono text-[9px] uppercase tracking-[0.12em] opacity-60 ml-2">
+                        {entry.rank === 1 ? 'Cap. 374' : entry.rank === 2 ? 'Reissue' : 'Temp. 2'}
+                      </span>
+                    </div>
+                    <span
+                      class:list={[
+                        'font-mono text-[9px]',
+                        entry.rank === 1 ? 'text-[var(--color-red)]' : 'opacity-50',
+                      ]}
+                    >
+                      #{entry.rank}
+                    </span>
+                  </a>
+                ))
+              }
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <!-- gradient fade -->
+      <div
+        class="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-paper to-transparent pointer-events-none"
+        aria-hidden="true"
+      >
+      </div>
+    </section>
+
+    <!-- ─── TRENDING STRIP ─── -->
+    <TrendingStrip items={TRENDING} />
+
+    <!-- ─── FEATURED CATALOG ─── -->
+    <section
+      id="catalogo"
+      class="px-6 md:px-12 py-8 md:py-14 grid-bg border-t-[3px] border-ink"
+      aria-labelledby="catalog-heading"
+    >
+      <SectionHeading title="Catálogo destacado" as="h2" subtitle="6 mangas · 2 cómics">
+        <a
+          href="/catalogo"
+          class="brutal-border px-4 py-2 font-mono text-xs uppercase tracking-[0.15em] btn-invert hidden md:inline-block"
+        >
+          Ver catálogo completo <span aria-hidden="true">→</span>
+        </a>
+      </SectionHeading>
+
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mt-8">
+        {FEATURED.map((manga) => <MangaCard {manga} />)}
+      </div>
+
+      <a
+        href="/catalogo"
+        class="brutal-border w-full py-4 mt-6 font-display text-base bg-paper btn-invert flex items-center justify-center gap-3 md:hidden"
+      >
+        Ver catálogo completo <span aria-hidden="true">→</span>
+      </a>
+    </section>
+
+    <!-- ─── STATS STRIP ─── -->
+    <StatsGrid stats={HERO_STATS} seamless />
+
+    <!-- ─── GENRES ─── -->
+    <GenreGrid genres={GENRES} id="generos" />
+
+    <!-- ─── FINAL CTA ─── -->
+    <FinalCTA />
+  </main>
+
+  <SiteFooter />
+</BaseLayout>
