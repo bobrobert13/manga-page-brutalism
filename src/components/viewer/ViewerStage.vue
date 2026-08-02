@@ -159,6 +159,7 @@ function shouldRender(n: number): boolean {
   overflow-y: auto;
 }
 .vp-stage__cascade .vp-page {
+  flex: 0 0 auto;
   display: block;
   width: 100%;
   border: 3px solid var(--color-ink);
