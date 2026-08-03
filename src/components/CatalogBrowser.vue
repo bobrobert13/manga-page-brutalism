@@ -1,77 +1,25 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
-import type { Manga } from '@/types/manga';
-
-type SortKey = 'popular' | 'az' | 'za' | 'recent' | 'rating';
+import { CATALOG_SORT_OPTIONS, ROUTES, SERIES_STATUS } from '@/config/index.config';
+import { useCatalogFilters } from '@/composables/catalog/useCatalogFilters';
+import type { Genre, Manga } from '@/types/manga';
 
 const props = defineProps<{
   initialMangas: readonly Manga[];
-  genres: readonly string[];
+  genres: readonly Genre[];
 }>();
 
-/**
- * Read the active theme once on mount so future theme-reactive logic has a
- * reliable init point. Today the component renders no theme-dependent style
- * (all colors flow through CSS custom properties), so this is a no-op kept
- * for forward compatibility.
- */
-onMounted(() => {
-  document.documentElement.dataset.theme;
-});
-
-const query = ref('');
-const selectedGenre = ref<string>('Todos');
-const sortBy = ref<SortKey>('popular');
-
-const SORT_OPTIONS: Array<{ value: SortKey; label: string }> = [
-  { value: 'popular', label: 'Más populares' },
-  { value: 'az', label: 'A — Z' },
-  { value: 'za', label: 'Z — A' },
-  { value: 'recent', label: 'Más recientes' },
-  { value: 'rating', label: 'Mejor calificados' },
-];
-
-const allGenres = computed<string[]>(() => ['Todos', ...props.genres]);
-
-const filtered = computed<Manga[]>(() => {
-  let items: Manga[] = [...props.initialMangas];
-  const q = query.value.trim().toLowerCase();
-  if (q) {
-    items = items.filter(
-      (m) =>
-        m.title.toLowerCase().includes(q) ||
-        m.author.toLowerCase().includes(q) ||
-        m.genres.some((g) => g.toLowerCase().includes(q))
-    );
-  }
-  if (selectedGenre.value !== 'Todos') {
-    items = items.filter((m) => m.genres.includes(selectedGenre.value as never));
-  }
-  switch (sortBy.value) {
-    case 'az':
-      items.sort((a, b) => a.title.localeCompare(b.title));
-      break;
-    case 'za':
-      items.sort((a, b) => b.title.localeCompare(a.title));
-      break;
-    case 'rating':
-      items.sort((a, b) => Number(b.rating) - Number(a.rating));
-      break;
-    default:
-      items.sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));
-      break;
-  }
-  return items;
-});
+const { query, selectedGenre, sortBy, allGenres, filtered } = useCatalogFilters(
+  props.initialMangas,
+  props.genres
+);
 
 const patternClass = (key: Manga['coverPattern']) => `pat-${key}`;
 const badgeSize = 'text-[9px] px-2 py-0.5';
-const statusClass = (status: Manga['status']) =>
-  ({
-    'En curso': 'bg-yellow text-ink',
-    Completo: 'bg-yellow text-ink',
-    'En pausa': 'bg-red text-paper',
-  })[status];
+const statusClasses: Record<Manga['status'], string> = {
+  [SERIES_STATUS.ongoing]: 'bg-yellow text-ink',
+  [SERIES_STATUS.completed]: 'bg-yellow text-ink',
+  [SERIES_STATUS.hiatus]: 'bg-red text-paper',
+};
 </script>
 
 <template>
@@ -97,7 +45,7 @@ const statusClass = (status: Manga['status']) =>
           v-model="sortBy"
           class="brutal-border bg-paper px-3 py-2 outline-none cursor-pointer"
         >
-          <option v-for="opt in SORT_OPTIONS" :key="opt.value" :value="opt.value">
+          <option v-for="opt in CATALOG_SORT_OPTIONS" :key="opt.value" :value="opt.value">
             {{ opt.label }}
           </option>
         </select>
@@ -143,7 +91,7 @@ const statusClass = (status: Manga['status']) =>
       <a
         v-for="m in filtered"
         :key="m.slug"
-        :href="`/titulo/${m.slug}`"
+        :href="ROUTES.title(m.slug)"
         class="group card-hover brutal-border bg-paper overflow-hidden block"
       >
         <div class="cover-frame aspect-[3/4]" :style="{ backgroundColor: m.coverColor }">
@@ -158,7 +106,7 @@ const statusClass = (status: Manga['status']) =>
           <span
             :class="[
               'absolute top-2 right-2 z-10 font-mono uppercase tracking-[0.15em]',
-              statusClass(m.status),
+              statusClasses[m.status],
               badgeSize,
             ]"
             >{{ m.status }}</span

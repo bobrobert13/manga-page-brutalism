@@ -10,8 +10,9 @@ interface Props {
   /** Render large variant. */
   size?: 'sm' | 'md';
 }
+import { ROUTES } from '@/config/index.config';
 
-const { label, href = '/catalogo', active = false, size = 'md' } = Astro.props;
+const { label, href = ROUTES.catalog, active = false, size = 'md' } = Astro.props;
 
 const sizeClass =
   size === 'sm'

@@ -11,29 +11,40 @@ import Breadcrumb from '@components/Breadcrumb.astro';
 import StatsGrid from '@components/StatsGrid.astro';
 import ChapterList from '@components/ChapterList.astro';
 import RelatedMangas from '@components/RelatedMangas.astro';
-import { BERSERK, DETAIL_STATS, getChaptersBySlug, MANGAS } from '@data/mangas';
+import { HTTP_CONFIG, ROUTES } from '@/config/index.config';
+import { useConfiguredCatalogService } from '@/services/catalog';
+import { useMarketingContent } from '@/services/marketing/useMarketingContent';
 
 export const prerender = false;
 
 const { slug } = Astro.params;
-if (!slug) return Astro.redirect('/catalogo');
-const manga = MANGAS.find((m) => m.slug === slug);
-if (!manga) return Astro.redirect('/404');
+if (!slug) return new Response(null, { status: 404 });
 
-const chapters = getChaptersBySlug(slug);
+const catalogService = useConfiguredCatalogService();
+const mangaResult = await catalogService.getBySlug(slug);
+if (!mangaResult.ok) {
+  return new Response(null, { status: mangaResult.error.status ?? 503 });
+}
+
+const manga = mangaResult.data;
+const [chaptersResult, relatedResult] = await Promise.all([
+  catalogService.getChapters(slug),
+  catalogService.getRelated(manga),
+]);
+if (!chaptersResult.ok) {
+  return new Response(null, { status: chaptersResult.error.status ?? 503 });
+}
+
+const chapters = chaptersResult.data;
+const related = relatedResult.ok ? relatedResult.data : [];
+const { detailStats } = useMarketingContent();
+const latestChapter = chapters[0]?.number ?? '—';
+Astro.response.headers.set('Cache-Control', HTTP_CONFIG.cacheControl.publicCatalog);
 const breadcrumbs = [
-  { label: 'Inicio', href: '/' },
-  { label: 'Catálogo', href: '/catalogo' },
+  { label: 'Inicio', href: ROUTES.home },
+  { label: 'Catálogo', href: ROUTES.catalog },
   { label: manga.title },
 ];
-
-const related = MANGAS.filter((m) => m.slug !== manga.slug)
-  .sort(
-    (a, b) =>
-      b.genres.filter((g) => manga.genres.includes(g)).length -
-      a.genres.filter((g) => manga.genres.includes(g)).length,
-  )
-  .slice(0, 4);
 ---
 
 <BaseLayout
@@ -50,17 +61,26 @@ const related = MANGAS.filter((m) => m.slug !== manga.slug)
       <div class="col-span-12 md:col-span-4 lg:col-span-3">
         <div class="brutal-border brutal-shadow bg-paper overflow-hidden">
           <div class="aspect-[3/4] relative" style={`background-color:${manga.coverColor}`}>
-            <div class:list={['absolute inset-0 pointer-events-none', `pat-${manga.coverPattern}`]} />
+            <div class:list={['absolute inset-0 pointer-events-none', `pat-${manga.coverPattern}`]}>
+            </div>
             <div class="absolute inset-0 grid place-items-center">
-              <div class="font-display text-8xl md:text-9xl text-white/15 leading-none tracking-tighter">
+              <div
+                class="font-display text-8xl md:text-9xl text-white/15 leading-none tracking-tighter"
+              >
                 {manga.acronym}
               </div>
             </div>
-            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-ink/80 to-transparent p-4 pt-10">
+            <div
+              class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-ink/80 to-transparent p-4 pt-10"
+            >
               <span class="font-display text-paper text-2xl md:text-3xl">{manga.title}</span>
-              {manga.titleJp && (
-                <span class="block font-jp font-black text-paper/60 text-lg">{manga.titleJp}</span>
-              )}
+              {
+                manga.titleJp && (
+                  <span class="block font-jp font-black text-paper/60 text-lg">
+                    {manga.titleJp}
+                  </span>
+                )
+              }
             </div>
           </div>
         </div>
@@ -69,22 +89,35 @@ const related = MANGAS.filter((m) => m.slug !== manga.slug)
           {
             chapters.length > 0 ? (
               <a
-                href={`/titulo/${slug}/${chapters[0].number}`}
+                href={ROUTES.chapter(slug, chapters[0].number)}
                 class="cta-primary py-3 font-display text-base flex items-center justify-center gap-3"
               >
-                LEER PRIMER CAPÍTULO <span class="text-lg" aria-hidden="true">→</span>
+                LEER PRIMER CAPÍTULO{' '}
+                <span class="text-lg" aria-hidden="true">
+                  →
+                </span>
               </a>
             ) : (
-              <button type="button" disabled class="cta-primary py-3 font-display text-base flex items-center justify-center gap-3 opacity-40 cursor-not-allowed">
+              <button
+                type="button"
+                disabled
+                class="cta-primary py-3 font-display text-base flex items-center justify-center gap-3 opacity-40 cursor-not-allowed"
+              >
                 SIN CAPÍTULOS
               </button>
             )
           }
           <div class="flex gap-2">
-            <button type="button" class="flex-1 brutal-border py-3 font-mono text-xs uppercase tracking-[0.15em] bg-paper btn-invert">
+            <button
+              type="button"
+              class="flex-1 brutal-border py-3 font-mono text-xs uppercase tracking-[0.15em] bg-paper btn-invert"
+            >
               + Añadir
             </button>
-            <button type="button" class="flex-1 brutal-border py-3 font-mono text-xs uppercase tracking-[0.15em] bg-paper btn-invert">
+            <button
+              type="button"
+              class="flex-1 brutal-border py-3 font-mono text-xs uppercase tracking-[0.15em] bg-paper btn-invert"
+            >
               Compartir
             </button>
           </div>
@@ -93,17 +126,25 @@ const related = MANGAS.filter((m) => m.slug !== manga.slug)
 
       <div class="col-span-12 md:col-span-8 lg:col-span-9">
         <div class="flex flex-wrap items-center gap-3 mb-4 rise d2">
-          <span class="brutal-border bg-red text-paper font-mono text-[10px] uppercase tracking-[0.15em] px-3 py-1">
+          <span
+            class="brutal-border bg-red text-paper font-mono text-[10px] uppercase tracking-[0.15em] px-3 py-1"
+          >
             {manga.status}
           </span>
-          <span class="brutal-border bg-ink text-paper font-mono text-[10px] uppercase tracking-[0.15em] px-3 py-1">
+          <span
+            class="brutal-border bg-ink text-paper font-mono text-[10px] uppercase tracking-[0.15em] px-3 py-1"
+          >
             {manga.type}
           </span>
-          <span class="brutal-border bg-yellow text-ink font-mono text-[10px] uppercase tracking-[0.15em] px-3 py-1">
+          <span
+            class="brutal-border bg-yellow text-ink font-mono text-[10px] uppercase tracking-[0.15em] px-3 py-1"
+          >
             {manga.genres[0]}
           </span>
-          <span class="font-mono text-[10px] uppercase tracking-[0.2em] opacity-60 ml-1 hidden md:inline">
-            {manga.volumeCount} · Cap. {manga.slug === BERSERK.slug ? '374+' : '...'}
+          <span
+            class="font-mono text-[10px] uppercase tracking-[0.2em] opacity-60 ml-1 hidden md:inline"
+          >
+            {manga.volumeCount} · Cap. {latestChapter}
           </span>
         </div>
 
@@ -112,22 +153,34 @@ const related = MANGAS.filter((m) => m.slug !== manga.slug)
             {manga.title}
           </h1>
           <div class="flex items-center gap-3 mt-1">
-            {manga.titleJp && (
-              <span class="font-jp font-black text-2xl md:text-3xl opacity-60">{manga.titleJp}</span>
-            )}
-            {manga.titleRomaji && (
-              <span class="font-mono text-xs uppercase tracking-[0.2em] opacity-50">{manga.titleRomaji}</span>
-            )}
+            {
+              manga.titleJp && (
+                <span class="font-jp font-black text-2xl md:text-3xl opacity-60">
+                  {manga.titleJp}
+                </span>
+              )
+            }
+            {
+              manga.titleRomaji && (
+                <span class="font-mono text-xs uppercase tracking-[0.2em] opacity-50">
+                  {manga.titleRomaji}
+                </span>
+              )
+            }
           </div>
         </div>
 
         <dl class="flex flex-wrap items-center gap-x-6 gap-y-1 mt-4 rise d3">
           <div>
-            <dt class="font-mono text-[10px] uppercase tracking-[0.2em] opacity-50">Autor / Arte</dt>
+            <dt class="font-mono text-[10px] uppercase tracking-[0.2em] opacity-50">
+              Autor / Arte
+            </dt>
             <dd class="font-mono text-sm tracking-wider">{manga.author}</dd>
           </div>
           <div>
-            <dt class="font-mono text-[10px] uppercase tracking-[0.2em] opacity-50">Publicación original</dt>
+            <dt class="font-mono text-[10px] uppercase tracking-[0.2em] opacity-50">
+              Publicación original
+            </dt>
             <dd class="font-mono text-sm tracking-wider">1989 — presente</dd>
           </div>
           <div>
@@ -137,14 +190,20 @@ const related = MANGAS.filter((m) => m.slug !== manga.slug)
         </dl>
 
         <div class="flex flex-wrap gap-2 mt-5 rise d3">
-          {manga.genres.map((g) => (
-            <span class="chip px-3 py-1 font-mono text-[10px] uppercase tracking-[0.15em]">{g}</span>
-          ))}
+          {
+            manga.genres.map((g) => (
+              <span class="chip px-3 py-1 font-mono text-[10px] uppercase tracking-[0.15em]">
+                {g}
+              </span>
+            ))
+          }
         </div>
 
         <section class="mt-6 rise d4" aria-labelledby="sinopsis-heading">
-          <h2 id="sinopsis-heading" class="font-display text-xl md:text-2xl tracking-tighter">Sinopsis</h2>
-          <div class="w-12 h-[3px] bg-red mt-2 mb-3" aria-hidden="true" />
+          <h2 id="sinopsis-heading" class="font-display text-xl md:text-2xl tracking-tighter">
+            Sinopsis
+          </h2>
+          <div class="w-12 h-[3px] bg-red mt-2 mb-3" aria-hidden="true"></div>
           <p class="text-base md:text-lg leading-relaxed max-w-3xl">
             <strong class="font-bold">Guts</strong>, el Espadachín Negro, es un guerrero maldito,
             marcado desde su nacimiento. Empuñando una gigantesca espada de hierro y un brazo
@@ -154,26 +213,30 @@ const related = MANGAS.filter((m) => m.slug !== manga.slug)
             grupo mercenario «La Banda del Halcón», lo lleva al borde de la humanidad y más allá.
           </p>
           <p class="text-base md:text-lg leading-relaxed max-w-3xl mt-3">
-            <em class="font-mono text-sm not-italic opacity-70">Berserk</em> es una obra cumbre del <strong class="font-bold">seinen</strong>
-            que explora la ambición, la traición, la resiliencia y la lucha por encontrar propósito
-            en un universo que parece empeñado en destruirte. Aclamada por su narrativa épica, su arte
-            meticuloso y su profundidad psicológica.
+            <em class="font-mono text-sm not-italic opacity-70">Berserk</em> es una obra cumbre del <strong
+              class="font-bold">seinen</strong
+            >
+            que explora la ambición, la traición, la resiliencia y la lucha por encontrar propósito en
+            un universo que parece empeñado en destruirte. Aclamada por su narrativa épica, su arte meticuloso
+            y su profundidad psicológica.
           </p>
         </section>
       </div>
     </div>
 
-    <StatsGrid stats={DETAIL_STATS} />
+    <StatsGrid stats={detailStats} />
 
-    {chapters.length > 0 && (
-      <div class="mt-16 rise d5">
-        <ChapterList
-          chapters={chapters}
-          totalLabel={`${chapters.length} capítulos publicados`}
-          slug={slug}
-        />
-      </div>
-    )}
+    {
+      chapters.length > 0 && (
+        <div class="mt-16 rise d5">
+          <ChapterList
+            chapters={chapters}
+            totalLabel={`${chapters.length} capítulos publicados`}
+            slug={slug}
+          />
+        </div>
+      )
+    }
 
     <div class="mt-16">
       <RelatedMangas items={related} subtitle={`Si te gustó ${manga.title}`} />

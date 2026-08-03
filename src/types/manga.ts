@@ -6,37 +6,12 @@
 /** Cover overlay pattern key. */
 export type PatternKey = 'dots' | 'dots-dark' | 'lines' | 'cross' | 'wash';
 
-/** Type label on cover badge (top-left) */
-export type MediaType = 'Manga' | 'Cómic' | 'Webtoon' | 'Novela Ligera';
+export type { MediaType, SeriesStatus } from '@/config/index.config';
 
-/** Status label on cover badge (top-right) */
-export type SeriesStatus = 'En curso' | 'Completo' | 'En pausa';
+import type { MediaType, SeriesStatus } from '@/config/index.config';
 
-/** Compact tag displayed on cards, stats & filters. */
-export type Genre =
-  | 'Shonen'
-  | 'Seinen'
-  | 'Shoujo'
-  | 'Superhéroes'
-  | 'Terror'
-  | 'Fantasía'
-  | 'Ciencia Ficción'
-  | 'Histórico'
-  | 'Drama'
-  | 'Indie'
-  | 'Webtoon'
-  | 'Novela Ligera'
-  | 'Aventura'
-  | 'Acción'
-  | 'Suspenso'
-  | 'Psicológico'
-  | 'Artes Marciales'
-  | 'Distopía'
-  | 'Misterio'
-  | 'Obra maestra'
-  | 'Sobrenatural'
-  | 'F. Oscura'
-  | 'Horror';
+/** Backend-defined tag displayed on cards, stats and filters. */
+export type Genre = string;
 
 /** Canonical manga record. */
 export interface Manga {
@@ -68,6 +43,8 @@ export interface Manga {
   rating: string;
   /** Trending rank (1-8). Optional. */
   rank?: number;
+  /** ISO date used by the recent sorting strategy. */
+  updatedAt?: string;
   /** Used in catalog filter — Manga | Comic | etc. */
   format?: 'manga' | 'comic' | 'webtoon' | 'novel';
 }

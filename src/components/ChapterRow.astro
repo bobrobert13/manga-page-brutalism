@@ -5,6 +5,7 @@
  * When `slug` is provided, wraps in a link to the viewer.
  */
 import type { Chapter } from '@/types/manga';
+import { ROUTES } from '@/config/index.config';
 
 interface Props {
   chapter: Chapter;
@@ -17,11 +18,13 @@ const isAccent = chapter.accent ?? false;
 
 {
   slug ? (
-    <a
-      href={`/titulo/${slug}/${chapter.number}`}
-      class="chapter-row group no-underline"
-    >
-      <span class:list={['font-mono text-xs font-bold', isAccent ? 'text-[var(--color-red)]' : 'opacity-60']}>
+    <a href={ROUTES.chapter(slug, chapter.number)} class="chapter-row group no-underline">
+      <span
+        class:list={[
+          'font-mono text-xs font-bold',
+          isAccent ? 'text-[var(--color-red)]' : 'opacity-60',
+        ]}
+      >
         {chapter.number}
       </span>
       <div>
@@ -38,7 +41,12 @@ const isAccent = chapter.accent ?? false;
     </a>
   ) : (
     <div class="chapter-row group">
-      <span class:list={['font-mono text-xs font-bold', isAccent ? 'text-[var(--color-red)]' : 'opacity-60']}>
+      <span
+        class:list={[
+          'font-mono text-xs font-bold',
+          isAccent ? 'text-[var(--color-red)]' : 'opacity-60',
+        ]}
+      >
         {chapter.number}
       </span>
       <div>

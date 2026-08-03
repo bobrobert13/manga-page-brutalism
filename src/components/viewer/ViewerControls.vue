@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import { useInjectedViewer } from '@/composables/useViewerState';
-import { useViewerChromeVisible } from '@/composables/useViewerChromeVisible';
+import { useInjectedViewer } from '@/composables/viewer/useViewerState';
+import { useViewerChromeVisible } from '@/composables/viewer/useViewerChromeVisible';
 
 const state = useInjectedViewer();
 const isChromeVisible = useViewerChromeVisible();
 </script>
 
 <template>
-  <div class="vp-fab" :class="{ 'vp-chrome--hidden': !isChromeVisible }" aria-label="Controles del visor">
+  <div
+    class="vp-fab"
+    :class="{ 'vp-chrome--hidden': !isChromeVisible }"
+    aria-label="Controles del visor"
+  >
     <button
       type="button"
       class="vp-fab__btn"

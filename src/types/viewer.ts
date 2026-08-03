@@ -2,7 +2,9 @@
  * Viewer-specific types shared across composables and Vue components.
  */
 
-export type ReadingMode = 'cascade' | 'page' | 'slider';
+export type { ReadingMode } from '@/config/index.config';
+
+import type { ReadingMode } from '@/config/index.config';
 
 export interface ViewerPage {
   /** 1-based page number. */

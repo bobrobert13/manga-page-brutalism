@@ -5,6 +5,7 @@
  */
 import CoverArt from './CoverArt.astro';
 import type { Manga } from '@/types/manga';
+import { ROUTES } from '@/config/index.config';
 
 interface Props {
   manga: Manga;
@@ -14,7 +15,7 @@ interface Props {
   href?: string;
 }
 
-const { manga, variant = 'default', href = `/titulo/${manga.slug}` } = Astro.props;
+const { manga, variant = 'default', href = ROUTES.title(manga.slug) } = Astro.props;
 
 const isMini = variant === 'mini';
 const acronymClass = isMini ? 'text-3xl' : 'text-5xl md:text-7xl';
@@ -38,7 +39,10 @@ const authorClass = isMini
 
   <div class:list={[isMini ? 'p-2' : 'p-3 md:p-4']}>
     <h3
-      class:list={['font-display leading-tight transition-colors group-hover:text-[var(--color-red)]', titleClass]}
+      class:list={[
+        'font-display leading-tight transition-colors group-hover:text-[var(--color-red)]',
+        titleClass,
+      ]}
     >
       {manga.title}
     </h3>

@@ -4,7 +4,7 @@
  * Owns: <html lang>, <head> meta, fonts, Tailwind/stylesheet, semantic landmarks.
  */
 import '@/styles/global.css';
-import { SITE } from '@/lib/site';
+import { SITE, STORAGE_KEYS } from '@/config/index.config';
 
 interface Props {
   title: string;
@@ -38,10 +38,10 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url).toString()
 
     <!-- Inline blocking theme script — runs before paint to prevent FOUC.
          Resolves theme from localStorage → system preference (first visit only) → light. -->
-    <script is:inline>
+    <script is:inline define:vars={{ themeStorageKey: STORAGE_KEYS.theme }}>
       (function () {
         try {
-          const stored = localStorage.getItem('inkpxl-theme');
+          const stored = localStorage.getItem(themeStorageKey);
           const theme =
             stored === 'light' || stored === 'dark'
               ? stored

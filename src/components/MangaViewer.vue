@@ -1,14 +1,8 @@
 <script setup lang="ts">
-import { computed, onMounted, provide, ref } from 'vue';
-import type { InjectionKey, Ref } from 'vue';
-import { useViewerState } from '@/composables/useViewerState';
-import { useViewerKeyboard } from '@/composables/useViewerKeyboard';
-import { useViewerGestures } from '@/composables/useViewerGestures';
-import { useViewerPersistence } from '@/composables/useViewerPersistence';
-import { useViewerUrlSync } from '@/composables/useViewerUrlSync';
-import { useViewerChromeAutoHide } from '@/composables/useViewerChromeAutoHide';
-import { CHROME_VISIBLE_KEY } from '@/composables/useViewerChromeVisible';
-import { generatePages } from '@/composables/useViewerPlaceholder';
+import { computed, ref } from 'vue';
+import { useViewerController } from '@/composables/viewer/useViewerController';
+import { VIEWER_CONFIG } from '@/config/index.config';
+import { generatePages } from '@/lib/viewer/page-placeholder';
 import type { ViewerProps, ReadingMode } from '@/types/viewer';
 import ViewerHeader from './viewer/ViewerHeader.vue';
 import ViewerStage from './viewer/ViewerStage.vue';
@@ -18,7 +12,7 @@ import ViewerOnboarding from './viewer/ViewerOnboarding.vue';
 import ViewerFeedback from './viewer/ViewerFeedback.vue';
 
 const props = withDefaults(defineProps<ViewerProps>(), {
-  initialMode: 'cascade',
+  initialMode: VIEWER_CONFIG.defaultMode,
   storageKey: 'default',
 });
 
@@ -32,31 +26,17 @@ const pages = generatePages(
   props.coverColor,
   props.coverPattern,
   props.acronym,
-  props.mangaTitle + ' — ' + props.chapterTitle,
+  props.mangaTitle + ' — ' + props.chapterTitle
 );
-
-const state = useViewerState(pages, 0, props.initialMode as ReadingMode);
-
-// Attach composables
-useViewerKeyboard(state);
-useViewerPersistence(state, props.storageKey);
 
 // Stage ref for gestures — ViewerStage exposes { stageElement }
 const stageComp = ref<InstanceType<typeof ViewerStage> | null>(null);
 const stageElement = computed(() => stageComp.value?.stageElement ?? null);
-useViewerGestures(stageElement, state);
-
-// Chrome auto-hide in fullscreen
-const isChromeVisible = useViewerChromeAutoHide(state.isFullscreen);
-provide(CHROME_VISIBLE_KEY, isChromeVisible);
-
-// Onboarding gate — show on first visit
-onMounted(() => {
-  try {
-    if (!localStorage.getItem('inkpxl-viewer-onboarded')) {
-      state.isOnboardingVisible.value = true;
-    }
-  } catch (_) { /* noop */ }
+const state = useViewerController({
+  pages,
+  initialMode: props.initialMode as ReadingMode,
+  storageKey: props.storageKey,
+  stageElement,
 });
 
 function onClose() {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useInjectedViewer } from '@/composables/useViewerState';
+import { useInjectedViewer } from '@/composables/viewer/useViewerState';
 
 const state = useInjectedViewer();
 </script>

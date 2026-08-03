@@ -1,6 +1,3 @@
-/**
- * Site-wide constants — single source of truth for branding & metadata.
- */
 export const SITE = {
   name: 'INK/PXL',
   tagline: 'Páginas que mueven al mundo.',
@@ -14,17 +11,8 @@ export const SITE = {
   twitter: '@inkpxl',
 } as const;
 
-export type Site = typeof SITE;
+export type SiteConfig = typeof SITE;
 
-/** Top-level navigation labels + targets. */
-export const NAV = [
-  { label: 'Biblioteca', href: '/catalogo', index: '/01' },
-  { label: 'Géneros', href: '/catalogo#generos', index: '/02' },
-  { label: 'Lanzamientos', href: '/catalogo', index: '/03' },
-  { label: 'Comunidad', href: '/catalogo', index: '/04' },
-] as const;
-
-/** Marquee ticker messages — duplicated at runtime for seamless loop. */
 export const MARQUEE_ITEMS = [
   '◆ Nuevo · Berserk Vol. 41',
   '◆ +12.4K títulos',

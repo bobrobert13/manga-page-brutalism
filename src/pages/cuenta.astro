@@ -18,28 +18,24 @@ import SiteFooter from '@components/SiteFooter.astro';
 import StatsGrid from '@components/StatsGrid.astro';
 import { UserButton } from '@clerk/astro/components';
 import { clerkAppearance } from '@lib/clerk-appearance';
-import { SITE } from '@lib/site';
+import { HTTP_CONFIG, ROUTES, SITE } from '@/config/index.config';
+import { useAccountService } from '@/services/account/useAccountService';
 
 // Server-side gate: redirect signed-out users to /login with a redirect_url
 // query param so they bounce back after auth.
 const auth = Astro.locals.auth();
 if (!auth.userId) {
-  return Astro.redirect(`/login?redirect_url=${encodeURIComponent(Astro.url.pathname)}`);
+  const signInUrl = ROUTES.withRedirect(ROUTES.login, Astro.url.pathname);
+  Astro.response.headers.set('Location', signInUrl);
+  return new Response(null, { status: 302, headers: Astro.response.headers });
 }
 
-// Pull the rest of the user data on the server (cookies auto-attached).
-const clerk = (
-  Astro.locals as unknown as { clerk?: { users?: { getUser: (id: string) => Promise<unknown> } } }
-).clerk;
-const user = auth.userId
-  ? await (clerk?.users?.getUser(auth.userId) as Promise<{
-      firstName?: string | null;
-      lastName?: string | null;
-      emailAddresses?: { emailAddress: string }[];
-      imageUrl?: string;
-      createdAt?: number;
-    } | null>)
-  : null;
+const profileResult = await useAccountService(Astro).getProfile(auth.userId);
+if (!profileResult.ok) {
+  return new Response(null, { status: profileResult.error.status ?? 503 });
+}
+const user = profileResult.data;
+Astro.response.headers.set('Cache-Control', HTTP_CONFIG.cacheControl.private);
 
 const STATS = [
   { label: 'Títulos leídos', value: '—', tone: 'paper' as const },
@@ -67,7 +63,7 @@ const STATS = [
             </span>
           </span>
         </h1>
-        <UserButton appearance={clerkAppearance} signInUrl="/login" />
+        <UserButton appearance={clerkAppearance} signInUrl={ROUTES.login} />
       </div>
     </div>
 
@@ -85,7 +81,7 @@ const STATS = [
           </div>
           <div class="brutal-border p-4">
             <dt class="text-[10px] uppercase tracking-[0.18em] opacity-60 mb-1">Email</dt>
-            <dd>{user?.emailAddresses?.[0]?.emailAddress ?? '—'}</dd>
+            <dd>{user.primaryEmail ?? '—'}</dd>
           </div>
           <div class="brutal-border p-4">
             <dt class="text-[10px] uppercase tracking-[0.18em] opacity-60 mb-1">Nombre</dt>
@@ -109,7 +105,7 @@ const STATS = [
 
         <div class="mt-6">
           <a
-            href="/readlist"
+            href={ROUTES.readingList}
             class="cta-primary px-6 py-3 font-display text-base inline-flex items-center gap-2"
           >
             Mi lista de lectura <span aria-hidden="true">→</span>
@@ -125,7 +121,7 @@ const STATS = [
         <ul class="flex flex-col gap-2 font-mono text-xs uppercase tracking-[0.15em]">
           <li>
             <a
-              href="/readlist"
+              href={ROUTES.readingList}
               class="chip px-4 py-3 inline-flex items-center justify-between w-full"
             >
               <span>Mi lista de lectura</span>
@@ -134,7 +130,7 @@ const STATS = [
           </li>
           <li>
             <a
-              href="/catalogo"
+              href={ROUTES.catalog}
               class="chip px-4 py-3 inline-flex items-center justify-between w-full"
             >
               <span>Seguir explorando</span>
@@ -143,7 +139,7 @@ const STATS = [
           </li>
           <li>
             <a
-              href="/cuenta/ajustes"
+              href={ROUTES.accountSettings}
               class="chip px-4 py-3 inline-flex items-center justify-between w-full"
             >
               <span>Preferencias</span>

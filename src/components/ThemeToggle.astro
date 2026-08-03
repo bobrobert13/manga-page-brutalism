@@ -5,12 +5,14 @@
  * The initial sync is already done by the inline blocking script in <head>:
  * this component just renders the current state and wires the click handler.
  */
+import { STORAGE_KEYS } from '@/config/index.config';
 ---
 
 <button
   type="button"
   id="theme-toggle"
   data-theme-toggle
+  data-theme-storage-key={STORAGE_KEYS.theme}
   class="brutal-border bg-paper text-ink w-11 h-11 grid place-items-center font-mono text-base uppercase tracking-normal btn-invert"
   aria-label="Cambiar tema"
   aria-pressed="false"
@@ -56,22 +58,26 @@
 
 <script>
   type Theme = 'light' | 'dark';
-  const STORAGE_KEY = 'inkpxl-theme';
 
   const btn = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
   if (btn) {
+    const storageKey = btn.dataset.themeStorageKey;
+    if (!storageKey) throw new Error('Theme storage key is not configured.');
     const sun = btn.querySelector<SVGElement>('[data-icon="sun"]')!;
     const moon = btn.querySelector<SVGElement>('[data-icon="moon"]')!;
 
     const apply = (theme: Theme) => {
       document.documentElement.dataset.theme = theme;
       try {
-        localStorage.setItem(STORAGE_KEY, theme);
-      } catch (_) {
+        localStorage.setItem(storageKey, theme);
+      } catch {
         /* storage may be unavailable (private mode) */
       }
       btn.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
-      btn.setAttribute('aria-label', theme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro');
+      btn.setAttribute(
+        'aria-label',
+        theme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'
+      );
       btn.setAttribute('title', theme === 'dark' ? 'Tema claro' : 'Tema oscuro');
       sun.classList.toggle('hidden', theme !== 'dark');
       moon.classList.toggle('hidden', theme !== 'light');
@@ -82,8 +88,7 @@
     apply(initial);
 
     btn.addEventListener('click', () => {
-      const next: Theme =
-        document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      const next: Theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
       apply(next);
     });
   }

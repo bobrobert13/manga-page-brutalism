@@ -1,14 +1,14 @@
 import { clerkMiddleware } from '@clerk/astro/server';
-import { defineMiddleware } from 'astro:middleware';
+import { AUTH_CONFIG, ROUTES } from '@/config/index.config';
 
-const clerk = clerkMiddleware();
+function matchesRoute(pathname: string, routes: readonly string[]): boolean {
+  return routes.some((route) => pathname === route || pathname.startsWith(`${route}/`));
+}
 
-const AUTH_ROUTES = ['/login', '/registro', '/recuperar-clave', '/cuenta'];
-
-export const onRequest = defineMiddleware((context, next) => {
-  const { pathname } = context.url;
-  if (AUTH_ROUTES.some((r) => pathname === r || pathname.startsWith(`${r}/`))) {
-    return clerk(context, next);
+export const onRequest = clerkMiddleware((auth, context, next) => {
+  if (matchesRoute(context.url.pathname, AUTH_CONFIG.protectedRoutes) && !auth().userId) {
+    return context.redirect(ROUTES.withRedirect(AUTH_CONFIG.routes.signIn, context.url.pathname));
   }
+
   return next();
 });

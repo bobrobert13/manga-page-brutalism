@@ -9,8 +9,29 @@ import StatsGrid from '@components/StatsGrid.astro';
 import GenreGrid from '@components/GenreGrid.astro';
 import FinalCTA from '@components/FinalCTA.astro';
 import SectionHeading from '@components/SectionHeading.astro';
-import { BERSERK, FEATURED, HERO_STATS, GENRES, TRENDING, TRENDING_NOW_SIDE } from '@data/mangas';
-import { SITE } from '@lib/site';
+import { CATALOG_CONFIG, HTTP_CONFIG, ROUTES, SITE } from '@/config/index.config';
+import { toTrendingSidebar, useConfiguredCatalogService } from '@/services/catalog';
+import { useMarketingContent } from '@/services/marketing/useMarketingContent';
+
+const catalogService = useConfiguredCatalogService();
+const [berserkResult, featuredResult, trendingResult, genresResult] = await Promise.all([
+  catalogService.getBySlug('berserk'),
+  catalogService.getFeatured(),
+  catalogService.getTrending(),
+  catalogService.getGenres(),
+]);
+
+if (!berserkResult.ok || !featuredResult.ok || !trendingResult.ok || !genresResult.ok) {
+  return new Response(null, { status: 503 });
+}
+
+const BERSERK = berserkResult.data;
+const FEATURED = featuredResult.data;
+const TRENDING = trendingResult.data;
+const GENRES = genresResult.data;
+const TRENDING_NOW_SIDE = toTrendingSidebar(TRENDING, CATALOG_CONFIG.trendingSidebarLimit);
+const { heroStats: HERO_STATS } = useMarketingContent();
+Astro.response.headers.set('Cache-Control', HTTP_CONFIG.cacheControl.publicCatalog);
 ---
 
 <BaseLayout title={SITE.name} description={SITE.description}>
@@ -58,7 +79,7 @@ import { SITE } from '@lib/site';
 
             <div class="flex flex-wrap gap-3 mt-6 rise d3">
               <a
-                href="/catalogo"
+                href={ROUTES.catalog}
                 class="cta-primary px-6 md:px-8 py-4 font-display text-lg md:text-xl flex items-center gap-3"
               >
                 EMPEZAR A LEER <span class="text-2xl" aria-hidden="true">→</span>
@@ -131,14 +152,16 @@ import { SITE } from '@lib/site';
             </div>
 
             <!-- Quick trending list -->
-            <div class="brutal-border bg-paper p-4 divide-y divide-[color:var(--color-ink-alpha-10)]">
+            <div
+              class="brutal-border bg-paper p-4 divide-y divide-[color:var(--color-ink-alpha-10)]"
+            >
               <div class="font-mono text-[10px] uppercase tracking-[0.22em] mb-2 opacity-60">
                 — Trending ahora
               </div>
               {
                 TRENDING_NOW_SIDE.map((entry) => (
                   <a
-                    href={`/titulo/${entry.slug}`}
+                    href={ROUTES.title(entry.slug)}
                     class="py-2 flex items-center justify-between group"
                   >
                     <div>
@@ -184,7 +207,7 @@ import { SITE } from '@lib/site';
     >
       <SectionHeading title="Catálogo destacado" as="h2" subtitle="6 mangas · 2 cómics">
         <a
-          href="/catalogo"
+          href={ROUTES.catalog}
           class="brutal-border px-4 py-2 font-mono text-xs uppercase tracking-[0.15em] btn-invert hidden md:inline-block"
         >
           Ver catálogo completo <span aria-hidden="true">→</span>
@@ -196,7 +219,7 @@ import { SITE } from '@lib/site';
       </div>
 
       <a
-        href="/catalogo"
+        href={ROUTES.catalog}
         class="brutal-border w-full py-4 mt-6 font-display text-base bg-paper btn-invert flex items-center justify-center gap-3 md:hidden"
       >
         Ver catálogo completo <span aria-hidden="true">→</span>

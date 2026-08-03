@@ -4,33 +4,52 @@
  * Full-screen reading experience with 3 modes (cascade, page, slider).
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getChapterPageCount, getChaptersBySlug, MANGAS } from '@data/mangas';
 import MangaViewer from '@components/MangaViewer.vue';
+import { HTTP_CONFIG, ROUTES, SITE, VIEWER_CONFIG } from '@/config/index.config';
+import { useConfiguredCatalogService } from '@/services/catalog';
 
 export const prerender = false;
 
 const { slug, chapter } = Astro.params;
-if (!slug || !chapter) return Astro.redirect('/catalogo');
-const manga = MANGAS.find((m) => m.slug === slug);
-if (!manga) return Astro.redirect('/404');
+if (!slug || !chapter) return new Response(null, { status: 404 });
 
 const chapterNum = Number(chapter);
-if (isNaN(chapterNum)) return Astro.redirect(`/titulo/${slug}`);
+if (!Number.isInteger(chapterNum) || chapterNum < 1) {
+  return new Response(null, { status: 404 });
+}
 
-const chapters = getChaptersBySlug(slug);
+const catalogService = useConfiguredCatalogService();
+const [mangaResult, chaptersResult, pageCountResult] = await Promise.all([
+  catalogService.getBySlug(slug),
+  catalogService.getChapters(slug),
+  catalogService.getChapterPageCount(slug, chapterNum),
+]);
+if (!mangaResult.ok) {
+  return new Response(null, { status: mangaResult.error.status ?? 503 });
+}
+if (!chaptersResult.ok) {
+  return new Response(null, { status: chaptersResult.error.status ?? 503 });
+}
+if (!pageCountResult.ok) {
+  return new Response(null, { status: pageCountResult.error.status ?? 503 });
+}
+
+const manga = mangaResult.data;
+const chapters = chaptersResult.data;
 const idx = chapters.findIndex((c) => c.number === String(chapterNum));
-if (idx < 0) return Astro.redirect(`/titulo/${slug}`);
+if (idx < 0) return new Response(null, { status: 404 });
 const ch = chapters[idx];
 
-const pageCount = getChapterPageCount(slug, chapterNum);
+const pageCount = pageCountResult.data;
 
 // Prev/next chapter
 const prev = idx > 0 ? chapters[idx - 1] : null;
 const next = idx < chapters.length - 1 ? chapters[idx + 1] : null;
 
-const title = `${manga.title} — Cap. ${chapterNum} · INK/PXL`;
-const desc = `Lee ${manga.title} Cap. ${chapterNum} — ${ch.title} — en INK/PXL. Visor brutalista con tres modos.`;
-const canonical = `/titulo/${slug}/${chapter}`;
+const title = `${manga.title} — Cap. ${chapterNum} · ${SITE.name}`;
+const desc = `Lee ${manga.title} Cap. ${chapterNum} — ${ch.title} — en ${SITE.name}. Visor brutalista con tres modos.`;
+const canonical = ROUTES.chapter(slug, chapter);
+Astro.response.headers.set('Cache-Control', HTTP_CONFIG.cacheControl.publicCatalog);
 
 // Page-specific JSON-LD schema (Book + Chapter)
 const jsonLd = {
@@ -39,7 +58,7 @@ const jsonLd = {
   name: manga.title,
   author: { '@type': 'Person', name: manga.author },
   url: canonical,
-  inLanguage: 'es-419',
+  inLanguage: SITE.locale,
   hasPart: {
     '@type': 'Chapter',
     position: chapterNum,
@@ -56,17 +75,13 @@ const jsonLd = {
       <h1>Visor INK/PXL</h1>
       <p>
         Necesitás activar JavaScript para leer capítulos. Mientras tanto, abrí
-        <a href="/catalogo">el catálogo</a> y elegí un título.
+        <a href={ROUTES.catalog}>el catálogo</a> y elegí un título.
       </p>
     </div>
   </noscript>
 
   <!-- Page-specific schema (Book/hasPart Chapter) — overrides the WebSite schema in BaseLayout for crawlers -->
-  <script
-    is:inline
-    type="application/ld+json"
-    set:html={JSON.stringify(jsonLd)}
-  />
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
   <MangaViewer
     client:load
@@ -77,10 +92,10 @@ const jsonLd = {
     coverColor={manga.coverColor}
     coverPattern={manga.coverPattern}
     acronym={manga.acronym}
-    initialMode="cascade"
+    initialMode={VIEWER_CONFIG.defaultMode}
     storageKey={`${slug}-${chapter}`}
-    prevChapterHref={prev ? `/titulo/${slug}/${prev.number}` : null}
-    nextChapterHref={next ? `/titulo/${slug}/${next.number}` : null}
+    prevChapterHref={prev ? ROUTES.chapter(slug, prev.number) : null}
+    nextChapterHref={next ? ROUTES.chapter(slug, next.number) : null}
     prevChapterLabel={prev ? `Cap. ${prev.number}` : null}
     nextChapterLabel={next ? `Cap. ${next.number}` : null}
   />

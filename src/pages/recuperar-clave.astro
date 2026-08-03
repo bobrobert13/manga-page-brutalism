@@ -5,12 +5,14 @@ import AuthCard from '@components/AuthCard.astro';
 import AuthSidePanel from '@components/AuthSidePanel.astro';
 import { SignIn } from '@clerk/astro/components';
 import { clerkAppearance } from '@lib/clerk-appearance';
+import { HTTP_CONFIG, ROUTES } from '@/config/index.config';
 
 const title = 'Recuperar clave';
 const code = ['4', '8', '2', '9', '1', '7'];
+Astro.response.headers.set('Cache-Control', HTTP_CONFIG.cacheControl.private);
 ---
 
-<AuthLayout {title} actionHref="/login" actionLabel="Ingresar">
+<AuthLayout {title} actionHref={ROUTES.login} actionLabel="Ingresar">
   <AuthSidePanel slot="side" variant="reset" />
   <AuthSidePanel slot="mobile" variant="reset" compact />
 
@@ -22,22 +24,40 @@ const code = ['4', '8', '2', '9', '1', '7'];
 
       <div slot="intro">
         <p class="font-mono text-xs uppercase tracking-[0.18em] opacity-80 mb-5 leading-relaxed">
-          Te mandamos un código de un solo uso al mail asociado a tu cuenta. Ingresalo para definir una contraseña nueva.
+          Te mandamos un código de un solo uso al mail asociado a tu cuenta. Ingresalo para definir
+          una contraseña nueva.
         </p>
         <ol class="flex items-center gap-2 mb-5" aria-label="Pasos de recuperación">
           <li class="flex items-center gap-2">
-            <span class="brutal-border bg-ink text-paper w-7 h-7 grid place-items-center font-display text-xs" aria-hidden="true">01</span>
+            <span
+              class="brutal-border bg-ink text-paper w-7 h-7 grid place-items-center font-display text-xs"
+              aria-hidden="true">01</span
+            >
             <span class="font-mono text-[10px] uppercase tracking-[0.18em] font-bold">Email</span>
           </li>
-          <span class="flex-1 h-[3px] bg-[color:var(--color-ink-alpha-20)]" aria-hidden="true"></span>
+          <span class="flex-1 h-[3px] bg-[color:var(--color-ink-alpha-20)]" aria-hidden="true"
+          ></span>
           <li class="flex items-center gap-2 opacity-50">
-            <span class="brutal-border bg-paper text-ink w-7 h-7 grid place-items-center font-display text-xs" aria-hidden="true">02</span>
-            <span class="font-mono text-[10px] uppercase tracking-[0.18em] font-bold hidden sm:inline">Código</span>
+            <span
+              class="brutal-border bg-paper text-ink w-7 h-7 grid place-items-center font-display text-xs"
+              aria-hidden="true">02</span
+            >
+            <span
+              class="font-mono text-[10px] uppercase tracking-[0.18em] font-bold hidden sm:inline"
+              >Código</span
+            >
           </li>
-          <span class="flex-1 h-[3px] bg-[color:var(--color-ink-alpha-20)]" aria-hidden="true"></span>
+          <span class="flex-1 h-[3px] bg-[color:var(--color-ink-alpha-20)]" aria-hidden="true"
+          ></span>
           <li class="flex items-center gap-2 opacity-50">
-            <span class="brutal-border bg-paper text-ink w-7 h-7 grid place-items-center font-display text-xs" aria-hidden="true">03</span>
-            <span class="font-mono text-[10px] uppercase tracking-[0.18em] font-bold hidden sm:inline">Clave nueva</span>
+            <span
+              class="brutal-border bg-paper text-ink w-7 h-7 grid place-items-center font-display text-xs"
+              aria-hidden="true">03</span
+            >
+            <span
+              class="font-mono text-[10px] uppercase tracking-[0.18em] font-bold hidden sm:inline"
+              >Clave nueva</span
+            >
           </li>
         </ol>
       </div>
@@ -45,33 +65,45 @@ const code = ['4', '8', '2', '9', '1', '7'];
       <SignIn
         appearance={clerkAppearance}
         withSignUp={false}
-        signInUrl="/login"
-        fallbackRedirectUrl="/cuenta"
+        signInUrl={ROUTES.login}
+        fallbackRedirectUrl={ROUTES.account}
       />
 
       <div slot="footer" class="contents">
-        <span>¿Ya la recordaste? <a href="/login">Volver a /login</a></span>
-        <span>¿No tenés cuenta? <a href="/registro">Creá una</a></span>
+        <span>¿Ya la recordaste? <a href={ROUTES.login}>Volver a /login</a></span>
+        <span>¿No tenés cuenta? <a href={ROUTES.register}>Creá una</a></span>
       </div>
     </AuthCard>
 
     <section class="relative bg-paper brutal-border brutal-shadow p-6 md:p-7 rise d2">
       <div class="flex items-baseline justify-between mb-3">
         <h2 class="font-display text-base tracking-tighter">Paso 02 · Código</h2>
-        <span class="font-mono text-[9px] uppercase tracking-[0.22em] opacity-60">Vista previa</span>
+        <span class="font-mono text-[9px] uppercase tracking-[0.22em] opacity-60">Vista previa</span
+        >
       </div>
       <p class="font-mono text-[11px] uppercase tracking-[0.15em] opacity-80 mb-4 leading-snug">
         Te llega un mail como este. Metés el código de 6 dígitos para seguir.
       </p>
 
       <div class="mail-mock mb-4" role="figure" aria-label="Ejemplo de mail con código">
-        <div class="flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.18em] opacity-60 pt-2">
+        <div
+          class="flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.18em] opacity-60 pt-2"
+        >
           <span>De: no-reply@inkpxl.io</span><span>Ahora</span>
         </div>
         <div class="font-display text-base leading-tight">Tu código de un solo uso</div>
-        <div class="font-mono text-[10px] uppercase tracking-[0.15em] opacity-80 leading-snug">Hola · Tu código para restablecer la contraseña es:</div>
-        <div class="font-display text-2xl tracking-[0.3em] my-1" aria-label="Código de ejemplo: 4 8 2 9 1 7">4 8 2 9 1 7</div>
-        <div class="font-mono text-[9px] uppercase tracking-[0.18em] opacity-60">Vence en 15 min · Si no lo pediste, ignorá este mail.</div>
+        <div class="font-mono text-[10px] uppercase tracking-[0.15em] opacity-80 leading-snug">
+          Hola · Tu código para restablecer la contraseña es:
+        </div>
+        <div
+          class="font-display text-2xl tracking-[0.3em] my-1"
+          aria-label="Código de ejemplo: 4 8 2 9 1 7"
+        >
+          4 8 2 9 1 7
+        </div>
+        <div class="font-mono text-[9px] uppercase tracking-[0.18em] opacity-60">
+          Vence en 15 min · Si no lo pediste, ignorá este mail.
+        </div>
       </div>
 
       <div class="flex items-center gap-2 justify-center sm:justify-start mb-2" aria-hidden="true">
@@ -83,20 +115,43 @@ const code = ['4', '8', '2', '9', '1', '7'];
           ))
         }
       </div>
-      <span class="font-mono text-[10px] uppercase tracking-[0.18em] opacity-65 block">Pegá los 6 dígitos que te llegaron al mail.</span>
+      <span class="font-mono text-[10px] uppercase tracking-[0.18em] opacity-65 block"
+        >Pegá los 6 dígitos que te llegaron al mail.</span
+      >
     </section>
 
     <section class="relative bg-paper brutal-border brutal-shadow p-6 md:p-7 rise d3">
       <div class="flex items-baseline justify-between mb-3">
         <h2 class="font-display text-base tracking-tighter">Paso 03 · Clave nueva</h2>
-        <span class="font-mono text-[9px] uppercase tracking-[0.22em] opacity-60">Vista previa</span>
+        <span class="font-mono text-[9px] uppercase tracking-[0.22em] opacity-60">Vista previa</span
+        >
       </div>
-      <p class="font-mono text-[11px] uppercase tracking-[0.15em] opacity-80 mb-4 leading-snug">Definí una contraseña nueva. Mínimo 8 caracteres.</p>
+      <p class="font-mono text-[11px] uppercase tracking-[0.15em] opacity-80 mb-4 leading-snug">
+        Definí una contraseña nueva. Mínimo 8 caracteres.
+      </p>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <label class="font-mono text-[10px] uppercase tracking-[0.22em] font-bold">Nueva contraseña<input type="password" class="preview-input mt-1.5" placeholder="••••••••" disabled /></label>
-        <label class="font-mono text-[10px] uppercase tracking-[0.22em] font-bold">Repetir<input type="password" class="preview-input mt-1.5" placeholder="••••••••" disabled /></label>
+        <label class="font-mono text-[10px] uppercase tracking-[0.22em] font-bold"
+          >Nueva contraseña<input
+            type="password"
+            class="preview-input mt-1.5"
+            placeholder="••••••••"
+            disabled
+          /></label
+        >
+        <label class="font-mono text-[10px] uppercase tracking-[0.22em] font-bold"
+          >Repetir<input
+            type="password"
+            class="preview-input mt-1.5"
+            placeholder="••••••••"
+            disabled
+          /></label
+        >
       </div>
-      <button type="button" class="mt-4 brutal-border bg-paper px-3 py-2 font-mono text-[11px] uppercase tracking-[0.18em] font-bold opacity-50" disabled>Guardar y entrar →</button>
+      <button
+        type="button"
+        class="mt-4 brutal-border bg-paper px-3 py-2 font-mono text-[11px] uppercase tracking-[0.18em] font-bold opacity-50"
+        disabled>Guardar y entrar →</button
+      >
     </section>
   </div>
 

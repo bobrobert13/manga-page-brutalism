@@ -4,6 +4,7 @@
  */
 import TrendingCard from './TrendingCard.astro';
 import type { Manga } from '@/types/manga';
+import { ROUTES } from '@/config/index.config';
 
 interface Props {
   items: readonly Manga[];
@@ -16,7 +17,7 @@ const {
   items,
   heading = 'TRENDING NOW',
   subtitle = 'Más leídos esta semana',
-  viewAllHref = '/catalogo',
+  viewAllHref = ROUTES.catalog,
 } = Astro.props;
 ---
 

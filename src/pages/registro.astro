@@ -5,11 +5,13 @@ import AuthCard from '@components/AuthCard.astro';
 import AuthSidePanel from '@components/AuthSidePanel.astro';
 import { SignUp } from '@clerk/astro/components';
 import { clerkAppearance } from '@lib/clerk-appearance';
+import { HTTP_CONFIG, ROUTES } from '@/config/index.config';
 
 const title = 'Crear cuenta';
+Astro.response.headers.set('Cache-Control', HTTP_CONFIG.cacheControl.private);
 ---
 
-<AuthLayout {title} actionHref="/login" actionLabel="Ingresar">
+<AuthLayout {title} actionHref={ROUTES.login} actionLabel="Ingresar">
   <AuthSidePanel slot="side" variant="signup" />
   <AuthSidePanel slot="mobile" variant="signup" compact />
 
@@ -20,16 +22,21 @@ const title = 'Crear cuenta';
 
     <SignUp
       appearance={clerkAppearance}
-      signInUrl="/login"
-      fallbackRedirectUrl="/cuenta"
+      signInUrl={ROUTES.login}
+      fallbackRedirectUrl={ROUTES.account}
       oauthFlow="auto"
       unsafeMetadata={{ source: 'web' }}
     />
 
     <div slot="footer" class="contents">
-      <span>¿Ya tenés cuenta? <a href="/login">Ingresá</a></span>
-      <span>¿No te acordás de la clave? <a href="/recuperar-clave">Recuperar por email</a></span>
-      <span class="mt-1 opacity-70">Al crear la cuenta aceptás los <a href="#">Términos</a> y la <a href="#">Política de Privacidad</a>.</span>
+      <span>¿Ya tenés cuenta? <a href={ROUTES.login}>Ingresá</a></span>
+      <span>¿No te acordás de la clave? <a href={ROUTES.resetPassword}>Recuperar por email</a></span
+      >
+      <span class="mt-1 opacity-70"
+        >Al crear la cuenta aceptás los <a href="#">Términos</a> y la <a href="#"
+          >Política de Privacidad</a
+        >.</span
+      >
     </div>
   </AuthCard>
 

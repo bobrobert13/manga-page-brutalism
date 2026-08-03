@@ -2,22 +2,17 @@
  * Touch swipe + click + double-tap zoom + pinch-to-zoom handling for the viewer stage.
  */
 import { onMounted, onUnmounted, type Ref } from 'vue';
+import { READING_MODE, VIEWER_CONFIG } from '@/config/index.config';
 import type { ViewerState } from './useViewerState';
 
-export function useViewerGestures(
-  stageRef: Ref<HTMLElement | null>,
-  state: ViewerState,
-): void {
+export function useViewerGestures(stageRef: Ref<HTMLElement | null>, state: ViewerState): void {
   let touchStartX: number | null = null;
   let lastTapTime = 0;
-  const DOUBLE_TAP_WINDOW = 300;
-  const SWIPE_THRESHOLD = 60;
+  let boundElement: HTMLElement | null = null;
 
   // ── Pinch-to-zoom ──
   let pinchStartDist = 0;
   let pinchZoomActive = false;
-  const PINCH_ZOOM_IN_THRESHOLD = 1.15;
-  const PINCH_ZOOM_OUT_THRESHOLD = 0.87;
 
   function getDist(touches: TouchList): number {
     if (touches.length < 2) return 0;
@@ -32,7 +27,7 @@ export function useViewerGestures(
 
   // ── Touch ──
   function onTouchStart(e: TouchEvent) {
-    if (e.touches.length === 2 && state.mode.value === 'page') {
+    if (e.touches.length === 2 && state.mode.value === READING_MODE.page) {
       pinchStartDist = getDist(e.touches);
       pinchZoomActive = true;
       return;
@@ -42,16 +37,16 @@ export function useViewerGestures(
   }
 
   function onTouchMove(e: TouchEvent) {
-    if (!pinchZoomActive || state.mode.value !== 'page') return;
+    if (!pinchZoomActive || state.mode.value !== READING_MODE.page) return;
     const dist = getDist(e.touches);
     if (dist === 0 || pinchStartDist === 0) return;
     const ratio = dist / pinchStartDist;
 
-    if (ratio > PINCH_ZOOM_IN_THRESHOLD) {
+    if (ratio > VIEWER_CONFIG.pinchZoomInThreshold) {
       if (!state.isZoomed.value) state.toggleZoom();
       state.showFeedback('Zoom 2×');
       pinchZoomActive = false; // one-shot per gesture
-    } else if (ratio < PINCH_ZOOM_OUT_THRESHOLD) {
+    } else if (ratio < VIEWER_CONFIG.pinchZoomOutThreshold) {
       if (state.isZoomed.value) state.toggleZoom();
       state.showFeedback('Zoom 1×');
       pinchZoomActive = false;
@@ -69,7 +64,7 @@ export function useViewerGestures(
     const dx = touchStartX != null ? endX - touchStartX : 0;
     touchStartX = null;
 
-    if (Math.abs(dx) > SWIPE_THRESHOLD && state.mode.value === 'page') {
+    if (Math.abs(dx) > VIEWER_CONFIG.swipeThresholdPx && state.mode.value === READING_MODE.page) {
       if (dx < 0) state.goNext();
       else state.goPrev();
       return;
@@ -77,7 +72,7 @@ export function useViewerGestures(
 
     // Touch double-tap → zoom
     const now = Date.now();
-    if (now - lastTapTime < DOUBLE_TAP_WINDOW) {
+    if (now - lastTapTime < VIEWER_CONFIG.doubleTapWindowMs) {
       state.toggleZoom();
       lastTapTime = 0;
     } else {
@@ -87,9 +82,10 @@ export function useViewerGestures(
 
   // ── Mouse ──
   function onClick(e: MouseEvent) {
-    if (state.mode.value !== 'page') return;
+    if (state.mode.value !== READING_MODE.page) return;
     const el = getEl();
     if (!el) return;
+    boundElement = el;
     const target = e.target as HTMLElement;
     if (target?.closest?.('[data-nav]')) return;
     const rect = el.getBoundingClientRect();
@@ -99,12 +95,12 @@ export function useViewerGestures(
   }
 
   function onDblClick(_e: MouseEvent) {
-    if (state.mode.value !== 'page') return;
+    if (state.mode.value !== READING_MODE.page) return;
     state.toggleZoom();
   }
 
   onMounted(() => {
-    const el = getEl();
+    const el = boundElement;
     if (!el) return;
     el.addEventListener('touchstart', onTouchStart, { passive: true });
     el.addEventListener('touchmove', onTouchMove, { passive: true });
@@ -121,5 +117,6 @@ export function useViewerGestures(
     el.removeEventListener('touchend', onTouchEnd);
     el.removeEventListener('click', onClick);
     el.removeEventListener('dblclick', onDblClick);
+    boundElement = null;
   });
 }
