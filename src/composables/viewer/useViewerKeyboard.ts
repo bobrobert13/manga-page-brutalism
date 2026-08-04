@@ -4,9 +4,23 @@
  */
 import { onMounted, onUnmounted } from 'vue';
 import { READING_MODE } from '@/config/index.config';
+import type { ViewerAutoScroll } from './useViewerAutoScroll';
 import type { ViewerState } from './useViewerState';
 
-export function useViewerKeyboard(state: ViewerState): void {
+const MANUAL_NAVIGATION_KEYS = new Set([
+  'ArrowRight',
+  'ArrowLeft',
+  'ArrowUp',
+  'ArrowDown',
+  'PageUp',
+  'PageDown',
+  'Home',
+  'End',
+  'g',
+  'G',
+]);
+
+export function useViewerKeyboard(state: ViewerState, autoScroll?: ViewerAutoScroll): void {
   function handler(e: KeyboardEvent) {
     const target = e.target as HTMLElement | null;
     if (
@@ -17,6 +31,10 @@ export function useViewerKeyboard(state: ViewerState): void {
         target.isContentEditable)
     ) {
       return;
+    }
+
+    if (MANUAL_NAVIGATION_KEYS.has(e.key)) {
+      autoScroll?.pause('interaction');
     }
 
     switch (e.key) {
@@ -110,6 +128,12 @@ export function useViewerKeyboard(state: ViewerState): void {
         e.preventDefault();
         state.setMode(READING_MODE.slider);
         state.showFeedback('Modo slider');
+        break;
+      case 'a':
+      case 'A':
+        if (e.ctrlKey || e.metaKey || e.altKey) break;
+        e.preventDefault();
+        autoScroll?.toggle();
         break;
       case 'g':
       case 'G':

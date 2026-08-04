@@ -263,12 +263,12 @@ export function useViewerAutoScroll(
 
   watch(intervalMs, writePreferences);
   watch(motion, writePreferences);
-  watch(state.mode, () => pause('mode-change'));
+  watch(state.mode, () => pause('mode-change', false));
   watch(state.isZoomed, (isZoomed) => {
-    if (isZoomed) pause('zoom');
+    if (isZoomed) pause('zoom', false);
   });
   watch(state.isOnboardingVisible, (isVisible) => {
-    if (isVisible) pause('onboarding');
+    if (isVisible) pause('onboarding', false);
   });
 
   onMounted(() => {

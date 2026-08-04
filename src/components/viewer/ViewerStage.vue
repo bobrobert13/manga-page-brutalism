@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { useInjectedViewerAutoScroll } from '@/composables/viewer/useViewerAutoScroll';
 import { useInjectedViewer } from '@/composables/viewer/useViewerState';
-import { READING_MODE } from '@/config/index.config';
+import { AUTO_SCROLL_CONFIG, AUTO_SCROLL_MOTION, READING_MODE } from '@/config/index.config';
 
 const state = useInjectedViewer();
+const autoScroll = useInjectedViewerAutoScroll();
 
 const streamRef = ref<HTMLElement | null>(null);
 defineExpose({ stageElement: streamRef });
@@ -15,10 +17,16 @@ const isPage = computed(() => state.mode.value === READING_MODE.page);
 const isSlider = computed(() => state.mode.value === READING_MODE.slider);
 const isZoom = computed(() => state.isZoomed.value);
 const currentPage = computed(() => pages.value[cur.value]);
+const pageTransitionMs = computed(() =>
+  autoScroll.effectiveMotion.value === AUTO_SCROLL_MOTION.smooth
+    ? AUTO_SCROLL_CONFIG.smoothDurationMs
+    : 0
+);
 
 // Track which pages should render their SVG content (for cascade lazy load)
 const renderedPages = ref<Set<number>>(new Set());
 let renderIO: IntersectionObserver | null = null;
+let cascadeTrackingFrame: number | null = null;
 
 function setupObserver() {
   if (!streamRef.value) return;
@@ -48,7 +56,10 @@ onMounted(() => {
   if (pages.value.length > 1) renderedPages.value.add(2);
   setupObserver();
 });
-onUnmounted(() => renderIO?.disconnect());
+onUnmounted(() => {
+  renderIO?.disconnect();
+  if (cascadeTrackingFrame !== null) cancelAnimationFrame(cascadeTrackingFrame);
+});
 watch(
   () => state.mode.value,
   () => setTimeout(setupObserver, 50)
@@ -69,20 +80,49 @@ function onSliderScroll() {
   if (best.idx !== cur.value && !isNaN(best.idx)) state.goToPage(best.idx);
 }
 
+function onCascadeScroll() {
+  if (!isCascade.value || !streamRef.value || cascadeTrackingFrame !== null) return;
+  cascadeTrackingFrame = requestAnimationFrame(() => {
+    cascadeTrackingFrame = null;
+    const container = streamRef.value?.querySelector<HTMLElement>('.vp-stage__cascade');
+    if (!container) return;
+    const center = container.getBoundingClientRect().top + container.clientHeight / 2;
+    const cells = container.querySelectorAll<HTMLElement>('.vp-page');
+    let best = { idx: cur.value, dist: Infinity };
+
+    cells.forEach((cell) => {
+      const rect = cell.getBoundingClientRect();
+      const distance = Math.abs(rect.top + rect.height / 2 - center);
+      if (distance < best.dist) {
+        best = { idx: Number.parseInt(cell.dataset.page || '0', 10) - 1, dist: distance };
+      }
+    });
+
+    if (best.idx !== cur.value && !Number.isNaN(best.idx)) state.goToPage(best.idx);
+  });
+}
+
 // Sync scroll position when state changes programmatically (button click, keyboard)
 watch(
   () => state.currentIndex.value,
   (newIdx) => {
     if (!streamRef.value) return;
     const container = streamRef.value;
+    const behavior =
+      autoScroll.effectiveMotion.value === AUTO_SCROLL_MOTION.smooth ? 'smooth' : 'auto';
     if (isSlider.value) {
+      const scrollPort = container.querySelector<HTMLElement>('.vp-stage__slider');
       const cell = container.querySelector<HTMLElement>(
         `.vp-page__slide[data-page="${newIdx + 1}"]`
       );
-      cell?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      if (scrollPort && cell) {
+        const left = cell.offsetLeft - (scrollPort.clientWidth - cell.offsetWidth) / 2;
+        scrollPort.scrollTo({ left, behavior });
+      }
     } else if (isCascade.value) {
+      const scrollPort = container.querySelector<HTMLElement>('.vp-stage__cascade');
       const cell = container.querySelector<HTMLElement>(`.vp-page[data-page="${newIdx + 1}"]`);
-      cell?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (scrollPort && cell) scrollPort.scrollTo({ top: cell.offsetTop, behavior });
     }
   }
 );
@@ -93,8 +133,13 @@ function shouldRender(n: number): boolean {
 </script>
 
 <template>
-  <div ref="streamRef" class="vp-stage" :class="{ 'vp-stage--zoom': isZoom }">
-    <div v-if="isCascade" class="vp-stage__cascade">
+  <div
+    ref="streamRef"
+    class="vp-stage"
+    :class="{ 'vp-stage--zoom': isZoom }"
+    :style="{ '--vp-page-transition-ms': pageTransitionMs + 'ms' }"
+  >
+    <div v-if="isCascade" class="vp-stage__cascade" @scroll="onCascadeScroll">
       <figure
         v-for="page in pages"
         :key="page.number"
@@ -216,8 +261,8 @@ function shouldRender(n: number): boolean {
 .slide-enter-active,
 .slide-leave-active {
   transition:
-    opacity 200ms ease,
-    transform 200ms ease;
+    opacity var(--vp-page-transition-ms, 200ms) ease,
+    transform var(--vp-page-transition-ms, 200ms) ease;
 }
 .slide-enter-from {
   opacity: 0;
