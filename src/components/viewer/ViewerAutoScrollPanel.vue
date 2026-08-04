@@ -308,6 +308,10 @@ defineExpose({ panelElement });
   color: var(--color-paper);
 }
 
+.vp-auto-panel__segments button:hover:not([aria-pressed='true']) {
+  background: var(--color-ink-alpha-08);
+}
+
 .vp-auto-panel__notice {
   margin: 8px 0 0;
   padding: 8px;

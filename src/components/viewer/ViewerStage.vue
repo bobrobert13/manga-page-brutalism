@@ -27,6 +27,8 @@ const pageTransitionMs = computed(() =>
 const renderedPages = ref<Set<number>>(new Set());
 let renderIO: IntersectionObserver | null = null;
 let cascadeTrackingFrame: number | null = null;
+let isSyncingFromScroll = false;
+let programmaticTargetIndex: number | null = null;
 
 function setupObserver() {
   if (!streamRef.value) return;
@@ -62,7 +64,11 @@ onUnmounted(() => {
 });
 watch(
   () => state.mode.value,
-  () => setTimeout(setupObserver, 50)
+  () => {
+    isSyncingFromScroll = false;
+    programmaticTargetIndex = null;
+    setTimeout(setupObserver, 50);
+  }
 );
 
 function onSliderScroll() {
@@ -77,7 +83,22 @@ function onSliderScroll() {
     const d = Math.abs(r.left + r.width / 2 - center);
     if (d < best.dist) best = { idx: parseInt(cell.dataset.page || '0', 10) - 1, dist: d };
   });
-  if (best.idx !== cur.value && !isNaN(best.idx)) state.goToPage(best.idx);
+  syncCurrentPageFromScroll(best.idx);
+}
+
+function syncCurrentPageFromScroll(index: number): void {
+  if (Number.isNaN(index)) return;
+  if (programmaticTargetIndex !== null) {
+    if (index === programmaticTargetIndex) programmaticTargetIndex = null;
+    return;
+  }
+  if (index === cur.value) return;
+  isSyncingFromScroll = true;
+  state.goToPage(index);
+}
+
+function onManualScrollIntent(): void {
+  programmaticTargetIndex = null;
 }
 
 function onCascadeScroll() {
@@ -98,7 +119,7 @@ function onCascadeScroll() {
       }
     });
 
-    if (best.idx !== cur.value && !Number.isNaN(best.idx)) state.goToPage(best.idx);
+    syncCurrentPageFromScroll(best.idx);
   });
 }
 
@@ -106,11 +127,16 @@ function onCascadeScroll() {
 watch(
   () => state.currentIndex.value,
   (newIdx) => {
+    if (isSyncingFromScroll) {
+      isSyncingFromScroll = false;
+      return;
+    }
     if (!streamRef.value) return;
     const container = streamRef.value;
     const behavior =
       autoScroll.effectiveMotion.value === AUTO_SCROLL_MOTION.smooth ? 'smooth' : 'auto';
     if (isSlider.value) {
+      programmaticTargetIndex = newIdx;
       const scrollPort = container.querySelector<HTMLElement>('.vp-stage__slider');
       const cell = container.querySelector<HTMLElement>(
         `.vp-page__slide[data-page="${newIdx + 1}"]`
@@ -120,6 +146,7 @@ watch(
         scrollPort.scrollTo({ left, behavior });
       }
     } else if (isCascade.value) {
+      programmaticTargetIndex = newIdx;
       const scrollPort = container.querySelector<HTMLElement>('.vp-stage__cascade');
       const cell = container.querySelector<HTMLElement>(`.vp-page[data-page="${newIdx + 1}"]`);
       if (scrollPort && cell) scrollPort.scrollTo({ top: cell.offsetTop, behavior });
@@ -138,6 +165,9 @@ function shouldRender(n: number): boolean {
     class="vp-stage"
     :class="{ 'vp-stage--zoom': isZoom }"
     :style="{ '--vp-page-transition-ms': pageTransitionMs + 'ms' }"
+    @pointerdown="onManualScrollIntent"
+    @touchstart.passive="onManualScrollIntent"
+    @wheel.passive="onManualScrollIntent"
   >
     <div v-if="isCascade" class="vp-stage__cascade" @scroll="onCascadeScroll">
       <figure

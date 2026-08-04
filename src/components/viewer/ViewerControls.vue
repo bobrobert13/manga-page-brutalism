@@ -143,6 +143,11 @@ onBeforeUnmount(() => {
   color: var(--color-paper);
 }
 
+.vp-fab__btn--auto[aria-expanded='true'] {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 0 var(--color-ink);
+}
+
 @media (max-width: 479px) {
   .vp-fab {
     /* Top-right under the sticky header on mobile to avoid indicator overlap */
