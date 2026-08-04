@@ -46,6 +46,7 @@ export interface ViewerAutoScroll {
   pauseReason: Ref<AutoScrollPauseReason | null>;
   intervalMs: Ref<number>;
   motion: Ref<AutoScrollMotion>;
+  isPanelOpen: Ref<boolean>;
   prefersReducedMotion: Ref<boolean>;
   effectiveMotion: ComputedRef<AutoScrollMotion>;
   isPlaying: ComputedRef<boolean>;
@@ -55,6 +56,7 @@ export interface ViewerAutoScroll {
   toggle: () => void;
   setIntervalMs: (value: number) => void;
   setMotion: (value: AutoScrollMotion) => void;
+  setPanelOpen: (value: boolean) => void;
 }
 
 export const VIEWER_AUTO_SCROLL_KEY: InjectionKey<ViewerAutoScroll> = Symbol('viewerAutoScroll');
@@ -153,6 +155,7 @@ export function useViewerAutoScroll(
   const pauseReason = ref<AutoScrollPauseReason | null>(null);
   const intervalMs = ref<number>(AUTO_SCROLL_CONFIG.defaultIntervalMs);
   const motion = ref<AutoScrollMotion>(AUTO_SCROLL_CONFIG.defaultMotion);
+  const isPanelOpen = ref(false);
   const prefersReducedMotion = ref(false);
   const timer = createAutoScrollTimer();
   let mediaQuery: MediaQueryList | null = null;
@@ -231,6 +234,10 @@ export function useViewerAutoScroll(
     motion.value = value;
   }
 
+  function setPanelOpen(value: boolean): void {
+    isPanelOpen.value = value;
+  }
+
   function restorePreferences(): void {
     try {
       const raw = localStorage.getItem(STORAGE_KEYS.viewerAutoScroll);
@@ -261,6 +268,12 @@ export function useViewerAutoScroll(
     if (event.isTrusted) pause('interaction');
   }
 
+  function onDocumentPointerDown(event: PointerEvent): void {
+    const target = event.target;
+    if (target instanceof Element && target.closest('[data-auto-scroll-controls]')) return;
+    onStageInteraction(event);
+  }
+
   watch(intervalMs, writePreferences);
   watch(motion, writePreferences);
   watch(state.mode, () => pause('mode-change', false));
@@ -280,18 +293,18 @@ export function useViewerAutoScroll(
     mediaQuery.addEventListener('change', onReducedMotionChange);
 
     boundStage = stageElement.value;
-    boundStage?.addEventListener('pointerdown', onStageInteraction, { passive: true });
     boundStage?.addEventListener('touchstart', onStageInteraction, { passive: true });
     boundStage?.addEventListener('wheel', onStageInteraction, { passive: true });
+    document.addEventListener('pointerdown', onDocumentPointerDown, { passive: true });
     document.addEventListener('visibilitychange', onVisibilityChange);
   });
 
   onUnmounted(() => {
     playback.pause();
     mediaQuery?.removeEventListener('change', onReducedMotionChange);
-    boundStage?.removeEventListener('pointerdown', onStageInteraction);
     boundStage?.removeEventListener('touchstart', onStageInteraction);
     boundStage?.removeEventListener('wheel', onStageInteraction);
+    document.removeEventListener('pointerdown', onDocumentPointerDown);
     document.removeEventListener('visibilitychange', onVisibilityChange);
   });
 
@@ -300,6 +313,7 @@ export function useViewerAutoScroll(
     pauseReason,
     intervalMs,
     motion,
+    isPanelOpen,
     prefersReducedMotion,
     effectiveMotion,
     isPlaying,
@@ -309,6 +323,7 @@ export function useViewerAutoScroll(
     toggle,
     setIntervalMs,
     setMotion,
+    setPanelOpen,
   };
 
   provide(VIEWER_AUTO_SCROLL_KEY, autoScroll);

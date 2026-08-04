@@ -8,7 +8,8 @@ import { VIEWER_CONFIG } from '@/config/index.config';
 
 export function useViewerChromeAutoHide(
   isFullscreen: Ref<boolean>,
-  idleMs = VIEWER_CONFIG.chromeIdleMs
+  idleMs = VIEWER_CONFIG.chromeIdleMs,
+  isLocked?: Ref<boolean>
 ): Ref<boolean> {
   const isChromeVisible = ref(true);
   let timer: ReturnType<typeof setTimeout> | null = null;
@@ -20,6 +21,8 @@ export function useViewerChromeAutoHide(
 
   function scheduleHide() {
     if (timer) clearTimeout(timer);
+    timer = null;
+    if (isLocked?.value) return;
     timer = setTimeout(() => {
       isChromeVisible.value = false;
     }, idleMs);
@@ -59,6 +62,19 @@ export function useViewerChromeAutoHide(
       unbind();
     }
   });
+
+  if (isLocked) {
+    watch(isLocked, (locked) => {
+      if (!isFullscreen.value) return;
+      if (locked) {
+        if (timer) clearTimeout(timer);
+        timer = null;
+        show();
+      } else {
+        scheduleHide();
+      }
+    });
+  }
 
   onMounted(() => {
     if (isFullscreen.value) bind();

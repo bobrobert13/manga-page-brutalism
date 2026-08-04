@@ -175,6 +175,7 @@ function onOverlayClick(e: MouseEvent) {
           >
             <p><kbd>← →</kbd> Navegar páginas</p>
             <p><kbd>1 2 3</kbd> Cambiar modo</p>
+            <p><kbd>A</kbd> Iniciar o pausar auto-scroll</p>
             <p><kbd>Z</kbd> Zoom · <kbd>T</kbd> Tema · <kbd>F</kbd> Pantalla completa</p>
             <p><kbd>?</kbd> Mostrar esta ayuda · <kbd>Esc</kbd> Cerrar</p>
           </div>

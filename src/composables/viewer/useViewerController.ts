@@ -27,7 +27,11 @@ export function useViewerController(options: ViewerControllerOptions) {
   useViewerKeyboard(state, autoScroll);
   useViewerGestures(options.stageElement, state);
 
-  const isChromeVisible = useViewerChromeAutoHide(state.isFullscreen);
+  const isChromeVisible = useViewerChromeAutoHide(
+    state.isFullscreen,
+    undefined,
+    autoScroll.isPanelOpen
+  );
   provide(CHROME_VISIBLE_KEY, isChromeVisible);
 
   onMounted(() => {
