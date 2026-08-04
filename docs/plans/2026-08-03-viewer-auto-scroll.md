@@ -2,11 +2,11 @@
 
 | Campo | Valor |
 | --- | --- |
-| Estado | Propuesta confirmada en alcance; implementación pendiente de aprobación final |
-| Rama propuesta | `feat/viewer-auto-scroll` |
+| Estado | Implementado y revalidado; QA visual interactiva pendiente |
+| Rama | `feat/viewer-auto-scroll` |
 | Base | `develop` |
 | Fecha | 2026-08-03 |
-| Implementación | No iniciada |
+| Implementación | Completada |
 
 ## 1. Contexto y objetivo
 
@@ -417,6 +417,17 @@ Ejecutar, en este orden:
 - rediseño general del visor;
 - corrección de incidencias preexistentes no necesarias para esta función.
 
-## 16. Puerta de aprobación
+## 16. Resultado de implementación
 
-Este documento no autoriza todavía cambios en `src/`. La implementación empezará únicamente cuando el usuario confirme expresamente este plan. Cualquier cambio posterior de avance por página a scroll continuo requiere reestimar arquitectura, líneas y tiempo antes de programar.
+La implementación fue aprobada y completada en la rama prevista. Resultado verificado:
+
+- 20 pruebas Vitest pasan, incluidas 9 del controlador de auto-scroll;
+- `npm run lint`, `npm run check` y `npm run build` pasan;
+- todos los archivos tocados pasan Prettier;
+- el smoke SSR de `/titulo/berserk/374` responde 200 e incluye la isla Vue;
+- el servidor de desarrollo se detuvo después del smoke;
+- ningún commit supera 422 líneas cambiadas y ningún commit funcional supera 353;
+- `npm run format:check` global continúa fallando por 80 archivos preexistentes no modificados por esta rama;
+- la QA visual interactiva queda pendiente porque no hubo un navegador conectado a la sesión.
+
+Cualquier cambio posterior de avance por página a scroll continuo requiere reestimar arquitectura, líneas y tiempo antes de programar.
