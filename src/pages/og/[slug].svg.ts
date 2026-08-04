@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
-import { MANGAS } from '@data/mangas';
 import type { PatternKey } from '@/types/manga';
+import { HTTP_CONFIG, SITE } from '@/config/index.config';
+import { useConfiguredCatalogService } from '@/services/catalog';
 
 export const prerender = false;
 
@@ -37,12 +38,19 @@ function patternSvg(pattern: PatternKey, color: string): string {
   }
 }
 
-export const GET: APIRoute = ({ params, url }) => {
+export const GET: APIRoute = async ({ params, url }) => {
   const slug = params.slug;
-  const manga = MANGAS.find((m) => m.slug === slug);
-  if (!manga) {
+  if (!slug) {
     return new Response('Not found', { status: 404 });
   }
+
+  const mangaResult = await useConfiguredCatalogService().getBySlug(slug);
+  if (!mangaResult.ok) {
+    return new Response(mangaResult.error.message, {
+      status: mangaResult.error.status ?? 503,
+    });
+  }
+  const manga = mangaResult.data;
 
   const chapterNum = url.searchParams.get('chapter');
   const dark = luma(manga.coverColor) < 0.5;
@@ -54,9 +62,11 @@ export const GET: APIRoute = ({ params, url }) => {
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   ${patternSvg(manga.coverPattern, manga.coverColor)}
   <rect width="1200" height="630" fill="${manga.coverColor}"/>
-  ${manga.coverPattern === 'wash'
-    ? `<rect width="1200" height="630" fill="url(#${patternId})"/>`
-    : `<rect width="1200" height="630" fill="url(#${patternId})"/>`}
+  ${
+    manga.coverPattern === 'wash'
+      ? `<rect width="1200" height="630" fill="url(#${patternId})"/>`
+      : `<rect width="1200" height="630" fill="url(#${patternId})"/>`
+  }
 
   <!-- Frame -->
   <rect x="40" y="40" width="1120" height="550" fill="none" stroke="${fg}" stroke-width="3" stroke-dasharray="12 8" stroke-opacity="0.5"/>
@@ -66,7 +76,7 @@ export const GET: APIRoute = ({ params, url }) => {
 
   <!-- INK/PXL stamp -->
   <rect x="80" y="80" width="180" height="48" fill="${fg}"/>
-  <text x="170" y="113" text-anchor="middle" font-family="Archivo Black, Impact, sans-serif" font-size="22" fill="${manga.coverColor}" letter-spacing="2">INK/PXL</text>
+  <text x="170" y="113" text-anchor="middle" font-family="Archivo Black, Impact, sans-serif" font-size="22" fill="${manga.coverColor}" letter-spacing="2">${escapeXml(SITE.name)}</text>
 
   <!-- Title -->
   <text x="80" y="320" font-family="Archivo Black, Impact, sans-serif" font-size="92" fill="${fg}" letter-spacing="-3">${escapeXml(manga.title)}</text>
@@ -77,9 +87,11 @@ export const GET: APIRoute = ({ params, url }) => {
   <rect x="80" y="420" width="180" height="8" fill="${accent}"/>
 
   <!-- Chapter indicator (if provided) -->
-  ${chapterNum
-    ? `<text x="80" y="500" font-family="Space Mono, monospace" font-size="32" fill="${fg}" letter-spacing="2">CAP. ${escapeXml(chapterNum)}</text>`
-    : `<text x="80" y="500" font-family="Space Mono, monospace" font-size="32" fill="${fg}" fill-opacity="0.65" letter-spacing="2">LEE AHORA · INK/PXL</text>`}
+  ${
+    chapterNum
+      ? `<text x="80" y="500" font-family="Space Mono, monospace" font-size="32" fill="${fg}" letter-spacing="2">CAP. ${escapeXml(chapterNum)}</text>`
+      : `<text x="80" y="500" font-family="Space Mono, monospace" font-size="32" fill="${fg}" fill-opacity="0.65" letter-spacing="2">LEE AHORA · ${escapeXml(SITE.name)}</text>`
+  }
 
   <!-- Footer info -->
   <text x="80" y="560" font-family="Space Mono, monospace" font-size="20" fill="${fg}" fill-opacity="0.6" letter-spacing="3">${escapeXml(manga.author.toUpperCase())} · ${escapeXml(manga.type.toUpperCase())} · ${escapeXml(manga.volumeCount.toUpperCase())}</text>
@@ -90,7 +102,7 @@ export const GET: APIRoute = ({ params, url }) => {
     status: 200,
     headers: {
       'Content-Type': 'image/svg+xml; charset=utf-8',
-      'Cache-Control': 'public, max-age=3600',
+      'Cache-Control': HTTP_CONFIG.cacheControl.ogImage,
     },
   });
 };

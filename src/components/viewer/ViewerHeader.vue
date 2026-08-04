@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useInjectedViewer } from '@/composables/useViewerState';
-import { useViewerChromeVisible } from '@/composables/useViewerChromeVisible';
+import { useInjectedViewer } from '@/composables/viewer/useViewerState';
+import { READING_MODE } from '@/config/index.config';
 import type { ReadingMode } from '@/types/viewer';
 
 const props = defineProps<{
   mangaTitle: string;
   chapterTitle: string;
   chapterNumber: number;
+  prevChapterHref?: string | null;
+  nextChapterHref?: string | null;
+  prevChapterLabel?: string | null;
+  nextChapterLabel?: string | null;
 }>();
 
 const emit = defineEmits<{
@@ -17,9 +20,9 @@ const emit = defineEmits<{
 const state = useInjectedViewer();
 
 const tabs: { id: ReadingMode; label: string }[] = [
-  { id: 'cascade', label: 'Cascada' },
-  { id: 'page', label: 'Página' },
-  { id: 'slider', label: 'Slider' },
+  { id: READING_MODE.cascade, label: 'Cascada' },
+  { id: READING_MODE.page, label: 'Página' },
+  { id: READING_MODE.slider, label: 'Slider' },
 ];
 
 function pickMode(mode: ReadingMode) {
@@ -109,7 +112,9 @@ function onTabKeydown(e: KeyboardEvent, idx: number) {
   min-height: 56px;
   background: var(--color-paper);
   border-bottom: 3px solid var(--color-ink);
-  transition: background-color 200ms ease, color 200ms ease;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
 }
 
 .vp-header__crumb {
@@ -151,7 +156,9 @@ function onTabKeydown(e: KeyboardEvent, idx: number) {
   font: inherit;
   text-transform: inherit;
   letter-spacing: inherit;
-  transition: background-color 120ms ease, color 120ms ease;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
 }
 .vp-header__tabs [role='tab']:first-child {
   border-left: 0;
@@ -178,7 +185,9 @@ function onTabKeydown(e: KeyboardEvent, idx: number) {
   text-transform: uppercase;
   letter-spacing: 0.18em;
   cursor: pointer;
-  transition: background-color 120ms ease, color 120ms ease;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
 }
 .vp-header__close:hover {
   background: var(--color-ink);

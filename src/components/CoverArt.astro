@@ -4,6 +4,7 @@
  * Optional badges (top-left type, top-right status) and centered acronym.
  */
 import type { Manga } from '@/types/manga';
+import { SERIES_STATUS } from '@/config/index.config';
 
 interface Props {
   manga: Pick<Manga, 'coverColor' | 'coverPattern' | 'acronym' | 'type' | 'status' | 'title'>;
@@ -52,9 +53,9 @@ const size = badgeSize === 'sm' ? 'text-[7px] px-1.5 py-0.5' : 'text-[9px] px-2 
       <span
         class:list={[
           'absolute top-2 right-2 z-10 font-mono uppercase tracking-[0.15em]',
-          manga.status === 'En curso' && 'bg-yellow text-ink',
-          manga.status === 'Completo' && 'bg-yellow text-ink',
-          manga.status === 'En pausa' && 'bg-red text-paper',
+          manga.status === SERIES_STATUS.ongoing && 'bg-yellow text-ink',
+          manga.status === SERIES_STATUS.completed && 'bg-yellow text-ink',
+          manga.status === SERIES_STATUS.hiatus && 'bg-red text-paper',
           size,
         ]}
       >

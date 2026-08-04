@@ -4,8 +4,12 @@
  * brings it back. Outside fullscreen, chrome is always visible.
  */
 import { onMounted, onUnmounted, ref, watch, type Ref } from 'vue';
+import { VIEWER_CONFIG } from '@/config/index.config';
 
-export function useViewerChromeAutoHide(isFullscreen: Ref<boolean>, idleMs = 3000): Ref<boolean> {
+export function useViewerChromeAutoHide(
+  isFullscreen: Ref<boolean>,
+  idleMs = VIEWER_CONFIG.chromeIdleMs
+): Ref<boolean> {
   const isChromeVisible = ref(true);
   let timer: ReturnType<typeof setTimeout> | null = null;
 

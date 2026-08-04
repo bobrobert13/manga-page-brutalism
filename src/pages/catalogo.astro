@@ -4,11 +4,21 @@ import Marquee from '@components/Marquee.astro';
 import SiteHeader from '@components/SiteHeader.astro';
 import SiteFooter from '@components/SiteFooter.astro';
 import CatalogBrowser from '@components/CatalogBrowser.vue';
-import { GENRES, MANGAS } from '@data/mangas';
+import { HTTP_CONFIG } from '@/config/index.config';
+import { useConfiguredCatalogService } from '@/services/catalog';
 
 // SSR-friendly: serialize data so the Vue island can hydrate without a re-fetch.
-const initialMangas = [...MANGAS];
-const genreList = [...GENRES];
+const catalogService = useConfiguredCatalogService();
+const [mangasResult, genresResult] = await Promise.all([
+  catalogService.getAll(),
+  catalogService.getGenres(),
+]);
+if (!mangasResult.ok || !genresResult.ok) {
+  return new Response(null, { status: 503 });
+}
+const initialMangas = [...mangasResult.data];
+const genreList = [...genresResult.data];
+Astro.response.headers.set('Cache-Control', HTTP_CONFIG.cacheControl.publicCatalog);
 ---
 
 <BaseLayout

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { useInjectedViewer } from '@/composables/useViewerState';
-import { useViewerChromeVisible } from '@/composables/useViewerChromeVisible';
+import { useInjectedViewer } from '@/composables/viewer/useViewerState';
+import { useViewerChromeVisible } from '@/composables/viewer/useViewerChromeVisible';
+import { READING_MODE } from '@/config/index.config';
 
 const state = useInjectedViewer();
 const isChromeVisible = useViewerChromeVisible();
@@ -36,7 +37,7 @@ function onChipKeydown(e: KeyboardEvent) {
   }
 }
 
-const isCascade = computed(() => state.mode.value === 'cascade');
+const isCascade = computed(() => state.mode.value === READING_MODE.cascade);
 </script>
 
 <template>
@@ -71,7 +72,9 @@ const isCascade = computed(() => state.mode.value === 'cascade');
         ref="chipRef"
         type="button"
         class="vp-indicator__chip"
-        :aria-label="'Página actual ' + (cur + 1) + ' de ' + total + '. Activar para escuchar posición.'"
+        :aria-label="
+          'Página actual ' + (cur + 1) + ' de ' + total + '. Activar para escuchar posición.'
+        "
         @keydown="onChipKeydown"
       >
         <span class="vp-indicator__chip-label">

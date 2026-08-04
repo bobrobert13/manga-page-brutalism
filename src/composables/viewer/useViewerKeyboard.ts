@@ -3,14 +3,11 @@
  * Attaches/detaches a global keydown listener.
  */
 import { onMounted, onUnmounted } from 'vue';
+import { READING_MODE } from '@/config/index.config';
 import type { ViewerState } from './useViewerState';
 
 export function useViewerKeyboard(state: ViewerState): void {
-  let _enabled = true;
-
   function handler(e: KeyboardEvent) {
-    if (!_enabled) return;
-
     const target = e.target as HTMLElement | null;
     if (
       target &&
@@ -25,26 +22,28 @@ export function useViewerKeyboard(state: ViewerState): void {
     switch (e.key) {
       case 'ArrowRight':
         e.preventDefault();
-        if (state.mode.value === 'page') {
-          if (state.goNext()) state.showFeedback(`Pg ${state.currentIndex.value + 1}/${state.totalPages.value}`);
+        if (state.mode.value === READING_MODE.page) {
+          if (state.goNext())
+            state.showFeedback(`Pg ${state.currentIndex.value + 1}/${state.totalPages.value}`);
         }
         break;
       case 'ArrowLeft':
         e.preventDefault();
-        if (state.mode.value === 'page') {
-          if (state.goPrev()) state.showFeedback(`Pg ${state.currentIndex.value + 1}/${state.totalPages.value}`);
+        if (state.mode.value === READING_MODE.page) {
+          if (state.goPrev())
+            state.showFeedback(`Pg ${state.currentIndex.value + 1}/${state.totalPages.value}`);
         }
         break;
       case 'Home':
         e.preventDefault();
-        if (state.mode.value === 'page') {
+        if (state.mode.value === READING_MODE.page) {
           state.goToPage(0);
           state.showFeedback(`Pg 1/${state.totalPages.value}`);
         }
         break;
       case 'End':
         e.preventDefault();
-        if (state.mode.value === 'page') {
+        if (state.mode.value === READING_MODE.page) {
           state.goToPage(state.totalPages.value - 1);
           state.showFeedback(`Pg ${state.totalPages.value}/${state.totalPages.value}`);
         }
@@ -54,7 +53,7 @@ export function useViewerKeyboard(state: ViewerState): void {
         if (state.isOnboardingVisible.value) {
           state.dismissOnboarding();
         } else if (state.isFullscreen.value) {
-          state.toggleFullscreen();
+          void state.toggleFullscreen();
         } else {
           history.back();
         }
@@ -65,8 +64,9 @@ export function useViewerKeyboard(state: ViewerState): void {
         break;
       case 'f':
         e.preventDefault();
-        state.toggleFullscreen();
-        state.showFeedback(state.isFullscreen.value ? 'Pantalla completa' : 'Pantalla normal');
+        void state.toggleFullscreen().then((isFullscreen) => {
+          state.showFeedback(isFullscreen ? 'Pantalla completa' : 'Pantalla normal');
+        });
         break;
       case 't':
         e.preventDefault();
@@ -81,30 +81,34 @@ export function useViewerKeyboard(state: ViewerState): void {
       case '[':
         e.preventDefault();
         if (typeof window !== 'undefined') {
-          const prev = document.querySelector<HTMLAnchorElement>('.vp-header__chapter[title="Capítulo anterior"]');
+          const prev = document.querySelector<HTMLAnchorElement>(
+            '.vp-header__chapter[title="Capítulo anterior"]'
+          );
           prev?.click();
         }
         break;
       case ']':
         e.preventDefault();
         if (typeof window !== 'undefined') {
-          const next = document.querySelector<HTMLAnchorElement>('.vp-header__chapter[title="Capítulo siguiente"]');
+          const next = document.querySelector<HTMLAnchorElement>(
+            '.vp-header__chapter[title="Capítulo siguiente"]'
+          );
           next?.click();
         }
         break;
       case '1':
         e.preventDefault();
-        state.setMode('cascade');
+        state.setMode(READING_MODE.cascade);
         state.showFeedback('Modo cascada');
         break;
       case '2':
         e.preventDefault();
-        state.setMode('page');
+        state.setMode(READING_MODE.page);
         state.showFeedback('Modo página');
         break;
       case '3':
         e.preventDefault();
-        state.setMode('slider');
+        state.setMode(READING_MODE.slider);
         state.showFeedback('Modo slider');
         break;
       case 'g':
@@ -112,10 +116,12 @@ export function useViewerKeyboard(state: ViewerState): void {
         e.preventDefault();
         if (e.shiftKey) {
           state.goToPage(state.totalPages.value - 1);
-          if (state.mode.value === 'page') state.showFeedback(`Pg ${state.totalPages.value}/${state.totalPages.value}`);
+          if (state.mode.value === READING_MODE.page)
+            state.showFeedback(`Pg ${state.totalPages.value}/${state.totalPages.value}`);
         } else {
           state.goToPage(0);
-          if (state.mode.value === 'page') state.showFeedback(`Pg 1/${state.totalPages.value}`);
+          if (state.mode.value === READING_MODE.page)
+            state.showFeedback(`Pg 1/${state.totalPages.value}`);
         }
         break;
     }

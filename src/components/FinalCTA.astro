@@ -8,12 +8,13 @@ interface Props {
   primaryHref?: string;
   secondaryHref?: string;
 }
+import { ROUTES } from '@/config/index.config';
 
 const {
   heading = '¿Listo para perderte en buenas historias?',
   subheading = '+12,400 mangas, cómics y webtoons esperan por ti. Gratis. Siempre.',
-  primaryHref = '/catalogo',
-  secondaryHref = '/catalogo',
+  primaryHref = ROUTES.catalog,
+  secondaryHref = ROUTES.catalog,
 } = Astro.props;
 ---
 

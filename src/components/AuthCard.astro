@@ -5,11 +5,7 @@ interface Props {
   stampRotation?: 'left' | 'right';
 }
 
-const {
-  variant = 'paper',
-  maxWidth = 'md',
-  stampRotation = 'right',
-}: Props = Astro.props;
+const { variant = 'paper', maxWidth = 'md', stampRotation = 'right' }: Props = Astro.props;
 ---
 
 <section
@@ -31,10 +27,7 @@ const {
   </span>
 
   <header class="mb-5 flex items-baseline justify-between gap-3">
-    <h1
-      id="auth-card-heading"
-      class="font-display text-2xl md:text-3xl tracking-tighter"
-    >
+    <h1 id="auth-card-heading" class="font-display text-2xl md:text-3xl tracking-tighter">
       <slot name="heading">Ingresar</slot>
     </h1>
     <span class="font-mono text-[10px] uppercase tracking-[0.22em] opacity-70 shrink-0">
@@ -45,7 +38,9 @@ const {
   <slot name="intro" />
   <slot />
 
-  <footer class="mt-6 pt-4 border-t-[3px] border-[color:var(--color-ink-alpha-20)] font-mono text-[10px] uppercase tracking-[0.18em] flex flex-col gap-1.5">
+  <footer
+    class="mt-6 pt-4 border-t-[3px] border-[color:var(--color-ink-alpha-20)] font-mono text-[10px] uppercase tracking-[0.18em] flex flex-col gap-1.5"
+  >
     <slot name="footer" />
   </footer>
 </section>

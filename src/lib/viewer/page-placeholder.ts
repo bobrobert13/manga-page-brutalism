@@ -127,7 +127,7 @@ export function generatePages(
   coverColor: string,
   coverPattern: PatternKey,
   acronym: string,
-  chapterTitle: string,
+  chapterTitle: string
 ) {
   return Array.from({ length: total }, (_, i) => ({
     number: i + 1,

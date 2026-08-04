@@ -6,7 +6,7 @@
  */
 import Logo from './Logo.astro';
 import ThemeToggle from './ThemeToggle.astro';
-import { NAV } from '@/lib/site';
+import { NAV, ROUTES } from '@/config/index.config';
 import { UserButton } from '@clerk/astro/components';
 import { clerkAppearance } from '@lib/clerk-appearance';
 
@@ -20,8 +20,7 @@ interface Props {
 const { active = 'home', sticky = false } = Astro.props;
 
 // Server-side: are we signed in? (undefined during static prerender)
-const userId =
-  typeof Astro.locals.auth === 'function' ? Astro.locals.auth().userId : null;
+const userId = typeof Astro.locals.auth === 'function' ? Astro.locals.auth().userId : null;
 
 const headerClass = sticky
   ? 'sticky top-0 z-30 bg-paper border-b-[3px] border-ink'
@@ -73,10 +72,14 @@ const headerClass = sticky
 
       {
         userId ? (
-          <UserButton appearance={clerkAppearance} signInUrl="/login" userProfileMode="modal" />
+          <UserButton
+            appearance={clerkAppearance}
+            signInUrl={ROUTES.login}
+            userProfileMode="modal"
+          />
         ) : (
           <a
-            href="/login"
+            href={ROUTES.login}
             class="brutal-border brutal-shadow bg-ink text-paper px-4 py-2 font-mono text-xs uppercase tracking-[0.18em] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
           >
             Ingresar <span aria-hidden="true">→</span>

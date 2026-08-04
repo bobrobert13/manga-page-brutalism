@@ -5,13 +5,14 @@
  */
 import CoverArt from './CoverArt.astro';
 import type { Manga } from '@/types/manga';
+import { ROUTES } from '@/config/index.config';
 
 interface Props {
   manga: Manga;
   href?: string;
 }
 
-const { manga, href = `/titulo/${manga.slug}` } = Astro.props;
+const { manga, href = ROUTES.title(manga.slug) } = Astro.props;
 
 const rankColor = manga.rank === 1 ? 'bg-red text-paper' : 'bg-ink text-paper';
 const rankColorWatchmen = manga.slug === 'watchmen' ? 'bg-ink text-yellow' : null;

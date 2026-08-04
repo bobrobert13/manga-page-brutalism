@@ -3,6 +3,7 @@
 import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import astroPlugin from 'eslint-plugin-astro';
+import vuePlugin from 'eslint-plugin-vue';
 import prettierConfig from 'eslint-config-prettier';
 import globals from 'globals';
 
@@ -18,7 +19,6 @@ export default [
       'docs/**',
       '**/*.min.*',
       'eslint.config.js',
-      '**/*.vue',
     ],
   },
 
@@ -66,9 +66,30 @@ export default [
     },
   },
 
-  // .vue SFCs are intentionally skipped here — install eslint-plugin-vue
-  // when the Vue islands grow past filtering. Today, astro check + a
-  // dedicated Vue tooling covers them adequately.
+  // Vue SFC syntax, scripts and template correctness.
+  ...vuePlugin.configs['flat/essential'],
+  {
+    files: ['**/*.vue'],
+    languageOptions: {
+      globals: globals.browser,
+      parserOptions: {
+        parser: tseslint.parser,
+        extraFileExtensions: ['.vue'],
+      },
+    },
+    rules: {
+      // TypeScript already validates global names and DOM types inside <script setup>.
+      'no-undef': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+    },
+  },
 
   // Disables formatting/linting rules Prettier handles
   prettierConfig,

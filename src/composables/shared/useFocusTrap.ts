@@ -8,11 +8,12 @@ const FOCUSABLE =
 
 export function useFocusTrap(containerRef: Ref<HTMLElement | null>, isActive: Ref<boolean>): void {
   let previousFocus: HTMLElement | null = null;
+  let focusTimer: ReturnType<typeof setTimeout> | null = null;
 
   function getFocusable(): HTMLElement[] {
     if (!containerRef.value) return [];
     return Array.from(containerRef.value.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
-      (el) => el.offsetParent !== null,
+      (el) => el.offsetParent !== null
     );
   }
 
@@ -41,13 +42,16 @@ export function useFocusTrap(containerRef: Ref<HTMLElement | null>, isActive: Re
   watch(isActive, (active) => {
     if (active) {
       previousFocus = document.activeElement as HTMLElement;
-      setTimeout(() => {
+      focusTimer = setTimeout(() => {
         const els = getFocusable();
         els[0]?.focus();
+        focusTimer = null;
       }, 50);
       document.addEventListener('keydown', trap);
     } else {
       document.removeEventListener('keydown', trap);
+      if (focusTimer) clearTimeout(focusTimer);
+      focusTimer = null;
       previousFocus?.focus();
       previousFocus = null;
     }
@@ -55,6 +59,7 @@ export function useFocusTrap(containerRef: Ref<HTMLElement | null>, isActive: Re
 
   onUnmounted(() => {
     document.removeEventListener('keydown', trap);
+    if (focusTimer) clearTimeout(focusTimer);
     previousFocus?.focus();
   });
 }

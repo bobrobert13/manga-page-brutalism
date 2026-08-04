@@ -5,11 +5,13 @@ import AuthCard from '@components/AuthCard.astro';
 import AuthSidePanel from '@components/AuthSidePanel.astro';
 import { SignIn } from '@clerk/astro/components';
 import { clerkAppearance } from '@lib/clerk-appearance';
+import { HTTP_CONFIG, ROUTES } from '@/config/index.config';
 
 const title = 'Ingresar';
+Astro.response.headers.set('Cache-Control', HTTP_CONFIG.cacheControl.private);
 ---
 
-<AuthLayout {title} actionHref="/registro" actionLabel="Crear cuenta">
+<AuthLayout {title} actionHref={ROUTES.register} actionLabel="Crear cuenta">
   <AuthSidePanel slot="side" variant="login" />
   <AuthSidePanel slot="mobile" variant="login" compact />
 
@@ -21,14 +23,14 @@ const title = 'Ingresar';
     <SignIn
       appearance={clerkAppearance}
       withSignUp={false}
-      signUpUrl="/registro"
-      fallbackRedirectUrl="/cuenta"
+      signUpUrl={ROUTES.register}
+      fallbackRedirectUrl={ROUTES.account}
       oauthFlow="auto"
     />
 
     <div slot="footer" class="contents">
-      <span>¿Sin cuenta? <a href="/registro">Creá una en /registro</a></span>
-      <span>¿Olvidaste tu clave? <a href="/recuperar-clave">Recuperar por email</a></span>
+      <span>¿Sin cuenta? <a href={ROUTES.register}>Creá una en /registro</a></span>
+      <span>¿Olvidaste tu clave? <a href={ROUTES.resetPassword}>Recuperar por email</a></span>
     </div>
   </AuthCard>
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
-import { useInjectedViewer } from '@/composables/useViewerState';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { useInjectedViewer } from '@/composables/viewer/useViewerState';
+import { READING_MODE } from '@/config/index.config';
 
 const state = useInjectedViewer();
 
@@ -9,9 +10,9 @@ defineExpose({ stageElement: streamRef });
 
 const cur = computed(() => state.currentIndex.value);
 const pages = computed(() => state.pages.value);
-const isCascade = computed(() => state.mode.value === 'cascade');
-const isPage = computed(() => state.mode.value === 'page');
-const isSlider = computed(() => state.mode.value === 'slider');
+const isCascade = computed(() => state.mode.value === READING_MODE.cascade);
+const isPage = computed(() => state.mode.value === READING_MODE.page);
+const isSlider = computed(() => state.mode.value === READING_MODE.slider);
 const isZoom = computed(() => state.isZoomed.value);
 const currentPage = computed(() => pages.value[cur.value]);
 
@@ -34,9 +35,11 @@ function setupObserver() {
       // Force reactivity update
       renderedPages.value = new Set(renderedPages.value);
     },
-    { root: streamRef.value, rootMargin: '200px 0px', threshold: 0 },
+    { root: streamRef.value, rootMargin: '200px 0px', threshold: 0 }
   );
-  streamRef.value.querySelectorAll('.vp-page, .vp-page__slide').forEach((el) => renderIO!.observe(el));
+  streamRef.value
+    .querySelectorAll('.vp-page, .vp-page__slide')
+    .forEach((el) => renderIO!.observe(el));
 }
 
 onMounted(() => {
@@ -45,7 +48,11 @@ onMounted(() => {
   if (pages.value.length > 1) renderedPages.value.add(2);
   setupObserver();
 });
-watch(() => state.mode.value, () => setTimeout(setupObserver, 50));
+onUnmounted(() => renderIO?.disconnect());
+watch(
+  () => state.mode.value,
+  () => setTimeout(setupObserver, 50)
+);
 
 function onSliderScroll() {
   if (!isSlider.value || !streamRef.value) return;
@@ -69,13 +76,15 @@ watch(
     if (!streamRef.value) return;
     const container = streamRef.value;
     if (isSlider.value) {
-      const cell = container.querySelector<HTMLElement>(`.vp-page__slide[data-page="${newIdx + 1}"]`);
+      const cell = container.querySelector<HTMLElement>(
+        `.vp-page__slide[data-page="${newIdx + 1}"]`
+      );
       cell?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     } else if (isCascade.value) {
       const cell = container.querySelector<HTMLElement>(`.vp-page[data-page="${newIdx + 1}"]`);
       cell?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-  },
+  }
 );
 
 function shouldRender(n: number): boolean {
@@ -84,11 +93,7 @@ function shouldRender(n: number): boolean {
 </script>
 
 <template>
-  <div
-    ref="streamRef"
-    class="vp-stage"
-    :class="{ 'vp-stage--zoom': isZoom }"
-  >
+  <div ref="streamRef" class="vp-stage" :class="{ 'vp-stage--zoom': isZoom }">
     <div v-if="isCascade" class="vp-stage__cascade">
       <figure
         v-for="page in pages"
@@ -108,7 +113,9 @@ function shouldRender(n: number): boolean {
           <div class="vp-page-frame vp-page-frame--page" v-html="currentPage.svgContent" />
         </div>
       </Transition>
-      <span class="vp-stage__hint" aria-hidden="true">&#x2190; &#x2192; &middot; swipe &middot; doble click zoom</span>
+      <span class="vp-stage__hint" aria-hidden="true"
+        >&#x2190; &#x2192; &middot; swipe &middot; doble click zoom</span
+      >
     </div>
 
     <div v-else-if="isSlider" class="vp-stage__slider" @scroll="onSliderScroll">
@@ -120,7 +127,10 @@ function shouldRender(n: number): boolean {
         role="img"
         :aria-label="'Pg ' + page.number"
       >
-        <div class="vp-page-frame vp-page-frame--slide" v-html="shouldRender(page.number) ? page.svgContent : ''" />
+        <div
+          class="vp-page-frame vp-page-frame--slide"
+          v-html="shouldRender(page.number) ? page.svgContent : ''"
+        />
       </figure>
     </div>
   </div>
@@ -205,7 +215,9 @@ function shouldRender(n: number): boolean {
 
 .slide-enter-active,
 .slide-leave-active {
-  transition: opacity 200ms ease, transform 200ms ease;
+  transition:
+    opacity 200ms ease,
+    transform 200ms ease;
 }
 .slide-enter-from {
   opacity: 0;

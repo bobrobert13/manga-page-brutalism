@@ -1,0 +1,62 @@
+import type { Chapter } from '@/types/manga';
+
+export const BERSERK_CHAPTERS = [
+  {
+    number: '374',
+    title: 'El fin de un viaje',
+    volume: 'Vol. 42',
+    publishedAt: 'hace 3 días',
+    accent: true,
+  },
+  {
+    number: '373',
+    title: 'El horizonte sangriento',
+    volume: 'Vol. 42',
+    publishedAt: 'hace 2 sem',
+    accent: true,
+  },
+  {
+    number: '372',
+    title: 'Huellas en la ceniza',
+    volume: 'Vol. 41',
+    publishedAt: 'hace 1 mes',
+    accent: true,
+  },
+  { number: '371', title: 'El eco del cuervo', volume: 'Vol. 41', publishedAt: 'hace 1 mes' },
+  { number: '370', title: 'Dos almas, una espada', volume: 'Vol. 41', publishedAt: 'hace 2 meses' },
+  { number: '369', title: 'Antes de la tormenta', volume: 'Vol. 41', publishedAt: 'hace 2 meses' },
+  { number: '368', title: 'El silencio del acero', volume: 'Vol. 40', publishedAt: 'hace 3 meses' },
+  { number: '367', title: 'Lágrimas en la marca', volume: 'Vol. 40', publishedAt: 'hace 3 meses' },
+  { number: '366', title: 'Cenizas de la Banda', volume: 'Vol. 40', publishedAt: 'hace 4 meses' },
+  { number: '365', title: 'La promesa rota', volume: 'Vol. 39', publishedAt: 'hace 4 meses' },
+  { number: '364', title: 'Crimson Wyrm', volume: 'Vol. 39', publishedAt: 'hace 5 meses' },
+  { number: '363', title: 'Sombras sobre Elfhelm', volume: 'Vol. 39', publishedAt: 'hace 5 meses' },
+] as const satisfies readonly Chapter[];
+
+export const CHAPTER_PAGES: Readonly<Record<string, Readonly<Record<number, number>>>> = {
+  berserk: {
+    374: 18,
+    373: 16,
+    372: 14,
+    371: 14,
+    370: 15,
+    369: 16,
+    368: 14,
+    367: 15,
+    366: 13,
+    365: 14,
+    364: 16,
+    363: 15,
+  },
+  'one-piece': { 1124: 17, 1123: 16, 1122: 15, 1121: 14 },
+  'chainsaw-man': { 199: 14, 198: 13, 197: 15 },
+  vagabond: { 327: 18, 326: 16, 325: 14, 1: 22 },
+  watchmen: { 12: 24, 11: 22 },
+  'batman-the-dark-knight-returns': { 4: 28, 3: 24, 2: 22, 1: 26 },
+  'jujutsu-kaisen': { 271: 16, 270: 15, 269: 14, 268: 17, 267: 15 },
+  saga: { 66: 18, 65: 16, 64: 15 },
+  'vinland-saga': { 215: 17, 214: 16, 213: 15, 212: 14 },
+  invincible: { 148: 16, 147: 15, 146: 14, 145: 17, 144: 15 },
+  monster: { 165: 19, 164: 17, 163: 18, 162: 16 },
+  'the-walking-dead': { 193: 18, 192: 16, 191: 15, 190: 17 },
+};

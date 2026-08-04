@@ -4,10 +4,7 @@
  */
 import { onMounted, onUnmounted, watch, type Ref } from 'vue';
 
-export function useViewerUrlSync(
-  currentIndex: Ref<number>,
-  totalPages: Ref<number>,
-): void {
+export function useViewerUrlSync(currentIndex: Ref<number>, totalPages: Ref<number>): void {
   function readPageFromUrl(): number {
     if (typeof window === 'undefined') return 0;
     const params = new URLSearchParams(window.location.search);
@@ -20,12 +17,13 @@ export function useViewerUrlSync(
 
   function writePageToUrl(page: number): void {
     if (typeof window === 'undefined') return;
-    const params = new URLSearchParams(window.location.search);
-    params.set('page', String(page + 1));
-    const qs = '?' + params.toString();
+    const url = new URL(window.location.href);
+    url.searchParams.set('page', String(page + 1));
     try {
-      history.replaceState(null, '', qs);
-    } catch (_) { /* noop */ }
+      history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+    } catch {
+      // URL synchronization is a progressive enhancement.
+    }
   }
 
   function onPopState(): void {
