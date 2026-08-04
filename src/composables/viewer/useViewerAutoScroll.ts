@@ -90,6 +90,16 @@ export function parseStoredAutoScrollMotion(value: string | null): AutoScrollMot
     : null;
 }
 
+export function resolveInitialAutoScrollMotion(
+  storedValue: string | null,
+  prefersReducedMotion: boolean
+): AutoScrollMotion {
+  return (
+    parseStoredAutoScrollMotion(storedValue) ??
+    (prefersReducedMotion ? AUTO_SCROLL_MOTION.direct : AUTO_SCROLL_CONFIG.defaultMotion)
+  );
+}
+
 export function createAutoScrollTimer(
   setTimer: typeof setTimeout = setTimeout,
   clearTimer: typeof clearTimeout = clearTimeout
@@ -170,9 +180,7 @@ export function useViewerAutoScroll(
       !state.isZoomed.value &&
       !state.isOnboardingVisible.value
   );
-  const effectiveMotion = computed<AutoScrollMotion>(() =>
-    prefersReducedMotion.value ? AUTO_SCROLL_MOTION.direct : motion.value
-  );
+  const effectiveMotion = computed<AutoScrollMotion>(() => motion.value);
 
   const playback = createAutoScrollPlayback({
     timer,
@@ -238,26 +246,29 @@ export function useViewerAutoScroll(
     isPanelOpen.value = value;
   }
 
-  function restorePreferences(): void {
+  function restorePreferences(reducedMotionDefault: boolean): void {
+    let storedMotion: string | null = null;
     try {
       const raw = localStorage.getItem(STORAGE_KEYS.viewerAutoScroll);
-      if (!raw) return;
-      const stored = JSON.parse(raw) as Partial<Record<keyof ViewerAutoScrollPreferences, unknown>>;
-      const storedInterval = parseStoredAutoScrollInterval(
-        typeof stored.intervalMs === 'number' ? String(stored.intervalMs) : null
-      );
-      const storedMotion = parseStoredAutoScrollMotion(
-        typeof stored.motion === 'string' ? stored.motion : null
-      );
-      if (storedInterval !== null) intervalMs.value = storedInterval;
-      if (storedMotion !== null) motion.value = storedMotion;
+      if (raw) {
+        const stored = JSON.parse(raw) as Partial<
+          Record<keyof ViewerAutoScrollPreferences, unknown>
+        >;
+        const storedInterval = parseStoredAutoScrollInterval(
+          typeof stored.intervalMs === 'number' ? String(stored.intervalMs) : null
+        );
+        if (storedInterval !== null) intervalMs.value = storedInterval;
+        if (typeof stored.motion === 'string') storedMotion = stored.motion;
+      }
     } catch {
       // Invalid or unavailable storage falls back to defaults.
     }
+    motion.value = resolveInitialAutoScrollMotion(storedMotion, reducedMotionDefault);
   }
 
-  function onReducedMotionChange(event: MediaQueryListEvent | MediaQueryList): void {
+  function onReducedMotionChange(event: MediaQueryListEvent): void {
     prefersReducedMotion.value = event.matches;
+    if (event.matches) setMotion(AUTO_SCROLL_MOTION.direct);
   }
 
   function onVisibilityChange(): void {
@@ -285,11 +296,10 @@ export function useViewerAutoScroll(
   });
 
   onMounted(() => {
-    restorePreferences();
-    isRestoring = false;
-
     mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    onReducedMotionChange(mediaQuery);
+    prefersReducedMotion.value = mediaQuery.matches;
+    restorePreferences(prefersReducedMotion.value);
+    isRestoring = false;
     mediaQuery.addEventListener('change', onReducedMotionChange);
 
     boundStage = stageElement.value;

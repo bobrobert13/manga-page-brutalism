@@ -131,7 +131,7 @@ Responsabilidades:
 - observar modo, zoom y onboarding para pausar;
 - detectar fin de capítulo y emitir feedback una sola vez;
 - leer/escribir preferencias de forma fail-soft;
-- detectar `prefers-reduced-motion` y forzar `effectiveMotion = direct` sin borrar la preferencia del usuario;
+- detectar `prefers-reduced-motion`, usar `direct` como valor inicial y permitir que una selección explícita active `smooth`;
 - limpiar completamente recursos en `onUnmounted`.
 
 El composable se creará desde `useViewerController.ts` y se compartirá con los componentes mediante una clave de inyección específica. No se ampliará `ViewerState` con callbacks mutables ni se creará un event bus.
@@ -227,7 +227,7 @@ El panel será no modal: no atrapará el foco ni bloqueará la lectura. `Escape`
 - Ajuste: `Tiempo por página` y valor `8 s`.
 - Movimiento: `Directo` / `Suave`.
 - Feedback: `Auto-scroll iniciado`, `Auto-scroll pausado`, `Fin del capítulo`.
-- Movimiento reducido: `Animación suave desactivada por tu sistema`.
+- Movimiento reducido: `Tu sistema prefiere menos movimiento. Puedes activar Suave manualmente`.
 
 Se evitarán etiquetas ambiguas como `Velocidad 5` o iconos sin nombre accesible.
 
@@ -336,7 +336,7 @@ Antes de cada commit se revisará `git diff --stat`; no se mezclará formateo gl
 - pausa por interacción, cambio de modo, zoom, onboarding y visibilidad;
 - no se reanuda automáticamente al volver a la pestaña;
 - se detiene en la última página y no navega de capítulo;
-- reduced motion fuerza movimiento efectivo directo;
+- reduced motion selecciona movimiento directo inicialmente, pero una elección explícita de `Suave` lo sobrescribe;
 - desmontar elimina timer, media-query listeners y eventos;
 - una página o lista vacía no permite reproducción.
 
@@ -373,7 +373,7 @@ Ejecutar, en este orden:
 | Índice incorrecto en Cascada | Tracking de página visible con un único frame pendiente |
 | Eventos programáticos se interpretan como manuales | Marcar avance interno y pausar solo ante eventos confiables del usuario |
 | Acumulación de timer/animación | Un único owner, cancelación antes de rearmar y cleanup al desmontar |
-| Conflicto con reduced motion | Movimiento efectivo directo y mensaje visible en el panel |
+| Conflicto con reduced motion | Valor inicial directo, aviso visible y override suave solo por acción explícita |
 | FAB saturado en móvil | Un botón adicional y ajustes dentro de hoja inferior |
 | Panel oculto por auto-hide | Mantener chrome visible mientras el panel esté abierto |
 | Scope creep hacia navegación de capítulos | Detención estricta al final; sin click automático en “siguiente capítulo” |
@@ -385,7 +385,7 @@ Ejecutar, en este orden:
 - tres implementaciones separadas del scheduler por modo;
 - persistir o restaurar `playing=true`;
 - velocidad expresada con números sin unidad;
-- animación suave obligatoria cuando el sistema pide movimiento reducido;
+- activar animación suave sin una elección explícita cuando el sistema pide movimiento reducido;
 - añadir controles flotantes independientes para tiempo, suavidad y play/pause;
 - selectores CSS privados desde el composable cuando el stage puede exponer una API;
 - `scrollIntoView` que pueda desplazar el documento completo;
@@ -421,7 +421,7 @@ Ejecutar, en este orden:
 
 La implementación fue aprobada y completada en la rama prevista. Resultado verificado:
 
-- 20 pruebas Vitest pasan, incluidas 9 del controlador de auto-scroll;
+- 21 pruebas Vitest pasan, incluidas 10 del controlador de auto-scroll;
 - `npm run lint`, `npm run check` y `npm run build` pasan;
 - todos los archivos tocados pasan Prettier;
 - el smoke SSR de `/titulo/berserk/374` responde 200 e incluye la isla Vue;

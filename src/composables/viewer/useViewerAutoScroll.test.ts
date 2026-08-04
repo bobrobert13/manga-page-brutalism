@@ -6,6 +6,7 @@ import {
   normalizeAutoScrollInterval,
   parseStoredAutoScrollInterval,
   parseStoredAutoScrollMotion,
+  resolveInitialAutoScrollMotion,
 } from './useViewerAutoScroll';
 
 describe('auto-scroll preference codecs', () => {
@@ -30,6 +31,14 @@ describe('auto-scroll preference codecs', () => {
     expect(parseStoredAutoScrollMotion(AUTO_SCROLL_MOTION.smooth)).toBe('smooth');
     expect(parseStoredAutoScrollMotion('cinematic')).toBeNull();
     expect(parseStoredAutoScrollMotion(null)).toBeNull();
+  });
+
+  it('uses reduced motion as a default without blocking an explicit preference', () => {
+    expect(resolveInitialAutoScrollMotion(null, true)).toBe(AUTO_SCROLL_MOTION.direct);
+    expect(resolveInitialAutoScrollMotion(null, false)).toBe(AUTO_SCROLL_MOTION.smooth);
+    expect(resolveInitialAutoScrollMotion(AUTO_SCROLL_MOTION.smooth, true)).toBe(
+      AUTO_SCROLL_MOTION.smooth
+    );
   });
 });
 

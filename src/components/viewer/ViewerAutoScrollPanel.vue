@@ -130,7 +130,11 @@ defineExpose({ panelElement });
         </button>
       </div>
       <p v-if="autoScroll.prefersReducedMotion.value" class="vp-auto-panel__notice" role="status">
-        Animación suave desactivada por tu sistema.
+        {{
+          autoScroll.motion.value === AUTO_SCROLL_MOTION.smooth
+            ? 'Movimiento suave activado manualmente.'
+            : 'Tu sistema prefiere menos movimiento. Puedes activar Suave manualmente.'
+        }}
       </p>
     </fieldset>
 
