@@ -31,10 +31,17 @@ let cascadeTrackingFrame: number | null = null;
 let isSyncingFromScroll = false;
 let programmaticTargetIndex: number | null = null;
 let cancelScrollAnimation: (() => void) | null = null;
+let animatedScrollPort: HTMLElement | null = null;
+
+function finishScrollAnimation(): void {
+  animatedScrollPort?.classList.remove('vp-stage__slider--animating');
+  animatedScrollPort = null;
+  cancelScrollAnimation = null;
+}
 
 function stopScrollAnimation(): void {
   cancelScrollAnimation?.();
-  cancelScrollAnimation = null;
+  finishScrollAnimation();
 }
 
 function scrollToOffset(scrollPort: HTMLElement, axis: ScrollAxis, targetOffset: number): void {
@@ -44,10 +51,13 @@ function scrollToOffset(scrollPort: HTMLElement, axis: ScrollAxis, targetOffset:
     else scrollPort.scrollTop = targetOffset;
     return;
   }
+  animatedScrollPort = scrollPort;
+  if (axis === 'x') scrollPort.classList.add('vp-stage__slider--animating');
   cancelScrollAnimation = animateElementScroll(scrollPort, {
     axis,
     targetOffset,
     durationMs: AUTO_SCROLL_CONFIG.smoothScrollDurationMs,
+    onComplete: finishScrollAnimation,
   });
 }
 
@@ -185,7 +195,10 @@ function shouldRender(n: number): boolean {
   <div
     ref="streamRef"
     class="vp-stage"
-    :class="{ 'vp-stage--zoom': isZoom }"
+    :class="{
+      'vp-stage--zoom': isZoom,
+      'vp-stage--smooth': autoScroll.effectiveMotion.value === AUTO_SCROLL_MOTION.smooth,
+    }"
     :style="{ '--vp-page-transition-ms': pageTransitionMs + 'ms' }"
     @pointerdown="onManualScrollIntent"
     @touchstart.passive="onManualScrollIntent"
@@ -325,6 +338,13 @@ function shouldRender(n: number): boolean {
   transform: translateY(-16px) scale(0.99);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .vp-stage--smooth .slide-enter-active,
+  .vp-stage--smooth .slide-leave-active {
+    transition-duration: var(--vp-page-transition-ms, 280ms) !important;
+  }
+}
+
 .vp-stage__hint {
   position: absolute;
   bottom: 16px;
@@ -349,6 +369,9 @@ function shouldRender(n: number): boolean {
   padding: 16px;
   height: 100%;
   scrollbar-width: none;
+}
+.vp-stage__slider--animating {
+  scroll-snap-type: none !important;
 }
 .vp-stage__slider::-webkit-scrollbar {
   display: none;

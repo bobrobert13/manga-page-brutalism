@@ -16,6 +16,7 @@ describe('viewer scroll animation', () => {
     const callbacks: FrameRequestCallback[] = [];
     const target = { scrollLeft: 0, scrollTop: 100 };
     const cancelFrame = vi.fn();
+    const onComplete = vi.fn();
     animateElementScroll(target, {
       axis: 'y',
       targetOffset: 500,
@@ -28,6 +29,7 @@ describe('viewer scroll animation', () => {
         },
         cancelFrame,
       },
+      onComplete,
     });
 
     callbacks.shift()?.(1_400);
@@ -35,6 +37,7 @@ describe('viewer scroll animation', () => {
     callbacks.shift()?.(1_800);
     expect(target.scrollTop).toBe(500);
     expect(cancelFrame).not.toHaveBeenCalled();
+    expect(onComplete).toHaveBeenCalledOnce();
   });
 
   it('cancels a pending animation without forcing its destination', () => {

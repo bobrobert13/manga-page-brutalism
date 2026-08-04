@@ -16,6 +16,7 @@ interface ScrollAnimationOptions {
   targetOffset: number;
   durationMs: number;
   scheduler?: AnimationScheduler;
+  onComplete?: () => void;
 }
 
 export function easeInOutCubic(progress: number): number {
@@ -40,6 +41,7 @@ export function animateElementScroll(
 
   if (options.durationMs <= 0 || Math.abs(distance) < 1) {
     target[property] = options.targetOffset;
+    options.onComplete?.();
     return () => undefined;
   }
 
@@ -57,6 +59,7 @@ export function animateElementScroll(
     } else {
       target[property] = options.targetOffset;
       frameId = null;
+      options.onComplete?.();
     }
   }
 
