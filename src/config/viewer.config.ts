@@ -6,10 +6,18 @@ export const READING_MODE = {
 
 export type ReadingMode = (typeof READING_MODE)[keyof typeof READING_MODE];
 
+export const AUTO_SCROLL_MOTION = {
+  direct: 'direct',
+  smooth: 'smooth',
+} as const;
+
+export type AutoScrollMotion = (typeof AUTO_SCROLL_MOTION)[keyof typeof AUTO_SCROLL_MOTION];
+
 export const STORAGE_KEYS = {
   theme: 'inkpxl-theme',
   viewerOnboarded: 'inkpxl-viewer-onboarded',
   viewerPrefix: 'inkpxl-viewer',
+  viewerAutoScroll: 'inkpxl-viewer-auto-scroll',
 } as const;
 
 export const VIEWER_CONFIG = {
@@ -20,4 +28,13 @@ export const VIEWER_CONFIG = {
   swipeThresholdPx: 60,
   pinchZoomInThreshold: 1.15,
   pinchZoomOutThreshold: 0.87,
+} as const;
+
+export const AUTO_SCROLL_CONFIG = {
+  defaultIntervalMs: 8_000,
+  minIntervalMs: 3_000,
+  maxIntervalMs: 30_000,
+  intervalStepMs: 1_000,
+  smoothDurationMs: 400,
+  defaultMotion: AUTO_SCROLL_MOTION.smooth,
 } as const;
