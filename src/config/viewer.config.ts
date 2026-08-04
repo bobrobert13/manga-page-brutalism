@@ -35,6 +35,7 @@ export const AUTO_SCROLL_CONFIG = {
   minIntervalMs: 3_000,
   maxIntervalMs: 30_000,
   intervalStepMs: 1_000,
-  smoothDurationMs: 400,
+  smoothScrollDurationMs: 750,
+  pageTransitionDurationMs: 280,
   defaultMotion: AUTO_SCROLL_MOTION.smooth,
 } as const;

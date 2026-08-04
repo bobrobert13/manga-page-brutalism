@@ -3,6 +3,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useInjectedViewerAutoScroll } from '@/composables/viewer/useViewerAutoScroll';
 import { useInjectedViewer } from '@/composables/viewer/useViewerState';
 import { AUTO_SCROLL_CONFIG, AUTO_SCROLL_MOTION, READING_MODE } from '@/config/index.config';
+import { animateElementScroll, type ScrollAxis } from '@/lib/viewer/scroll-animation';
 
 const state = useInjectedViewer();
 const autoScroll = useInjectedViewerAutoScroll();
@@ -19,7 +20,7 @@ const isZoom = computed(() => state.isZoomed.value);
 const currentPage = computed(() => pages.value[cur.value]);
 const pageTransitionMs = computed(() =>
   autoScroll.effectiveMotion.value === AUTO_SCROLL_MOTION.smooth
-    ? AUTO_SCROLL_CONFIG.smoothDurationMs
+    ? AUTO_SCROLL_CONFIG.pageTransitionDurationMs
     : 0
 );
 
@@ -29,6 +30,26 @@ let renderIO: IntersectionObserver | null = null;
 let cascadeTrackingFrame: number | null = null;
 let isSyncingFromScroll = false;
 let programmaticTargetIndex: number | null = null;
+let cancelScrollAnimation: (() => void) | null = null;
+
+function stopScrollAnimation(): void {
+  cancelScrollAnimation?.();
+  cancelScrollAnimation = null;
+}
+
+function scrollToOffset(scrollPort: HTMLElement, axis: ScrollAxis, targetOffset: number): void {
+  stopScrollAnimation();
+  if (autoScroll.effectiveMotion.value === AUTO_SCROLL_MOTION.direct) {
+    if (axis === 'x') scrollPort.scrollLeft = targetOffset;
+    else scrollPort.scrollTop = targetOffset;
+    return;
+  }
+  cancelScrollAnimation = animateElementScroll(scrollPort, {
+    axis,
+    targetOffset,
+    durationMs: AUTO_SCROLL_CONFIG.smoothScrollDurationMs,
+  });
+}
 
 function setupObserver() {
   if (!streamRef.value) return;
@@ -61,10 +82,12 @@ onMounted(() => {
 onUnmounted(() => {
   renderIO?.disconnect();
   if (cascadeTrackingFrame !== null) cancelAnimationFrame(cascadeTrackingFrame);
+  stopScrollAnimation();
 });
 watch(
   () => state.mode.value,
   () => {
+    stopScrollAnimation();
     isSyncingFromScroll = false;
     programmaticTargetIndex = null;
     setTimeout(setupObserver, 50);
@@ -98,6 +121,7 @@ function syncCurrentPageFromScroll(index: number): void {
 }
 
 function onManualScrollIntent(): void {
+  stopScrollAnimation();
   programmaticTargetIndex = null;
 }
 
@@ -133,8 +157,6 @@ watch(
     }
     if (!streamRef.value) return;
     const container = streamRef.value;
-    const behavior =
-      autoScroll.effectiveMotion.value === AUTO_SCROLL_MOTION.smooth ? 'smooth' : 'auto';
     if (isSlider.value) {
       programmaticTargetIndex = newIdx;
       const scrollPort = container.querySelector<HTMLElement>('.vp-stage__slider');
@@ -143,13 +165,13 @@ watch(
       );
       if (scrollPort && cell) {
         const left = cell.offsetLeft - (scrollPort.clientWidth - cell.offsetWidth) / 2;
-        scrollPort.scrollTo({ left, behavior });
+        scrollToOffset(scrollPort, 'x', left);
       }
     } else if (isCascade.value) {
       programmaticTargetIndex = newIdx;
       const scrollPort = container.querySelector<HTMLElement>('.vp-stage__cascade');
       const cell = container.querySelector<HTMLElement>(`.vp-page[data-page="${newIdx + 1}"]`);
-      if (scrollPort && cell) scrollPort.scrollTo({ top: cell.offsetTop, behavior });
+      if (scrollPort && cell) scrollToOffset(scrollPort, 'y', cell.offsetTop);
     }
   }
 );
@@ -291,23 +313,16 @@ function shouldRender(n: number): boolean {
 .slide-enter-active,
 .slide-leave-active {
   transition:
-    opacity var(--vp-page-transition-ms, 200ms) ease,
-    transform var(--vp-page-transition-ms, 200ms) ease;
+    opacity var(--vp-page-transition-ms, 200ms) cubic-bezier(0.22, 1, 0.36, 1),
+    transform var(--vp-page-transition-ms, 200ms) cubic-bezier(0.22, 1, 0.36, 1);
 }
 .slide-enter-from {
   opacity: 0;
-  transform: translateY(8px);
+  transform: translateY(20px) scale(0.985);
 }
 .slide-leave-to {
   opacity: 0;
-  transform: translateY(-8px);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .slide-enter-active,
-  .slide-leave-active {
-    transition: none;
-  }
+  transform: translateY(-16px) scale(0.99);
 }
 
 .vp-stage__hint {

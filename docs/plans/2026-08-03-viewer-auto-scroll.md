@@ -108,7 +108,8 @@ Extender la fachada existente mediante `src/config/viewer.config.ts` y su reexpo
 - `AUTO_SCROLL_CONFIG.minIntervalMs`;
 - `AUTO_SCROLL_CONFIG.maxIntervalMs`;
 - `AUTO_SCROLL_CONFIG.intervalStepMs`;
-- `AUTO_SCROLL_CONFIG.smoothDurationMs`;
+- `AUTO_SCROLL_CONFIG.smoothScrollDurationMs`;
+- `AUTO_SCROLL_CONFIG.pageTransitionDurationMs`;
 - nueva clave estable de storage para preferencias;
 - enum/objeto constante para `direct` y `smooth`.
 
@@ -144,6 +145,7 @@ Actualizar `ViewerStage.vue` para:
 - desplazar el contenedor interno mediante offsets propios, evitando que `scrollIntoView` mueva el documento o el header;
 - aplicar movimiento directo o suave en Cascada y Slider;
 - aplicar duración cero o la transición configurada en Página;
+- usar interpolación propia con `requestAnimationFrame` y easing para que Cascada/Slider no dependan del `smooth` nativo del navegador;
 - sincronizar `currentIndex` en Cascada con la página más cercana al centro del viewport mediante scroll con throttle por `requestAnimationFrame`;
 - distinguir movimiento programático de interacción manual para no pausar el propio avance automático;
 - conservar lazy rendering e indicador de progreso;
@@ -243,7 +245,9 @@ Las cifras son líneas cambiadas aproximadas, incluyendo adiciones, modificacion
 | `src/composables/viewer/useViewerAutoScroll.test.ts` | Timers, límites, fin, pausas, reduced motion y cleanup | 150–220 |
 | `src/composables/viewer/useViewerController.ts` | Composición, provide y adaptador del stage | 20–40 |
 | `src/composables/viewer/useViewerKeyboard.ts` | Atajo y pausas por navegación manual | 15–30 |
-| `src/components/viewer/ViewerStage.vue` | API de avance, motion y tracking de Cascada | 70–120 |
+| `src/components/viewer/ViewerStage.vue` | API de avance, motion, animación y tracking de Cascada | 70–120 |
+| `src/lib/viewer/scroll-animation.ts` | Interpolación cancelable y easing del scroll | 50–80 |
+| `src/lib/viewer/scroll-animation.test.ts` | Curva, duración y cancelación | 50–80 |
 | `src/components/viewer/ViewerControls.vue` | Botón AUTO y apertura/cierre del panel | 35–65 |
 | `src/components/viewer/ViewerAutoScrollPanel.vue` | Nuevo panel responsive y accesible | 200–280 |
 | `src/components/viewer/ViewerOnboarding.vue` | Ayuda y atajo | 10–25 |
@@ -421,7 +425,7 @@ Ejecutar, en este orden:
 
 La implementación fue aprobada y completada en la rama prevista. Resultado verificado:
 
-- 21 pruebas Vitest pasan, incluidas 10 del controlador de auto-scroll;
+- 24 pruebas Vitest pasan, incluidas 13 del auto-scroll y su animación;
 - `npm run lint`, `npm run check` y `npm run build` pasan;
 - todos los archivos tocados pasan Prettier;
 - el smoke SSR de `/titulo/berserk/374` responde 200 e incluye la isla Vue;
