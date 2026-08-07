@@ -1,147 +1,48 @@
 ---
 name: astro
-description: Skill for building with the Astro web framework. Helps create Astro components and pages, configure SSR adapters, set up content collections, deploy static sites, and manage project structure and CLI commands. Use when the user needs to work with Astro, mentions .astro files, asks about static site generation (SSG), islands architecture, content collections, or deploying an Astro project.
+description: "Trigger: Astro, .astro, SSR, routes, islands, adapters, or Astro tests. Apply this repository's Astro architecture and verification rules."
 license: MIT
 metadata:
-  authors: 'Astro Team'
-  version: '0.0.1'
+  author: Astro Team
+  version: '0.1.0'
 ---
 
-# Astro Usage Guide
+## Activation Contract
 
-**Always consult [docs.astro.build](https://docs.astro.build) for code examples and latest API.**
+Use this skill for Astro pages, components, routes, middleware, adapters, islands, SSR behavior, or testing that crosses an Astro boundary.
 
-Astro is the web framework for content-driven websites.
+## Hard Rules
 
----
+- Read `../../../AGENTS.md` and the relevant local reference before editing.
+- Keep SSR as the default; prerender only intentionally static routes.
+- Access catalog data through `src/services/`, never directly from `src/data/` in pages or components.
+- Keep Astro API handlers thin and move business logic into testable services or functions.
+- Start development only with `astro dev --background`; manage it with `astro dev status|logs|stop`.
+- Do not introduce browser E2E or CI unless the user expands the current testing scope.
 
-## Quick Reference
+## Decision Gates
 
-### File Location
+| Change                              | Required reference               |
+| ----------------------------------- | -------------------------------- |
+| Data flow, service, auth, SSR       | `../../../docs/architecture.md`  |
+| Unit, DOM, HTTP, or endpoint test   | `../../../docs/testing.md`       |
+| Generic Astro CLI or project layout | `references/framework-basics.md` |
 
-CLI looks for `astro.config.js`, `astro.config.mjs`, `astro.config.cjs`, and `astro.config.ts` in: `./`. Use `--config` for custom path.
+## Execution Steps
 
-### CLI Commands
+1. Inspect the target route or component and its service/composable dependencies.
+2. Select Node tests for pure/HTTP logic or happy-dom for Vue and browser APIs.
+3. Add the failing behavior test before implementation when building a feature.
+4. Preserve the config facade, functional service, `ServiceResult`, and per-request auth boundaries.
+5. Run the focused test, then formatting, lint, Astro check, coverage, and build before handoff.
 
-- `npx astro dev` - Start the development server.
-- `npx astro build` - Build your project and write it to disk.
-- `npx astro check` - Check your project for errors.
-- `npx astro add` - Add an integration.
-- `npx astro sync` - Generate TypeScript types for all Astro modules.
+## Output Contract
 
-**Re-run after adding/changing plugins.**
+Report changed Astro boundaries, test layer used, SSR/prerender impact, commands executed, and any remaining manual visual verification.
 
-### Project Structure
+## References
 
-Reference [project structure docs](https://docs.astro.build/en/basics/project-structure).
-
-- `src/*` - Project source code (components, pages, styles, images, etc.)
-- `src/pages` - **Required.** Defines all pages and routes.
-- `src/components` - Components (convention, not required).
-- `src/layouts` - Layout components (convention, not required).
-- `src/styles` - CSS/Sass files (convention, not required).
-- `public/*` - Non-code, unprocessed assets (fonts, icons, etc.); copied as-is to build output.
-- `package.json` - Project manifest.
-- `astro.config.{js,mjs,cjs,ts}` - Astro configuration file. (recommended)
-- `tsconfig.json` - TypeScript configuration file. (recommended)
-
----
-
-## Core Config Options
-
-| Option | Notes                                                                   |
-| ------ | ----------------------------------------------------------------------- |
-| `site` | Your final, deployed URL. Used to generate sitemaps and canonical URLs. |
-
-### Example `astro.config.ts`
-
-```ts
-import { defineConfig } from 'astro/config';
-
-export default defineConfig({
-  site: 'https://example.com',
-});
-```
-
----
-
-## Common Workflows
-
-### Creating a Basic Page
-
-Add a file to `src/pages/` — the filename becomes the route:
-
-```astro
----
-// src/pages/index.astro
-const title = 'Hello, Astro!';
----
-
-<html>
-  <head><title>{title}</title></head>
-  <body>
-    <h1>{title}</h1>
-  </body>
-</html>
-```
-
-### Creating a Component
-
-```astro
----
-// src/components/Card.astro
-const { title, body } = Astro.props;
----
-
-<div class="card">
-  <h2>{title}</h2>
-  <p>{body}</p>
-</div>
-```
-
-### Deploying with an Adapter
-
-1. Add the adapter: `npx astro add vercel --yes` (or `node`, `cloudflare`, `netlify`)
-2. Run `npx astro check` to catch type and configuration errors before building.
-3. Run `npx astro build` to produce the deployment artifact.
-4. Verify the build output directory (e.g. `dist/`) exists and is non-empty before proceeding.
-5. Deploy the output per the adapter's documentation.
-
----
-
-## Adapters
-
-Deploy to your favorite server, serverless, or edge host with build adapters. Use an adapter to enable on-demand rendering in your Astro project.
-
-**Add [Node.js](https://docs.astro.build/en/guides/integrations-guide/node) adapter using astro add:**
-
-```
-npx astro add node --yes
-```
-
-**Add [Cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare) adapter using astro add:**
-
-```
-npx astro add cloudflare --yes
-```
-
-**Add [Netlify](https://docs.astro.build/en/guides/integrations-guide/netlify) adapter using astro add:**
-
-```
-npx astro add netlify --yes
-```
-
-**Add [Vercel](https://docs.astro.build/en/guides/integrations-guide/vercel) adapter using astro add:**
-
-```
-npx astro add vercel --yes
-```
-
-[Other Community adapters](https://astro.build/integrations/2/?search=&categories%5B%5D=adapters)
-
-## Resources
-
-- [Docs](https://docs.astro.build)
-- [Config Reference](https://docs.astro.build/en/reference/configuration-reference/)
-- [llms.txt](https://docs.astro.build/llms.txt)
-- [GitHub](https://github.com/withastro/astro)
+- `../../../AGENTS.md`
+- `../../../docs/architecture.md`
+- `../../../docs/testing.md`
+- `references/framework-basics.md`

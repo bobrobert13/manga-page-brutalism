@@ -1,7 +1,14 @@
-/// <reference types="vitest/config" />
-import { getViteConfig } from 'astro/config';
+import { fileURLToPath } from 'node:url';
+import vue from '@vitejs/plugin-vue';
+import { defineConfig } from 'vitest/config';
 
-export default getViteConfig({
+export default defineConfig({
+  plugins: [vue()],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
   test: {
     clearMocks: true,
     restoreMocks: true,
@@ -37,6 +44,12 @@ export default getViteConfig({
         'src/composables/**/*.ts',
       ],
       exclude: ['src/**/*.test.ts', 'src/**/*.dom.test.ts', 'src/**/*.d.ts'],
+      thresholds: {
+        branches: 75,
+        functions: 85,
+        lines: 85,
+        statements: 80,
+      },
     },
   },
 });
