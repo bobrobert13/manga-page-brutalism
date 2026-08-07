@@ -23,3 +23,14 @@ export function mountComposable<T>(useComposable: () => T): MountedComposable<T>
 
   return { result, wrapper };
 }
+
+export function mountLifecycle(useComposable: () => void): VueWrapper<ComponentPublicInstance> {
+  return mount(
+    defineComponent({
+      setup() {
+        useComposable();
+        return () => h('div');
+      },
+    })
+  );
+}
