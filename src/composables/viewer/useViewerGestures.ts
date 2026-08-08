@@ -100,8 +100,9 @@ export function useViewerGestures(stageRef: Ref<HTMLElement | null>, state: View
   }
 
   onMounted(() => {
-    const el = boundElement;
+    const el = getEl();
     if (!el) return;
+    boundElement = el;
     el.addEventListener('touchstart', onTouchStart, { passive: true });
     el.addEventListener('touchmove', onTouchMove, { passive: true });
     el.addEventListener('touchend', onTouchEnd, { passive: true });
@@ -110,7 +111,7 @@ export function useViewerGestures(stageRef: Ref<HTMLElement | null>, state: View
   });
 
   onUnmounted(() => {
-    const el = getEl();
+    const el = boundElement;
     if (!el) return;
     el.removeEventListener('touchstart', onTouchStart);
     el.removeEventListener('touchmove', onTouchMove);

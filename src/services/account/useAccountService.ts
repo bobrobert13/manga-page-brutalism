@@ -4,12 +4,29 @@ import { createServiceError } from '@/services/shared/service-error';
 import { failure, success, type ServiceResult } from '@/services/shared/service-result';
 import type { AccountProfile } from './account.types';
 
-export function useAccountService(context: APIContext) {
-  const client = clerkClient(context);
+interface AccountUserRecord {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  primaryEmailAddressId: string | null;
+  emailAddresses: readonly { id: string; emailAddress: string }[];
+  imageUrl: string;
+  createdAt: number;
+}
+
+type AccountUserLoader = (userId: string) => Promise<AccountUserRecord>;
+
+export interface AccountServiceOptions {
+  getUser?: AccountUserLoader;
+}
+
+export function useAccountService(context: APIContext, options: AccountServiceOptions = {}) {
+  const getUser: AccountUserLoader =
+    options.getUser ?? ((userId) => clerkClient(context).users.getUser(userId));
 
   async function getProfile(userId: string): Promise<ServiceResult<AccountProfile>> {
     try {
-      const user = await client.users.getUser(userId);
+      const user = await getUser(userId);
       const primaryEmail =
         user.emailAddresses.find((email) => email.id === user.primaryEmailAddressId)
           ?.emailAddress ??

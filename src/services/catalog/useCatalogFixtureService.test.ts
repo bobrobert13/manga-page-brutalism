@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import { catalogServiceContract } from '../../../tests/contracts/catalogService.contract';
 import { useCatalogFixtureService } from './useCatalogFixtureService';
+
+catalogServiceContract('fixture', useCatalogFixtureService);
 
 describe('useCatalogFixtureService', () => {
   const service = useCatalogFixtureService();
@@ -23,6 +26,25 @@ describe('useCatalogFixtureService', () => {
     if (!result.ok) {
       expect(result.error.code).toBe('not_found');
       expect(result.error.status).toBe(404);
+    }
+  });
+
+  it('builds deterministic chapter metadata for titles without curated rows', async () => {
+    const result = await service.getChapters('one-piece');
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data[0]).toEqual({
+        number: '1121',
+        title: 'Capítulo 1121',
+        publishedAt: 'hace 1 mes',
+      });
+      expect(result.data.map((chapter) => chapter.number)).toEqual([
+        '1121',
+        '1122',
+        '1123',
+        '1124',
+      ]);
     }
   });
 });

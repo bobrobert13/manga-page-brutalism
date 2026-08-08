@@ -87,6 +87,7 @@ onMounted(() => {
   // Always render first 2 pages immediately
   renderedPages.value.add(1);
   if (pages.value.length > 1) renderedPages.value.add(2);
+  renderedPages.value = new Set(renderedPages.value);
   setupObserver();
 });
 onUnmounted(() => {

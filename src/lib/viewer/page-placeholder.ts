@@ -103,7 +103,7 @@ export function pageSvg(input: PageSvgInput): string {
     "<text x='150' y='190' text-anchor='middle' font-family='Archivo Black,Impact,sans-serif' font-size='64' fill='" +
       fg +
       "' letter-spacing='-3'>" +
-      acronym +
+      escapeXml(acronym) +
       '</text>',
     "<rect x='120' y='210' width='60' height='8' fill='" + accent + "' />",
     "<text x='150' y='240' text-anchor='middle' font-family='Space Mono,monospace' font-size='11' fill='" +

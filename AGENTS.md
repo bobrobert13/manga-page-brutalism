@@ -20,12 +20,23 @@ Manage the background server with `astro dev stop`, `astro dev status`, and `ast
 - Astro pages are SSR by default. Add `prerender = true` only to routes that are intentionally static.
 - Run `npm run format:check`, `npm run lint`, `npm run check`, `npm run test`, and `npm run build` before handoff.
 
+## Testing
+
+- Follow `docs/testing.md` for test placement, TDD flow, HTTP contracts, and determinism rules.
+- Use `*.test.ts` for Node tests and `*.dom.test.ts` for Vue or browser-API behavior in happy-dom.
+- Exercise Axios through MSW; do not mock Axios in HTTP client or service tests.
+- Keep MSW requests local and fail every unhandled request.
+- Share contract tests between fixture and HTTP implementations of the same service.
+- Run a focused file while iterating, then `npm run test:coverage` before handoff.
+
 ## Documentation
 
 Full documentation: https://docs.astro.build
 
 Consult these guides before working on related tasks:
 
+- [Testing strategy](docs/testing.md)
+- [Application architecture](docs/architecture.md)
 - [Adding pages, dynamic routes, or middleware](https://docs.astro.build/en/guides/routing/)
 - [Working with Astro components](https://docs.astro.build/en/basics/astro-components/)
 - [Using React, Vue, Svelte, or other framework components](https://docs.astro.build/en/guides/framework-components/)

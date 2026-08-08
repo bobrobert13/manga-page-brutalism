@@ -8,7 +8,7 @@ import { VIEWER_CONFIG } from '@/config/index.config';
 
 export function useViewerChromeAutoHide(
   isFullscreen: Ref<boolean>,
-  idleMs = VIEWER_CONFIG.chromeIdleMs,
+  idleMs: number = VIEWER_CONFIG.chromeIdleMs,
   isLocked?: Ref<boolean>
 ): Ref<boolean> {
   const isChromeVisible = ref(true);
@@ -77,7 +77,10 @@ export function useViewerChromeAutoHide(
   }
 
   onMounted(() => {
-    if (isFullscreen.value) bind();
+    if (isFullscreen.value) {
+      scheduleHide();
+      bind();
+    }
   });
 
   onUnmounted(() => unbind());
