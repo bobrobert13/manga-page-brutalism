@@ -2,9 +2,19 @@
  * Viewer-specific types shared across composables and Vue components.
  */
 
-export type { ReadingMode } from '@/config/index.config';
+export type { AutoScrollMotion, ReadingMode } from '@/config/index.config';
 
-import type { ReadingMode } from '@/config/index.config';
+import type { AutoScrollMotion, ReadingMode } from '@/config/index.config';
+
+export type AutoScrollStatus = 'stopped' | 'playing' | 'paused' | 'completed';
+
+export type AutoScrollPauseReason =
+  'manual' | 'interaction' | 'mode-change' | 'zoom' | 'onboarding' | 'hidden';
+
+export interface ViewerAutoScrollPreferences {
+  intervalMs: number;
+  motion: AutoScrollMotion;
+}
 
 export interface ViewerPage {
   /** 1-based page number. */

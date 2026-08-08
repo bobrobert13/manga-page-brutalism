@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { useInjectedViewerAutoScroll } from '@/composables/viewer/useViewerAutoScroll';
 import { useInjectedViewer } from '@/composables/viewer/useViewerState';
-import { READING_MODE } from '@/config/index.config';
+import { AUTO_SCROLL_CONFIG, AUTO_SCROLL_MOTION, READING_MODE } from '@/config/index.config';
+import { animateElementScroll, type ScrollAxis } from '@/lib/viewer/scroll-animation';
 
 const state = useInjectedViewer();
+const autoScroll = useInjectedViewerAutoScroll();
 
 const streamRef = ref<HTMLElement | null>(null);
 defineExpose({ stageElement: streamRef });
@@ -15,10 +18,48 @@ const isPage = computed(() => state.mode.value === READING_MODE.page);
 const isSlider = computed(() => state.mode.value === READING_MODE.slider);
 const isZoom = computed(() => state.isZoomed.value);
 const currentPage = computed(() => pages.value[cur.value]);
+const pageTransitionMs = computed(() =>
+  autoScroll.effectiveMotion.value === AUTO_SCROLL_MOTION.smooth
+    ? AUTO_SCROLL_CONFIG.pageTransitionDurationMs
+    : 0
+);
 
 // Track which pages should render their SVG content (for cascade lazy load)
 const renderedPages = ref<Set<number>>(new Set());
 let renderIO: IntersectionObserver | null = null;
+let cascadeTrackingFrame: number | null = null;
+let isSyncingFromScroll = false;
+let programmaticTargetIndex: number | null = null;
+let cancelScrollAnimation: (() => void) | null = null;
+let animatedScrollPort: HTMLElement | null = null;
+
+function finishScrollAnimation(): void {
+  animatedScrollPort?.classList.remove('vp-stage__slider--animating');
+  animatedScrollPort = null;
+  cancelScrollAnimation = null;
+}
+
+function stopScrollAnimation(): void {
+  cancelScrollAnimation?.();
+  finishScrollAnimation();
+}
+
+function scrollToOffset(scrollPort: HTMLElement, axis: ScrollAxis, targetOffset: number): void {
+  stopScrollAnimation();
+  if (autoScroll.effectiveMotion.value === AUTO_SCROLL_MOTION.direct) {
+    if (axis === 'x') scrollPort.scrollLeft = targetOffset;
+    else scrollPort.scrollTop = targetOffset;
+    return;
+  }
+  animatedScrollPort = scrollPort;
+  if (axis === 'x') scrollPort.classList.add('vp-stage__slider--animating');
+  cancelScrollAnimation = animateElementScroll(scrollPort, {
+    axis,
+    targetOffset,
+    durationMs: AUTO_SCROLL_CONFIG.smoothScrollDurationMs,
+    onComplete: finishScrollAnimation,
+  });
+}
 
 function setupObserver() {
   if (!streamRef.value) return;
@@ -48,10 +89,19 @@ onMounted(() => {
   if (pages.value.length > 1) renderedPages.value.add(2);
   setupObserver();
 });
-onUnmounted(() => renderIO?.disconnect());
+onUnmounted(() => {
+  renderIO?.disconnect();
+  if (cascadeTrackingFrame !== null) cancelAnimationFrame(cascadeTrackingFrame);
+  stopScrollAnimation();
+});
 watch(
   () => state.mode.value,
-  () => setTimeout(setupObserver, 50)
+  () => {
+    stopScrollAnimation();
+    isSyncingFromScroll = false;
+    programmaticTargetIndex = null;
+    setTimeout(setupObserver, 50);
+  }
 );
 
 function onSliderScroll() {
@@ -66,23 +116,72 @@ function onSliderScroll() {
     const d = Math.abs(r.left + r.width / 2 - center);
     if (d < best.dist) best = { idx: parseInt(cell.dataset.page || '0', 10) - 1, dist: d };
   });
-  if (best.idx !== cur.value && !isNaN(best.idx)) state.goToPage(best.idx);
+  syncCurrentPageFromScroll(best.idx);
+}
+
+function syncCurrentPageFromScroll(index: number): void {
+  if (Number.isNaN(index)) return;
+  if (programmaticTargetIndex !== null) {
+    if (index === programmaticTargetIndex) programmaticTargetIndex = null;
+    return;
+  }
+  if (index === cur.value) return;
+  isSyncingFromScroll = true;
+  state.goToPage(index);
+}
+
+function onManualScrollIntent(): void {
+  stopScrollAnimation();
+  programmaticTargetIndex = null;
+}
+
+function onCascadeScroll() {
+  if (!isCascade.value || !streamRef.value || cascadeTrackingFrame !== null) return;
+  cascadeTrackingFrame = requestAnimationFrame(() => {
+    cascadeTrackingFrame = null;
+    const container = streamRef.value?.querySelector<HTMLElement>('.vp-stage__cascade');
+    if (!container) return;
+    const center = container.getBoundingClientRect().top + container.clientHeight / 2;
+    const cells = container.querySelectorAll<HTMLElement>('.vp-page');
+    let best = { idx: cur.value, dist: Infinity };
+
+    cells.forEach((cell) => {
+      const rect = cell.getBoundingClientRect();
+      const distance = Math.abs(rect.top + rect.height / 2 - center);
+      if (distance < best.dist) {
+        best = { idx: Number.parseInt(cell.dataset.page || '0', 10) - 1, dist: distance };
+      }
+    });
+
+    syncCurrentPageFromScroll(best.idx);
+  });
 }
 
 // Sync scroll position when state changes programmatically (button click, keyboard)
 watch(
   () => state.currentIndex.value,
   (newIdx) => {
+    if (isSyncingFromScroll) {
+      isSyncingFromScroll = false;
+      return;
+    }
     if (!streamRef.value) return;
     const container = streamRef.value;
     if (isSlider.value) {
+      programmaticTargetIndex = newIdx;
+      const scrollPort = container.querySelector<HTMLElement>('.vp-stage__slider');
       const cell = container.querySelector<HTMLElement>(
         `.vp-page__slide[data-page="${newIdx + 1}"]`
       );
-      cell?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      if (scrollPort && cell) {
+        const left = cell.offsetLeft - (scrollPort.clientWidth - cell.offsetWidth) / 2;
+        scrollToOffset(scrollPort, 'x', left);
+      }
     } else if (isCascade.value) {
+      programmaticTargetIndex = newIdx;
+      const scrollPort = container.querySelector<HTMLElement>('.vp-stage__cascade');
       const cell = container.querySelector<HTMLElement>(`.vp-page[data-page="${newIdx + 1}"]`);
-      cell?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (scrollPort && cell) scrollToOffset(scrollPort, 'y', cell.offsetTop);
     }
   }
 );
@@ -93,8 +192,19 @@ function shouldRender(n: number): boolean {
 </script>
 
 <template>
-  <div ref="streamRef" class="vp-stage" :class="{ 'vp-stage--zoom': isZoom }">
-    <div v-if="isCascade" class="vp-stage__cascade">
+  <div
+    ref="streamRef"
+    class="vp-stage"
+    :class="{
+      'vp-stage--zoom': isZoom,
+      'vp-stage--smooth': autoScroll.effectiveMotion.value === AUTO_SCROLL_MOTION.smooth,
+    }"
+    :style="{ '--vp-page-transition-ms': pageTransitionMs + 'ms' }"
+    @pointerdown="onManualScrollIntent"
+    @touchstart.passive="onManualScrollIntent"
+    @wheel.passive="onManualScrollIntent"
+  >
+    <div v-if="isCascade" class="vp-stage__cascade" @scroll="onCascadeScroll">
       <figure
         v-for="page in pages"
         :key="page.number"
@@ -216,22 +326,22 @@ function shouldRender(n: number): boolean {
 .slide-enter-active,
 .slide-leave-active {
   transition:
-    opacity 200ms ease,
-    transform 200ms ease;
+    opacity var(--vp-page-transition-ms, 200ms) cubic-bezier(0.22, 1, 0.36, 1),
+    transform var(--vp-page-transition-ms, 200ms) cubic-bezier(0.22, 1, 0.36, 1);
 }
 .slide-enter-from {
   opacity: 0;
-  transform: translateY(8px);
+  transform: translateY(20px) scale(0.985);
 }
 .slide-leave-to {
   opacity: 0;
-  transform: translateY(-8px);
+  transform: translateY(-16px) scale(0.99);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .slide-enter-active,
-  .slide-leave-active {
-    transition: none;
+  .vp-stage--smooth .slide-enter-active,
+  .vp-stage--smooth .slide-leave-active {
+    transition-duration: var(--vp-page-transition-ms, 280ms) !important;
   }
 }
 
@@ -259,6 +369,9 @@ function shouldRender(n: number): boolean {
   padding: 16px;
   height: 100%;
   scrollbar-width: none;
+}
+.vp-stage__slider--animating {
+  scroll-snap-type: none !important;
 }
 .vp-stage__slider::-webkit-scrollbar {
   display: none;

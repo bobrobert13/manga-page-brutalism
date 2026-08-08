@@ -2,6 +2,7 @@ import { onMounted, provide, type Ref } from 'vue';
 import { STORAGE_KEYS, type ReadingMode } from '@/config/index.config';
 import type { ViewerPage } from '@/types/viewer';
 import { CHROME_VISIBLE_KEY } from './useViewerChromeVisible';
+import { useViewerAutoScroll } from './useViewerAutoScroll';
 import { useViewerChromeAutoHide } from './useViewerChromeAutoHide';
 import { useViewerGestures } from './useViewerGestures';
 import { useViewerKeyboard } from './useViewerKeyboard';
@@ -22,10 +23,15 @@ export function useViewerController(options: ViewerControllerOptions) {
   // Restore persisted state first; a valid ?page URL then takes precedence.
   useViewerPersistence(state, options.storageKey);
   useViewerUrlSync(state.currentIndex, state.totalPages);
-  useViewerKeyboard(state);
+  const autoScroll = useViewerAutoScroll(state, options.stageElement);
+  useViewerKeyboard(state, autoScroll);
   useViewerGestures(options.stageElement, state);
 
-  const isChromeVisible = useViewerChromeAutoHide(state.isFullscreen);
+  const isChromeVisible = useViewerChromeAutoHide(
+    state.isFullscreen,
+    undefined,
+    autoScroll.isPanelOpen
+  );
   provide(CHROME_VISIBLE_KEY, isChromeVisible);
 
   onMounted(() => {

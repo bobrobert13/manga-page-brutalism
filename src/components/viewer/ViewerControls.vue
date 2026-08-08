@@ -1,17 +1,68 @@
 <script setup lang="ts">
+import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
+import { useInjectedViewerAutoScroll } from '@/composables/viewer/useViewerAutoScroll';
 import { useInjectedViewer } from '@/composables/viewer/useViewerState';
 import { useViewerChromeVisible } from '@/composables/viewer/useViewerChromeVisible';
+import ViewerAutoScrollPanel from './ViewerAutoScrollPanel.vue';
 
 const state = useInjectedViewer();
+const autoScroll = useInjectedViewerAutoScroll();
 const isChromeVisible = useViewerChromeVisible();
+const autoButton = ref<HTMLButtonElement | null>(null);
+
+function closePanel(restoreFocus = true): void {
+  if (!autoScroll.isPanelOpen.value) return;
+  autoScroll.setPanelOpen(false);
+  if (restoreFocus) void nextTick(() => autoButton.value?.focus());
+}
+
+function togglePanel(): void {
+  autoScroll.setPanelOpen(!autoScroll.isPanelOpen.value);
+}
+
+function onDocumentPointerDown(event: PointerEvent): void {
+  if (!autoScroll.isPanelOpen.value) return;
+  const target = event.target;
+  if (!(target instanceof Node)) return;
+  const panel = document.getElementById('vp-auto-scroll-panel');
+  if (autoButton.value?.contains(target) || panel?.contains(target)) return;
+  closePanel(false);
+}
+
+onMounted(() => document.addEventListener('pointerdown', onDocumentPointerDown));
+onBeforeUnmount(() => {
+  document.removeEventListener('pointerdown', onDocumentPointerDown);
+  autoScroll.setPanelOpen(false);
+});
 </script>
 
 <template>
   <div
     class="vp-fab"
-    :class="{ 'vp-chrome--hidden': !isChromeVisible }"
+    :class="{ 'vp-chrome--hidden': !isChromeVisible && !autoScroll.isPanelOpen.value }"
+    data-auto-scroll-controls
     aria-label="Controles del visor"
   >
+    <button
+      ref="autoButton"
+      type="button"
+      class="vp-fab__btn vp-fab__btn--auto"
+      :class="{ 'vp-fab__btn--active': autoScroll.isPlaying.value }"
+      aria-controls="vp-auto-scroll-panel"
+      :aria-expanded="autoScroll.isPanelOpen.value"
+      :aria-label="
+        autoScroll.isPanelOpen.value
+          ? 'Cerrar ajustes de desplazamiento automático'
+          : 'Abrir ajustes de desplazamiento automático'
+      "
+      title="Auto-scroll (A para iniciar o pausar)"
+      @click="togglePanel"
+    >
+      AUTO
+    </button>
+
+    <ViewerAutoScrollPanel v-if="autoScroll.isPanelOpen.value" @close="closePanel" />
+
     <button
       type="button"
       class="vp-fab__btn"
@@ -80,6 +131,21 @@ const isChromeVisible = useViewerChromeVisible();
 .vp-fab__btn[aria-pressed='true'] {
   background: var(--color-ink);
   color: var(--color-paper);
+}
+
+.vp-fab__btn--auto {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+.vp-fab__btn--active {
+  background: var(--color-red);
+  color: var(--color-paper);
+}
+
+.vp-fab__btn--auto[aria-expanded='true'] {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 0 var(--color-ink);
 }
 
 @media (max-width: 479px) {
