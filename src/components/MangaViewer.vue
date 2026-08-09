@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import { useRecentManga } from '@/composables/catalog/useRecentMangas';
 import { useViewerController } from '@/composables/viewer/useViewerController';
 import { VIEWER_CONFIG } from '@/config/index.config';
 import { generatePages } from '@/lib/viewer/page-placeholder';
@@ -38,6 +39,7 @@ const state = useViewerController({
   storageKey: props.storageKey,
   stageElement,
 });
+useRecentManga(props.userId, props.recentManga, props.chapterNumber);
 
 function onClose() {
   if (history.length > 1) history.back();

@@ -42,5 +42,6 @@ export const CATALOG_CONFIG = {
   trendingLimit: 8,
   trendingSidebarLimit: 3,
   relatedLimit: 4,
+  recentLimit: 4,
   defaultPageSize: 24,
 } as const;

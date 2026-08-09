@@ -5,6 +5,7 @@
 export type { AutoScrollMotion, ReadingMode } from '@/config/index.config';
 
 import type { AutoScrollMotion, ReadingMode } from '@/config/index.config';
+import type { Manga } from '@/types/manga';
 
 export type AutoScrollStatus = 'stopped' | 'playing' | 'paused' | 'completed';
 
@@ -33,6 +34,8 @@ export interface ViewerProps {
   coverColor: string;
   coverPattern: string;
   acronym: string;
+  userId?: string | null;
+  recentManga?: Manga | null;
   initialMode?: ReadingMode;
   storageKey?: string;
   /** Slug of the previous chapter, or null if this is the first. */

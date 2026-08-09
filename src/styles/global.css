@@ -9,7 +9,6 @@
 @import "@fontsource/archivo-black";
 @import "@fontsource/space-mono/400.css";
 @import "@fontsource/space-mono/700.css";
-@import "@fontsource-variable/noto-sans-jp";
 
 @font-face {
   font-family: "Inter";
@@ -114,7 +113,7 @@
   /* Fonts */
   --font-display: "Archivo Black", system-ui, sans-serif;
   --font-mono: "Space Mono", ui-monospace, monospace;
-  --font-jp: "Noto Sans JP Variable", sans-serif;
+  --font-jp: "Noto Sans CJK JP", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
   --font-body: "Inter", system-ui, sans-serif;
 
   /* Font sizes — fluid type scale (mobile → desktop) */
@@ -518,6 +517,11 @@
 }
 @utility rise {
   animation: var(--animate-rise);
+}
+
+/* Critical detail content should reveal quickly without a staggered wait. */
+@utility detail-reveal {
+  animation: rise 180ms ease-out both;
 }
 
 /* Stagger delays (50–450ms) */
