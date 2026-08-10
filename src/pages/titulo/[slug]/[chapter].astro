@@ -13,6 +13,8 @@ export const prerender = false;
 const { slug, chapter } = Astro.params;
 if (!slug || !chapter) return new Response(null, { status: 404 });
 
+const userId = typeof Astro.locals.auth === 'function' ? Astro.locals.auth().userId : null;
+
 const chapterNum = Number(chapter);
 if (!Number.isInteger(chapterNum) || chapterNum < 1) {
   return new Response(null, { status: 404 });
@@ -49,7 +51,10 @@ const next = idx < chapters.length - 1 ? chapters[idx + 1] : null;
 const title = `${manga.title} — Cap. ${chapterNum} · ${SITE.name}`;
 const desc = `Lee ${manga.title} Cap. ${chapterNum} — ${ch.title} — en ${SITE.name}. Visor brutalista con tres modos.`;
 const canonical = ROUTES.chapter(slug, chapter);
-Astro.response.headers.set('Cache-Control', HTTP_CONFIG.cacheControl.publicCatalog);
+Astro.response.headers.set(
+  'Cache-Control',
+  userId ? HTTP_CONFIG.cacheControl.private : HTTP_CONFIG.cacheControl.publicCatalog
+);
 
 // Page-specific JSON-LD schema (Book + Chapter)
 const jsonLd = {
@@ -92,6 +97,8 @@ const jsonLd = {
     coverColor={manga.coverColor}
     coverPattern={manga.coverPattern}
     acronym={manga.acronym}
+    userId={userId}
+    recentManga={userId ? manga : null}
     initialMode={VIEWER_CONFIG.defaultMode}
     storageKey={`${slug}-${chapter}`}
     prevChapterHref={prev ? ROUTES.chapter(slug, prev.number) : null}

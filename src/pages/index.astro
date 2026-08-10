@@ -9,6 +9,7 @@ import StatsGrid from '@components/StatsGrid.astro';
 import GenreGrid from '@components/GenreGrid.astro';
 import FinalCTA from '@components/FinalCTA.astro';
 import SectionHeading from '@components/SectionHeading.astro';
+import RecentMangas from '@components/RecentMangas.vue';
 import { CATALOG_CONFIG, HTTP_CONFIG, ROUTES, SITE } from '@/config/index.config';
 import { toTrendingSidebar, useConfiguredCatalogService } from '@/services/catalog';
 import { useMarketingContent } from '@/services/marketing/useMarketingContent';
@@ -31,7 +32,11 @@ const TRENDING = trendingResult.data;
 const GENRES = genresResult.data;
 const TRENDING_NOW_SIDE = toTrendingSidebar(TRENDING, CATALOG_CONFIG.trendingSidebarLimit);
 const { heroStats: HERO_STATS } = useMarketingContent();
-Astro.response.headers.set('Cache-Control', HTTP_CONFIG.cacheControl.publicCatalog);
+const userId = typeof Astro.locals.auth === 'function' ? Astro.locals.auth().userId : null;
+Astro.response.headers.set(
+  'Cache-Control',
+  userId ? HTTP_CONFIG.cacheControl.private : HTTP_CONFIG.cacheControl.publicCatalog
+);
 ---
 
 <BaseLayout title={SITE.name} description={SITE.description}>
@@ -198,6 +203,8 @@ Astro.response.headers.set('Cache-Control', HTTP_CONFIG.cacheControl.publicCatal
 
     <!-- ─── TRENDING STRIP ─── -->
     <TrendingStrip items={TRENDING} />
+
+    {userId && <RecentMangas client:load userId={userId} />}
 
     <!-- ─── FEATURED CATALOG ─── -->
     <section

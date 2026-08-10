@@ -4,13 +4,14 @@
  * Replaces the old /detalle?slug= query-param pattern with a clean URL.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import '@fontsource-variable/noto-sans-jp';
 import Marquee from '@components/Marquee.astro';
 import SiteHeader from '@components/SiteHeader.astro';
 import SiteFooter from '@components/SiteFooter.astro';
 import Breadcrumb from '@components/Breadcrumb.astro';
 import StatsGrid from '@components/StatsGrid.astro';
 import ChapterList from '@components/ChapterList.astro';
-import RelatedMangas from '@components/RelatedMangas.astro';
+import RelatedMangas from '@components/RelatedMangas.vue';
 import { HTTP_CONFIG, ROUTES } from '@/config/index.config';
 import { useConfiguredCatalogService } from '@/services/catalog';
 import { useMarketingContent } from '@/services/marketing/useMarketingContent';
@@ -21,22 +22,20 @@ const { slug } = Astro.params;
 if (!slug) return new Response(null, { status: 404 });
 
 const catalogService = useConfiguredCatalogService();
-const mangaResult = await catalogService.getBySlug(slug);
+const mangaResultPromise = catalogService.getBySlug(slug);
+const chaptersResultPromise = catalogService.getChapters(slug);
+const mangaResult = await mangaResultPromise;
 if (!mangaResult.ok) {
   return new Response(null, { status: mangaResult.error.status ?? 503 });
 }
 
 const manga = mangaResult.data;
-const [chaptersResult, relatedResult] = await Promise.all([
-  catalogService.getChapters(slug),
-  catalogService.getRelated(manga),
-]);
+const chaptersResult = await chaptersResultPromise;
 if (!chaptersResult.ok) {
   return new Response(null, { status: chaptersResult.error.status ?? 503 });
 }
 
 const chapters = chaptersResult.data;
-const related = relatedResult.ok ? relatedResult.data : [];
 const { detailStats } = useMarketingContent();
 const latestChapter = chapters[0]?.number ?? '—';
 Astro.response.headers.set('Cache-Control', HTTP_CONFIG.cacheControl.publicCatalog);
@@ -57,7 +56,7 @@ const breadcrumbs = [
   <Breadcrumb items={breadcrumbs} />
 
   <main id="main" class="px-6 md:px-12 py-8 md:py-12 grid-bg">
-    <div class="grid grid-cols-12 gap-6 md:gap-10 items-start rise d1">
+    <div class="grid grid-cols-12 gap-6 md:gap-10 items-start detail-reveal">
       <div class="col-span-12 md:col-span-4 lg:col-span-3">
         <div class="brutal-border brutal-shadow bg-paper overflow-hidden">
           <div class="aspect-[3/4] relative" style={`background-color:${manga.coverColor}`}>
@@ -125,7 +124,7 @@ const breadcrumbs = [
       </div>
 
       <div class="col-span-12 md:col-span-8 lg:col-span-9">
-        <div class="flex flex-wrap items-center gap-3 mb-4 rise d2">
+        <div class="flex flex-wrap items-center gap-3 mb-4">
           <span
             class="brutal-border bg-red text-paper font-mono text-[10px] uppercase tracking-[0.15em] px-3 py-1"
           >
@@ -148,7 +147,7 @@ const breadcrumbs = [
           </span>
         </div>
 
-        <div class="rise d2">
+        <div>
           <h1 class="font-display text-[clamp(2.8rem,7vw,6rem)] tracking-tighter leading-[0.85]">
             {manga.title}
           </h1>
@@ -170,7 +169,7 @@ const breadcrumbs = [
           </div>
         </div>
 
-        <dl class="flex flex-wrap items-center gap-x-6 gap-y-1 mt-4 rise d3">
+        <dl class="flex flex-wrap items-center gap-x-6 gap-y-1 mt-4">
           <div>
             <dt class="font-mono text-[10px] uppercase tracking-[0.2em] opacity-50">
               Autor / Arte
@@ -189,7 +188,7 @@ const breadcrumbs = [
           </div>
         </dl>
 
-        <div class="flex flex-wrap gap-2 mt-5 rise d3">
+        <div class="flex flex-wrap gap-2 mt-5">
           {
             manga.genres.map((g) => (
               <span class="chip px-3 py-1 font-mono text-[10px] uppercase tracking-[0.15em]">
@@ -199,7 +198,7 @@ const breadcrumbs = [
           }
         </div>
 
-        <section class="mt-6 rise d4" aria-labelledby="sinopsis-heading">
+        <section class="mt-6" aria-labelledby="sinopsis-heading">
           <h2 id="sinopsis-heading" class="font-display text-xl md:text-2xl tracking-tighter">
             Sinopsis
           </h2>
@@ -239,7 +238,7 @@ const breadcrumbs = [
     }
 
     <div class="mt-16">
-      <RelatedMangas items={related} subtitle={`Si te gustó ${manga.title}`} />
+      <RelatedMangas client:visible manga={manga} subtitle={`Si te gustó ${manga.title}`} />
     </div>
   </main>
 

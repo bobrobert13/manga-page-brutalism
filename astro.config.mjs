@@ -18,6 +18,7 @@ export default defineConfig({
       signInFallbackRedirectUrl: AUTH_CONFIG.fallbackRedirect,
       signUpFallbackRedirectUrl: AUTH_CONFIG.fallbackRedirect,
       afterSignOutUrl: AUTH_CONFIG.afterSignOut,
+      prefetchUI: false,
     }),
   ],
   output: 'server',
@@ -26,7 +27,7 @@ export default defineConfig({
     locales: [SITE.locale],
     routing: { prefixDefaultLocale: false },
   },
-  prefetch: { prefetchAll: true, defaultStrategy: 'viewport' },
+  prefetch: { prefetchAll: false, defaultStrategy: 'hover' },
   env: {
     schema: {
       PUBLIC_API_BASE_URL: envField.string({

@@ -18,6 +18,7 @@ export const STORAGE_KEYS = {
   viewerOnboarded: 'inkpxl-viewer-onboarded',
   viewerPrefix: 'inkpxl-viewer',
   viewerAutoScroll: 'inkpxl-viewer-auto-scroll',
+  recentMangasPrefix: 'inkpxl-recent-mangas',
 } as const;
 
 export const VIEWER_CONFIG = {
