@@ -4,9 +4,9 @@ import vue from '@astrojs/vue';
 import tailwindcss from '@tailwindcss/vite';
 import node from '@astrojs/node';
 import clerk from '@clerk/astro';
-import { AUTH_CONFIG } from './src/config/auth.config.ts';
-import { HTTP_CONFIG } from './src/config/http.config.ts';
-import { SITE } from './src/config/site.config.ts';
+import { AUTH_CONFIG } from './src/config/domain/auth.config.ts';
+import { HTTP_CONFIG } from './src/config/domain/http.config.ts';
+import { SITE } from './src/config/ui/site.config.ts';
 
 export default defineConfig({
   site: SITE.url,

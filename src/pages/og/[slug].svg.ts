@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import type { PatternKey } from '@/types/manga';
 import { HTTP_CONFIG, SITE } from '@/config/index.config';
-import { useConfiguredCatalogService } from '@/services/catalog';
+import { useConfiguredCatalogService } from '@/composables/services/catalog';
 
 export const prerender = false;
 

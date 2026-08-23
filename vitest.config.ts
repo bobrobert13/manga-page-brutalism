@@ -37,12 +37,7 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
       reportsDirectory: './coverage',
-      include: [
-        'src/config/**/*.ts',
-        'src/lib/**/*.ts',
-        'src/services/**/*.ts',
-        'src/composables/**/*.ts',
-      ],
+      include: ['src/config/**/*.ts', 'src/features/**/*.ts', 'src/composables/**/*.ts'],
       exclude: ['src/**/*.test.ts', 'src/**/*.dom.test.ts', 'src/**/*.d.ts'],
       thresholds: {
         branches: 75,

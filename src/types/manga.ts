@@ -3,15 +3,46 @@
  * Migrate to Content Collections once the catalog exceeds ~50 titles.
  */
 
+import type { MediaType, SeriesStatus } from '@/config/index.config';
+
+/** Canonical genre keys — derived from the fixture catalog. */
+export type Genre =
+  | 'Acción'
+  | 'Artes Marciales'
+  | 'Aventura'
+  | 'Ciencia Ficción'
+  | 'Distopía'
+  | 'Drama'
+  | 'F. Oscura'
+  | 'Fantasía'
+  | 'Histórico'
+  | 'Indie'
+  | 'Misterio'
+  | 'Novela Ligera'
+  | 'Obra maestra'
+  | 'Psicológico'
+  | 'Seinen'
+  | 'Shonen'
+  | 'Shoujo'
+  | 'Sobrenatural'
+  | 'Superhéroes'
+  | 'Suspenso'
+  | 'Terror'
+  | 'Webtoon';
+
 /** Cover overlay pattern key. */
 export type PatternKey = 'dots' | 'dots-dark' | 'lines' | 'cross' | 'wash';
 
-export type { MediaType, SeriesStatus } from '@/config/index.config';
+/** Format key — matches MediaType values in lowercase kebab. */
+export type FormatKey = 'manga' | 'comic' | 'webtoon' | 'light-novel';
 
-import type { MediaType, SeriesStatus } from '@/config/index.config';
-
-/** Backend-defined tag displayed on cards, stats and filters. */
-export type Genre = string;
+/** Maps format keys to their display labels. */
+export const FORMAT_LABEL: Record<FormatKey, MediaType> = {
+  manga: 'Manga' as MediaType,
+  comic: 'Cómic' as MediaType,
+  webtoon: 'Webtoon' as MediaType,
+  'light-novel': 'Novela Ligera' as MediaType,
+};
 
 /** Canonical manga record. */
 export interface Manga {
@@ -27,7 +58,7 @@ export interface Manga {
   titleRomaji?: string;
   /** Author / artist name. */
   author: string;
-  /** Display type. */
+  /** Display type label (e.g. "Manga", "Cómic"). Derived from format. */
   type: MediaType;
   /** Publication status. */
   status: SeriesStatus;
@@ -45,8 +76,8 @@ export interface Manga {
   rank?: number;
   /** ISO date used by the recent sorting strategy. */
   updatedAt?: string;
-  /** Used in catalog filter — Manga | Comic | etc. */
-  format?: 'manga' | 'comic' | 'webtoon' | 'novel';
+  /** Format key used for catalog filtering. */
+  format: FormatKey;
 }
 
 /** Lightweight statistic tile. */

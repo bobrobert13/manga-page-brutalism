@@ -5,16 +5,16 @@
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import '@fontsource-variable/noto-sans-jp';
-import Marquee from '@components/Marquee.astro';
-import SiteHeader from '@components/SiteHeader.astro';
-import SiteFooter from '@components/SiteFooter.astro';
-import Breadcrumb from '@components/Breadcrumb.astro';
-import StatsGrid from '@components/StatsGrid.astro';
-import ChapterList from '@components/ChapterList.astro';
-import RelatedMangas from '@components/RelatedMangas.vue';
+import Marquee from '@ui/effects/Marquee.astro';
+import SiteHeader from '@ui/navigators/SiteHeader.astro';
+import SiteFooter from '@ui/navigators/SiteFooter.astro';
+import Breadcrumb from '@ui/navigators/Breadcrumb.astro';
+import StatsGrid from '@features/home/components/StatsGrid.astro';
+import ChapterList from '@features/detail/components/ChapterList.astro';
+import RelatedMangas from '@features/detail/components/RelatedMangas.vue';
 import { HTTP_CONFIG, ROUTES } from '@/config/index.config';
-import { useConfiguredCatalogService } from '@/services/catalog';
-import { useMarketingContent } from '@/services/marketing/useMarketingContent';
+import { useConfiguredCatalogService } from '@/composables/services/catalog';
+import { useMarketingContent } from '@/composables/services/marketing/useMarketingContent';
 
 export const prerender = false;
 

@@ -12,14 +12,14 @@ export const prerender = false;
  * land back here after signing in.
  */
 import BaseLayout from '@layouts/BaseLayout.astro';
-import Marquee from '@components/Marquee.astro';
-import SiteHeader from '@components/SiteHeader.astro';
-import SiteFooter from '@components/SiteFooter.astro';
-import StatsGrid from '@components/StatsGrid.astro';
+import Marquee from '@ui/effects/Marquee.astro';
+import SiteHeader from '@ui/navigators/SiteHeader.astro';
+import SiteFooter from '@ui/navigators/SiteFooter.astro';
+import StatsGrid from '@features/home/components/StatsGrid.astro';
 import { UserButton } from '@clerk/astro/components';
-import { clerkAppearance } from '@lib/clerk-appearance';
+import { clerkAppearance } from '@/features/auth/lib/clerk-appearance';
 import { HTTP_CONFIG, ROUTES, SITE } from '@/config/index.config';
-import { useAccountService } from '@/services/account/useAccountService';
+import { useAccountService } from '@/composables/services/account/useAccountService';
 
 // Server-side gate: redirect signed-out users to /login with a redirect_url
 // query param so they bounce back after auth.

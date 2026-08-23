@@ -1,18 +1,18 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import Marquee from '@components/Marquee.astro';
-import SiteHeader from '@components/SiteHeader.astro';
-import SiteFooter from '@components/SiteFooter.astro';
-import TrendingStrip from '@components/TrendingStrip.astro';
-import MangaCard from '@components/MangaCard.astro';
-import StatsGrid from '@components/StatsGrid.astro';
-import GenreGrid from '@components/GenreGrid.astro';
-import FinalCTA from '@components/FinalCTA.astro';
-import SectionHeading from '@components/SectionHeading.astro';
-import RecentMangas from '@components/RecentMangas.vue';
+import Marquee from '@ui/effects/Marquee.astro';
+import SiteHeader from '@ui/navigators/SiteHeader.astro';
+import SiteFooter from '@ui/navigators/SiteFooter.astro';
+import TrendingStrip from '@features/home/components/TrendingStrip.astro';
+import MangaCard from '@features/catalog/components/MangaCard.astro';
+import StatsGrid from '@features/home/components/StatsGrid.astro';
+import GenreGrid from '@features/catalog/components/GenreGrid.astro';
+import FinalCTA from '@features/home/components/FinalCTA.astro';
+import SectionHeading from '@ui/texts/SectionHeading.astro';
+import RecentMangas from '@features/catalog/components/RecentMangas.vue';
 import { CATALOG_CONFIG, HTTP_CONFIG, ROUTES, SITE } from '@/config/index.config';
-import { toTrendingSidebar, useConfiguredCatalogService } from '@/services/catalog';
-import { useMarketingContent } from '@/services/marketing/useMarketingContent';
+import { toTrendingSidebar, useConfiguredCatalogService } from '@/composables/services/catalog';
+import { useMarketingContent } from '@/composables/services/marketing/useMarketingContent';
 
 const catalogService = useConfiguredCatalogService();
 const [berserkResult, featuredResult, trendingResult, genresResult] = await Promise.all([

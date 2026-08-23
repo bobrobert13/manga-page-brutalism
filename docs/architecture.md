@@ -14,19 +14,19 @@ Página Astro / composable Vue
  ServiceResult<T> + ServiceError
 ```
 
-Las páginas y componentes no importan fixtures. `src/data` solo almacena datos estáticos; `src/services` decide cómo obtenerlos.
+Las páginas y componentes no importan fixtures. `src/data` solo almacena datos estáticos; `src/composables/services` decide cómo obtenerlos.
 
 ## Carpetas principales
 
-- `src/config`: constantes cohesionadas. `index.config.ts` es la fachada pública.
+- `src/config`: constantes cohesionadas. `index.config.ts` es la fachada pública. `domain/` para reglas de negocio, `ui/` para comportamiento visual.
 - `src/data/catalog`: fixtures del catálogo y capítulos.
 - `src/data/marketing`: contenido estático de presentación.
-- `src/services/shared`: Axios, `ServiceResult` y normalización de errores.
-- `src/services/catalog`: contrato, endpoints y servicios fixture/API.
-- `src/services/account`: acceso server-only a Clerk y mapeo de perfil.
-- `src/composables/catalog`: estado reactivo y estrategias de filtrado/orden.
-- `src/composables/viewer`: coordinación del lector.
-- `src/composables/shared`: comportamientos Vue reutilizables.
+- `src/components/ui`: kit genérico sin dominio — `navigators/`, `texts/`, `effects/`.
+- `src/features/<feature>/`: componentes, composables y lib por dominio (`catalog/`, `viewer/`, `detail/`, `home/`, `auth/`).
+- `src/composables/services/shared`: Axios, `ServiceResult` y normalización de errores.
+- `src/composables/services/catalog`: contrato, endpoints y servicios fixture/API.
+- `src/composables/services/account`: acceso server-only a Clerk y mapeo de perfil.
+- `src/composables/shared`: comportamientos Vue reutilizables fuera de features (ej. `useFocusTrap`).
 
 ## Servicios
 

@@ -4,9 +4,9 @@
  * Full-screen reading experience with 3 modes (cascade, page, slider).
  */
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import MangaViewer from '@components/MangaViewer.vue';
+import MangaViewer from '@features/viewer/components/MangaViewer.vue';
 import { HTTP_CONFIG, ROUTES, SITE, VIEWER_CONFIG } from '@/config/index.config';
-import { useConfiguredCatalogService } from '@/services/catalog';
+import { useConfiguredCatalogService } from '@/composables/services/catalog';
 
 export const prerender = false;
 

@@ -1,10 +1,10 @@
 ---
 export const prerender = false;
 import AuthLayout from '@layouts/AuthLayout.astro';
-import AuthCard from '@components/AuthCard.astro';
-import AuthSidePanel from '@components/AuthSidePanel.astro';
+import AuthCard from '@features/auth/components/AuthCard.astro';
+import AuthSidePanel from '@features/auth/components/AuthSidePanel.astro';
 import { SignIn } from '@clerk/astro/components';
-import { clerkAppearance } from '@lib/clerk-appearance';
+import { clerkAppearance } from '@/features/auth/lib/clerk-appearance';
 import { HTTP_CONFIG, ROUTES } from '@/config/index.config';
 
 const title = 'Ingresar';

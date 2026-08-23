@@ -1,11 +1,11 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import Marquee from '@components/Marquee.astro';
-import SiteHeader from '@components/SiteHeader.astro';
-import SiteFooter from '@components/SiteFooter.astro';
-import CatalogBrowser from '@components/CatalogBrowser.vue';
+import Marquee from '@ui/effects/Marquee.astro';
+import SiteHeader from '@ui/navigators/SiteHeader.astro';
+import SiteFooter from '@ui/navigators/SiteFooter.astro';
+import CatalogBrowser from '@features/catalog/components/CatalogBrowser.vue';
 import { HTTP_CONFIG } from '@/config/index.config';
-import { useConfiguredCatalogService } from '@/services/catalog';
+import { useConfiguredCatalogService } from '@/composables/services/catalog';
 
 // SSR-friendly: serialize data so the Vue island can hydrate without a re-fetch.
 const catalogService = useConfiguredCatalogService();
