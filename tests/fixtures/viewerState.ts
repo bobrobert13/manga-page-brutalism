@@ -1,7 +1,7 @@
 import { computed, ref, shallowRef } from 'vue';
 import { vi } from 'vitest';
 import { READING_MODE } from '@/config/index.config';
-import type { ViewerState } from '@/composables/viewer/useViewerState';
+import type { ViewerState } from '@/features/viewer/composables/useViewerState';
 import { VIEWER_PAGES } from './viewer';
 
 export function createViewerStateMock(): ViewerState {

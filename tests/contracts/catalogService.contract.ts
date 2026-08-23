@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { MANGAS } from '@/data/catalog/mangas.fixture';
-import type { CatalogService } from '@/services/catalog/catalog-service.contract';
-import type { ServiceResult } from '@/services/shared/service-result';
+import type { CatalogService } from '@/composables/services/catalog/catalog-service.contract';
+import type { ServiceResult } from '@/composables/services/shared/service-result';
 
 function unwrap<T>(result: ServiceResult<T>): T {
   if (!result.ok) throw new Error(`Expected success, received ${result.error.code}.`);

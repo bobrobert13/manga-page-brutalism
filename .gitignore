@@ -41,3 +41,6 @@ pnpm-debug.log*
 
 # Local-only HTML prototypes (not part of the runtime build)
 docs/prototype/
+
+# clerk configuration (can include secrets)
+/.clerk/
