@@ -1,13 +1,10 @@
 import { computed, ref, type Ref } from 'vue';
 import { vi } from 'vitest';
 import { AUTO_SCROLL_MOTION, type AutoScrollMotion } from '@/config/index.config';
-import { CHROME_VISIBLE_KEY } from '@/composables/viewer/useViewerChromeVisible';
-import {
-  VIEWER_AUTO_SCROLL_KEY,
-  type ViewerAutoScroll,
-} from '@/composables/viewer/useViewerAutoScroll';
-import { VIEWER_STATE_KEY, type ViewerState } from '@/composables/viewer/useViewerState';
-import type { AutoScrollPauseReason } from '@/types/viewer';
+import { CHROME_VISIBLE_KEY } from '@/features/viewer/composables/useViewerChromeVisible';
+import { VIEWER_AUTO_SCROLL_KEY } from '@/features/viewer/composables/useViewerAutoScroll';
+import { VIEWER_STATE_KEY } from '@/features/viewer/composables/useViewerState';
+import type { AutoScrollPauseReason, ViewerAutoScroll, ViewerState } from '@/types/viewer';
 
 export function createViewerAutoScrollMock(): ViewerAutoScroll {
   const status = ref<'stopped' | 'playing' | 'paused' | 'completed'>('stopped');
