@@ -4,7 +4,7 @@ Sitio de lectura de manga y cómic construido con Astro 7, Vue 3 y Tailwind CSS 
 
 ## Requisitos
 
-- Node.js 24.16 o superior (LTS Krypton; `.nvmrc` fija 24.22.3, usar `fnm use`)
+- Node.js 26.3 o superior (LTS Lithium; `.nvmrc` fija 26.13.1, usar `fnm use`)
 - npm
 - claves de Clerk para las rutas de autenticación
 

@@ -5,7 +5,7 @@
   "private": true,
   "description": "INK/PXL — landing, catálogo y detalle para mangas y cómics. Brutalismo refinado construido con Astro + Vue + Tailwind 4.",
   "engines": {
-    "node": ">=24.16.0"
+    "node": ">=26.3.0"
   },
   "scripts": {
     "dev": "astro dev",
@@ -41,7 +41,7 @@
     "@astrojs/check": "^0.9.12",
     "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.5",
-    "@types/node": "^24.19.2",
+    "@types/node": "^26.6.6",
     "@vitejs/plugin-vue": "^6.0.11",
     "@vitest/coverage-v8": "^5.1.0",
     "@vue/test-utils": "^2.5.1",
