@@ -60,52 +60,43 @@ const breadcrumbs = [
       <div class="col-span-12 md:col-span-4 lg:col-span-3">
         <div class="brutal-border brutal-shadow bg-paper overflow-hidden">
           <div class="aspect-[3/4] relative" style={`background-color:${manga.coverColor}`}>
-            <div class:list={['absolute inset-0 pointer-events-none', `pat-${manga.coverPattern}`]}>
-            </div>
+            <div
+              class:list={['absolute inset-0 pointer-events-none', `pat-${manga.coverPattern}`]}
+            ></div>
             <div class="absolute inset-0 grid place-items-center">
-              <div
-                class="font-display text-8xl md:text-9xl text-white/15 leading-none tracking-tighter"
-              >
+              <div class="font-display text-8xl md:text-9xl text-white/15 leading-none tracking-tighter">
                 {manga.acronym}
               </div>
             </div>
-            <div
-              class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-ink/80 to-transparent p-4 pt-10"
-            >
+            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-ink/80 to-transparent p-4 pt-10">
               <span class="font-display text-paper text-2xl md:text-3xl">{manga.title}</span>
-              {
-                manga.titleJp && (
-                  <span class="block font-jp font-black text-paper/60 text-lg">
-                    {manga.titleJp}
-                  </span>
-                )
-              }
+              {manga.titleJp && (
+                <span class="block font-jp font-black text-paper/60 text-lg">{manga.titleJp}</span>
+              )}
             </div>
           </div>
         </div>
 
         <div class="flex flex-col gap-2 mt-4">
-          {
-            chapters.length > 0 ? (
-              <a
-                href={ROUTES.chapter(slug, chapters[0].number)}
-                class="cta-primary py-3 font-display text-base flex items-center justify-center gap-3"
-              >
-                LEER PRIMER CAPÍTULO{' '}
-                <span class="text-lg" aria-hidden="true">
-                  →
-                </span>
-              </a>
-            ) : (
-              <button
-                type="button"
-                disabled
-                class="cta-primary py-3 font-display text-base flex items-center justify-center gap-3 opacity-40 cursor-not-allowed"
-              >
-                SIN CAPÍTULOS
-              </button>
-            )
-          }
+          {chapters.length > 0 ? (
+            <a
+              href={ROUTES.chapter(slug, chapters[0].number)}
+              class="cta-primary py-3 font-display text-base flex items-center justify-center gap-3"
+            >
+              LEER PRIMER CAPÍTULO{' '}
+              <span class="text-lg" aria-hidden="true">
+                →
+              </span>
+            </a>
+          ) : (
+            <button
+              type="button"
+              disabled
+              class="cta-primary py-3 font-display text-base flex items-center justify-center gap-3 opacity-40 cursor-not-allowed"
+            >
+              SIN CAPÍTULOS
+            </button>
+          )}
           <div class="flex gap-2">
             <button
               type="button"
@@ -125,24 +116,16 @@ const breadcrumbs = [
 
       <div class="col-span-12 md:col-span-8 lg:col-span-9">
         <div class="flex flex-wrap items-center gap-3 mb-4">
-          <span
-            class="brutal-border bg-red text-paper font-mono text-[10px] uppercase tracking-[0.15em] px-3 py-1"
-          >
+          <span class="brutal-border bg-red text-paper font-mono text-[10px] uppercase tracking-[0.15em] px-3 py-1">
             {manga.status}
           </span>
-          <span
-            class="brutal-border bg-ink text-paper font-mono text-[10px] uppercase tracking-[0.15em] px-3 py-1"
-          >
+          <span class="brutal-border bg-ink text-paper font-mono text-[10px] uppercase tracking-[0.15em] px-3 py-1">
             {manga.type}
           </span>
-          <span
-            class="brutal-border bg-yellow text-ink font-mono text-[10px] uppercase tracking-[0.15em] px-3 py-1"
-          >
+          <span class="brutal-border bg-yellow text-ink font-mono text-[10px] uppercase tracking-[0.15em] px-3 py-1">
             {manga.genres[0]}
           </span>
-          <span
-            class="font-mono text-[10px] uppercase tracking-[0.2em] opacity-60 ml-1 hidden md:inline"
-          >
+          <span class="font-mono text-[10px] uppercase tracking-[0.2em] opacity-60 ml-1 hidden md:inline">
             {manga.volumeCount} · Cap. {latestChapter}
           </span>
         </div>
@@ -152,20 +135,16 @@ const breadcrumbs = [
             {manga.title}
           </h1>
           <div class="flex items-center gap-3 mt-1">
-            {
-              manga.titleJp && (
-                <span class="font-jp font-black text-2xl md:text-3xl opacity-60">
-                  {manga.titleJp}
-                </span>
-              )
-            }
-            {
-              manga.titleRomaji && (
-                <span class="font-mono text-xs uppercase tracking-[0.2em] opacity-50">
-                  {manga.titleRomaji}
-                </span>
-              )
-            }
+            {manga.titleJp && (
+              <span class="font-jp font-black text-2xl md:text-3xl opacity-60">
+                {manga.titleJp}
+              </span>
+            )}
+            {manga.titleRomaji && (
+              <span class="font-mono text-xs uppercase tracking-[0.2em] opacity-50">
+                {manga.titleRomaji}
+              </span>
+            )}
           </div>
         </div>
 
@@ -189,13 +168,11 @@ const breadcrumbs = [
         </dl>
 
         <div class="flex flex-wrap gap-2 mt-5">
-          {
-            manga.genres.map((g) => (
-              <span class="chip px-3 py-1 font-mono text-[10px] uppercase tracking-[0.15em]">
-                {g}
-              </span>
-            ))
-          }
+          {manga.genres.map((g) => (
+            <span class="chip px-3 py-1 font-mono text-[10px] uppercase tracking-[0.15em]">
+              {g}
+            </span>
+          ))}
         </div>
 
         <section class="mt-6" aria-labelledby="sinopsis-heading">
@@ -212,12 +189,11 @@ const breadcrumbs = [
             grupo mercenario «La Banda del Halcón», lo lleva al borde de la humanidad y más allá.
           </p>
           <p class="text-base md:text-lg leading-relaxed max-w-3xl mt-3">
-            <em class="font-mono text-sm not-italic opacity-70">Berserk</em> es una obra cumbre del <strong
-              class="font-bold">seinen</strong
-            >
-            que explora la ambición, la traición, la resiliencia y la lucha por encontrar propósito en
-            un universo que parece empeñado en destruirte. Aclamada por su narrativa épica, su arte meticuloso
-            y su profundidad psicológica.
+            <em class="font-mono text-sm not-italic opacity-70">Berserk</em> es una obra cumbre del{' '}
+            <strong class="font-bold">seinen</strong>
+            que explora la ambición, la traición, la resiliencia y la lucha por encontrar propósito
+            en un universo que parece empeñado en destruirte. Aclamada por su narrativa épica, su
+            arte meticuloso y su profundidad psicológica.
           </p>
         </section>
       </div>
@@ -225,17 +201,15 @@ const breadcrumbs = [
 
     <StatsGrid stats={detailStats} />
 
-    {
-      chapters.length > 0 && (
-        <div class="mt-16 rise d5">
-          <ChapterList
-            chapters={chapters}
-            totalLabel={`${chapters.length} capítulos publicados`}
-            slug={slug}
-          />
-        </div>
-      )
-    }
+    {chapters.length > 0 && (
+      <div class="mt-16 rise d5">
+        <ChapterList
+          chapters={chapters}
+          totalLabel={`${chapters.length} capítulos publicados`}
+          slug={slug}
+        />
+      </div>
+    )}
 
     <div class="mt-16">
       <RelatedMangas client:visible manga={manga} subtitle={`Si te gustó ${manga.title}`} />

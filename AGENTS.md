@@ -52,7 +52,7 @@ src/
 
 - **Every feature starts with a failing test.** Write the test first (red), implement the minimum (green), refactor with the suite passing.
 - **Every logic change updates tests first.** If a behavior change breaks existing tests, the test must be updated to reflect the new contract before the implementation is marked done.
-- **No untested code in services, composables, or utilities.** `composables/services/`, `features/*/composables/`, `features/*/lib/`, and `config/` must maintain ≥85% line coverage with no file below 75% branches.
+- **No untested code in services, composables, or utilities.** `composables/services/`, `features/*/composables/`, `features/*/lib/`, and `config/` must keep the global thresholds enforced by `vitest.config.ts` (≥85% lines, ≥75% branches, ≥85% functions, ≥80% statements). Files below those targets belong in Known Test Debt, not silently exempted.
 - **UI components are testable in isolation.** Every interactive `.vue` component must have a co-located `*.dom.test.ts` that mounts the component with mocked dependencies.
 
 ### Test Matrix by Layer
@@ -67,12 +67,12 @@ src/
 
 ### Coverage Thresholds
 
-| Métrica    | Mínimo                      |
-| ---------- | --------------------------- |
-| Líneas     | 85% global                  |
-| Ramas      | 75% global, 75% por archivo |
-| Funciones  | 85%                         |
-| Sentencias | 80%                         |
+| Métrica    | Mínimo     |
+| ---------- | ---------- |
+| Líneas     | 85% global |
+| Ramas      | 75% global |
+| Funciones  | 85%        |
+| Sentencias | 80%        |
 
 ### Pre-Handoff Checklist
 
@@ -102,6 +102,8 @@ npm run build         # Production build
 | `features/viewer/composables/useViewerAutoScroll`      | Branches 70.12% | Medium — complete + boundary states                             |
 | `composables/shared/useFocusTrap`                      | Branches 70.83% | Low — shift-tab + empty container                               |
 | `features/catalog/composables/catalog-sort.strategies` | Branches 75%    | Low — boundary at threshold                                     |
+| `composables/services/catalog/index.ts`                | Líneas/ramas 0% | Medium — `useConfiguredCatalogService` sin prueba unitaria      |
+| `composables/services/catalog/catalog.queries.ts`      | Ramas 50%       | Low — fallbacks de `toTrendingSidebar`                          |
 
 ## Documentation
 

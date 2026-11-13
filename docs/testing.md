@@ -53,7 +53,7 @@ Una feature puede necesitar varias pruebas pequeñas. No debe comenzar por un te
 Agregar una prueba que falle por la ausencia del comportamiento, no por configuración incompleta. Ejecutar el archivo o proyecto mínimo:
 
 ```bash
-npx vitest run src/services/catalog/useCatalogService.test.ts
+npx vitest run src/composables/services/catalog/useCatalogService.test.ts
 npm run test:unit
 npm run test:dom
 ```
@@ -144,7 +144,7 @@ No abusar de snapshots amplios. Una aserción específica explica mejor qué req
 - Fijar tiempo, aleatoriedad o identificadores cuando afecten el resultado.
 - Esperar `nextTick`, promesas y timers de forma explícita.
 - Restaurar globals y spies creados por la prueba.
-- Mantener `onUnhandledRequest: 'error'` en MSW.
+- Mantener `onUnhandledFrame: 'error'` en MSW.
 - Evitar delays reales y reintentos que oculten condiciones de carrera.
 
 Si un conjunto grande de casos se deriva de una tabla, puede generarse con un script pequeño y determinista. El script o la tabla fuente debe quedar junto a la prueba cuando sea necesario regenerarla.

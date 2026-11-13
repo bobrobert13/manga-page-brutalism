@@ -35,28 +35,26 @@ const headerClass = sticky
       aria-label="Navegación principal"
       class="hidden lg:flex items-center gap-9 font-mono text-xs uppercase tracking-[0.18em]"
     >
-      {
-        NAV.map((item) => {
-          const isActive =
-            active ===
-            item.label
-              .toLowerCase()
-              .normalize('NFD')
-              .replace(/[\u0300-\u036f]/g, '');
-          return (
-            <a
-              href={item.href}
-              class:list={[
-                'flex items-center gap-2 transition-colors hover:text-[var(--color-red)]',
-                isActive && 'text-[var(--color-red)]',
-              ]}
-            >
-              <span class="text-[var(--color-red)]">{item.index}</span>
-              <span>{item.label}</span>
-            </a>
-          );
-        })
-      }
+      {NAV.map((item) => {
+        const isActive =
+          active ===
+          item.label
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
+        return (
+          <a
+            href={item.href}
+            class:list={[
+              'flex items-center gap-2 transition-colors hover:text-[var(--color-red)]',
+              isActive && 'text-[var(--color-red)]',
+            ]}
+          >
+            <span class="text-[var(--color-red)]">{item.index}</span>
+            <span>{item.label}</span>
+          </a>
+        );
+      })}
     </nav>
 
     <div class="flex items-center gap-3">
@@ -70,22 +68,16 @@ const headerClass = sticky
 
       <ThemeToggle />
 
-      {
-        userId ? (
-          <UserButton
-            appearance={clerkAppearance}
-            signInUrl={ROUTES.login}
-            userProfileMode="modal"
-          />
-        ) : (
-          <a
-            href={ROUTES.login}
-            class="brutal-border brutal-shadow bg-ink text-paper px-4 py-2 font-mono text-xs uppercase tracking-[0.18em] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
-          >
-            Ingresar <span aria-hidden="true">→</span>
-          </a>
-        )
-      }
+      {userId ? (
+        <UserButton appearance={clerkAppearance} signInUrl={ROUTES.login} userProfileMode="modal" />
+      ) : (
+        <a
+          href={ROUTES.login}
+          class="brutal-border brutal-shadow bg-ink text-paper px-4 py-2 font-mono text-xs uppercase tracking-[0.18em] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
+        >
+          Ingresar <span aria-hidden="true">→</span>
+        </a>
+      )}
     </div>
   </div>
 </header>

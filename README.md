@@ -4,7 +4,7 @@ Sitio de lectura de manga y cómic construido con Astro 7, Vue 3 y Tailwind CSS 
 
 ## Requisitos
 
-- Node.js 22.12 o superior
+- Node.js 24.16 o superior (LTS Krypton; `.nvmrc` fija 24.22.3, usar `fnm use`)
 - npm
 - claves de Clerk para las rutas de autenticación
 
@@ -41,6 +41,8 @@ npx astro dev stop
 
 ## Variables de entorno
 
+Copia `.env.example` a `.env`. Astro valida las variables `PUBLIC_*` en `astro.config.mjs`:
+
 ```dotenv
 PUBLIC_CLERK_PUBLISHABLE_KEY=pk_...
 CLERK_SECRET_KEY=sk_...
@@ -57,24 +59,21 @@ La fuente `fixture` es el valor predeterminado. `api` activa el servicio Axios c
 
 ```text
 src/
-├─ components/          Componentes Astro, islas Vue y UI del visor
+├─ components/ui/       Kit genérico: navigators/, texts/, effects/
+├─ features/            Dominio por feature: catalog/, viewer/, detail/, home/, auth/
+│  └─ <feature>/        components/, composables/, lib/
 ├─ composables/
-│  ├─ catalog/          Filtros y estrategias reactivas
-│  ├─ viewer/           Estado y coordinación del lector
-│  └─ shared/           Comportamientos Vue reutilizables
-├─ config/              Constantes, rutas y defaults tipados
+│  ├─ services/         account/, catalog/, marketing/, shared/
+│  └─ shared/           Comportamientos Vue reutilizables (useFocusTrap)
+├─ config/              domain/, ui/ e index.config.ts como fachada
 ├─ data/
 │  ├─ catalog/          Fixtures de mangas, capítulos y géneros
 │  └─ marketing/        Contenido estático de presentación
-├─ layouts/             Layout base y composición de autenticación
+├─ layouts/             BaseLayout y AuthLayout
 ├─ pages/               Rutas Astro SSR
-├─ services/
-│  ├─ account/          Acceso server-only a Clerk
-│  ├─ catalog/          Contrato y servicios fixture/API
-│  ├─ marketing/        Fachada de contenido estático
-│  └─ shared/           Axios, Result y errores normalizados
 ├─ styles/              Tokens y estilos globales
-└─ types/               Tipos compartidos de UI
+├─ types/               Tipos compartidos de UI
+└─ middleware.ts        Protección de rutas con Clerk
 ```
 
 Principios principales:
@@ -85,7 +84,7 @@ Principios principales:
 - Los fallos externos esperables usan `ServiceResult<T>`.
 - Los tokens se resuelven por operación y nunca se guardan en defaults globales de Axios.
 - Astro renderiza por servidor de forma predeterminada; solo las rutas inmutables se prerenderizan.
-- Los composables están agrupados por bounded context.
+- La lógica reactiva vive en `features/<feature>/composables/`; los servicios, en `composables/services/`.
 
 La explicación completa está en [docs/architecture.md](./docs/architecture.md). El plan y diagnóstico del refactor están en [docs/plans/2026-08-03-codebase-architecture-refactor.md](./docs/plans/2026-08-03-codebase-architecture-refactor.md).
 
@@ -109,10 +108,10 @@ La explicación completa está en [docs/architecture.md](./docs/architecture.md)
 - Tailwind CSS 4
 - Clerk
 - Axios
-- TypeScript estricto
-- ESLint 9 con plugins de Astro y Vue
+- TypeScript 6 estricto
+- ESLint 10 con plugins de Astro y Vue
 - Prettier
-- Vitest
+- Vitest 5 + MSW 3
 
 ## Validación
 

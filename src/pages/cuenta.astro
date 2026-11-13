@@ -90,15 +90,13 @@ const STATS = [
           <div class="brutal-border p-4">
             <dt class="text-[10px] uppercase tracking-[0.18em] opacity-60 mb-1">Miembro desde</dt>
             <dd>
-              {
-                user?.createdAt
-                  ? new Date(user.createdAt).toLocaleDateString(SITE.locale, {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })
-                  : '—'
-              }
+              {user?.createdAt
+                ? new Date(user.createdAt).toLocaleDateString(SITE.locale, {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })
+                : '—'}
             </dd>
           </div>
         </dl>

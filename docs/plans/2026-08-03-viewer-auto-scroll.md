@@ -235,6 +235,8 @@ Se evitarán etiquetas ambiguas como `Velocidad 5` o iconos sin nombre accesible
 
 ## 7. Archivos afectados y estimación de líneas
 
+> Nota (2026-11-13): las rutas de esta tabla corresponden al estado previo al refactor `4753a06`. Hoy viven en `src/features/viewer/components/`, `src/features/viewer/composables/`, `src/features/viewer/lib/`, `src/config/ui/viewer.config.ts` y `src/types/viewer.ts`.
+
 Las cifras son líneas cambiadas aproximadas, incluyendo adiciones, modificaciones y pruebas. El rango se revisará con `git diff --stat` durante la ejecución.
 
 | Archivo | Cambio | Estimación |

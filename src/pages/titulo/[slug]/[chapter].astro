@@ -87,7 +87,6 @@ const jsonLd = {
 
   <!-- Page-specific schema (Book/hasPart Chapter) — overrides the WebSite schema in BaseLayout for crawlers -->
   <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
-
   <MangaViewer
     client:load
     mangaTitle={manga.title}

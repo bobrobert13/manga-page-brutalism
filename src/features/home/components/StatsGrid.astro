@@ -18,9 +18,7 @@ const { stats, seamless = false } = Astro.props;
   aria-label="Estadísticas"
   class:list={['grid grid-cols-2 md:grid-cols-4', seamless && 'border-b-[3px] border-ink']}
 >
-  {
-    stats.map((stat, idx) => (
-      <StatsTile stat={stat} trim={seamless && (idx === stats.length - 1 || idx === 0)} />
-    ))
-  }
+  {stats.map((stat, idx) => (
+    <StatsTile stat={stat} trim={seamless && (idx === stats.length - 1 || idx === 0)} />
+  ))}
 </section>

@@ -28,14 +28,8 @@ const TONE = {
   ]}
 >
   <div class="font-display text-4xl md:text-5xl">{stat.value}</div>
-  <div class="font-mono text-[10px] uppercase tracking-[0.2em] opacity-70 mt-1">
-    {stat.label}
-  </div>
-  {
-    stat.hint && (
-      <div class="font-mono text-[10px] uppercase tracking-[0.15em] opacity-50 mt-1">
-        {stat.hint}
-      </div>
-    )
-  }
+  <div class="font-mono text-[10px] uppercase tracking-[0.2em] opacity-70 mt-1">{stat.label}</div>
+  {stat.hint && (
+    <div class="font-mono text-[10px] uppercase tracking-[0.15em] opacity-50 mt-1">{stat.hint}</div>
+  )}
 </div>

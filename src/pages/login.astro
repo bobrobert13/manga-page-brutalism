@@ -29,8 +29,12 @@ Astro.response.headers.set('Cache-Control', HTTP_CONFIG.cacheControl.private);
     />
 
     <div slot="footer" class="contents">
-      <span>¿Sin cuenta? <a href={ROUTES.register}>Creá una en /registro</a></span>
-      <span>¿Olvidaste tu clave? <a href={ROUTES.resetPassword}>Recuperar por email</a></span>
+      <span>
+        ¿Sin cuenta? <a href={ROUTES.register}>Creá una en /registro</a>
+      </span>
+      <span>
+        ¿Olvidaste tu clave? <a href={ROUTES.resetPassword}>Recuperar por email</a>
+      </span>
     </div>
   </AuthCard>
 

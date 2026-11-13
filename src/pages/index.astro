@@ -54,9 +54,7 @@ Astro.response.headers.set(
           <!-- LEFT: Headline -->
           <div class="col-span-12 lg:col-span-8 rise d1">
             <div class="flex items-center gap-3 mb-5 flex-wrap">
-              <span
-                class="brutal-border bg-red text-paper font-mono text-[11px] uppercase tracking-[0.22em] px-3 py-1 animate-pulse"
-              >
+              <span class="brutal-border bg-red text-paper font-mono text-[11px] uppercase tracking-[0.22em] px-3 py-1 animate-pulse">
                 En vivo
               </span>
               <span class="font-mono text-[11px] uppercase tracking-[0.22em] opacity-60">
@@ -72,7 +70,9 @@ Astro.response.headers.set(
               <span class="block">
                 que <span class="bg-ink text-paper px-3 inline-block -rotate-1">mueven</span>
               </span>
-              <span class="block">al mundo<span class="text-[var(--color-red)]">.</span></span>
+              <span class="block">
+                al mundo<span class="text-[var(--color-red)]">.</span>
+              </span>
             </h1>
 
             <p class="text-base md:text-lg leading-relaxed max-w-xl mt-6 font-medium rise d2">
@@ -87,7 +87,10 @@ Astro.response.headers.set(
                 href={ROUTES.catalog}
                 class="cta-primary px-6 md:px-8 py-4 font-display text-lg md:text-xl flex items-center gap-3"
               >
-                EMPEZAR A LEER <span class="text-2xl" aria-hidden="true">→</span>
+                EMPEZAR A LEER{' '}
+                <span class="text-2xl" aria-hidden="true">
+                  →
+                </span>
               </a>
               <a
                 href="#catalogo"
@@ -97,9 +100,7 @@ Astro.response.headers.set(
               </a>
             </div>
 
-            <div
-              class="flex items-center gap-4 mt-7 font-mono text-[11px] uppercase tracking-[0.18em] opacity-70 rise d3 flex-wrap"
-            >
+            <div class="flex items-center gap-4 mt-7 font-mono text-[11px] uppercase tracking-[0.18em] opacity-70 rise d3 flex-wrap">
               <span class="flex items-center gap-2">
                 <span class="w-2.5 h-2.5 bg-red animate-pulse rounded-full"></span>
                 2,847 leyendo ahora
@@ -115,9 +116,7 @@ Astro.response.headers.set(
           <aside class="col-span-12 lg:col-span-4 flex flex-col gap-4 rise d2">
             <!-- Now reading card -->
             <div class="brutal-border brutal-shadow bg-yellow p-4">
-              <div
-                class="flex items-center justify-between mb-3 font-mono text-[10px] uppercase tracking-[0.22em]"
-              >
+              <div class="flex items-center justify-between mb-3 font-mono text-[10px] uppercase tracking-[0.22em]">
                 <span class="flex items-center gap-2">
                   <span class="inline-block w-2 h-2 bg-red animate-pulse"></span>
                   Leyendo ahora
@@ -125,15 +124,11 @@ Astro.response.headers.set(
                 <span>{BERSERK.volumeCount}</span>
               </div>
 
-              <div
-                class="halftone-red w-full aspect-[3/4] brutal-border mb-3 relative overflow-hidden"
-              >
+              <div class="halftone-red w-full aspect-[3/4] brutal-border mb-3 relative overflow-hidden">
                 <div class="absolute inset-0 grid place-items-center">
                   <div class="font-display text-7xl text-[var(--color-red)] rotate-[-6deg]">!?</div>
                 </div>
-                <span
-                  class="absolute bottom-2 left-2 font-mono text-[9px] uppercase tracking-[0.2em] bg-paper px-2 py-0.5"
-                >
+                <span class="absolute bottom-2 left-2 font-mono text-[9px] uppercase tracking-[0.2em] bg-paper px-2 py-0.5">
                   Cap. 374
                 </span>
               </div>
@@ -157,37 +152,33 @@ Astro.response.headers.set(
             </div>
 
             <!-- Quick trending list -->
-            <div
-              class="brutal-border bg-paper p-4 divide-y divide-[color:var(--color-ink-alpha-10)]"
-            >
+            <div class="brutal-border bg-paper p-4 divide-y divide-[color:var(--color-ink-alpha-10)]">
               <div class="font-mono text-[10px] uppercase tracking-[0.22em] mb-2 opacity-60">
                 — Trending ahora
               </div>
-              {
-                TRENDING_NOW_SIDE.map((entry) => (
-                  <a
-                    href={ROUTES.title(entry.slug)}
-                    class="py-2 flex items-center justify-between group"
-                  >
-                    <div>
-                      <span class="font-display text-sm group-hover:text-[var(--color-red)] transition-colors">
-                        {entry.title}
-                      </span>
-                      <span class="font-mono text-[9px] uppercase tracking-[0.12em] opacity-60 ml-2">
-                        {entry.rank === 1 ? 'Cap. 374' : entry.rank === 2 ? 'Reissue' : 'Temp. 2'}
-                      </span>
-                    </div>
-                    <span
-                      class:list={[
-                        'font-mono text-[9px]',
-                        entry.rank === 1 ? 'text-[var(--color-red)]' : 'opacity-50',
-                      ]}
-                    >
-                      #{entry.rank}
+              {TRENDING_NOW_SIDE.map((entry) => (
+                <a
+                  href={ROUTES.title(entry.slug)}
+                  class="py-2 flex items-center justify-between group"
+                >
+                  <div>
+                    <span class="font-display text-sm group-hover:text-[var(--color-red)] transition-colors">
+                      {entry.title}
                     </span>
-                  </a>
-                ))
-              }
+                    <span class="font-mono text-[9px] uppercase tracking-[0.12em] opacity-60 ml-2">
+                      {entry.rank === 1 ? 'Cap. 374' : entry.rank === 2 ? 'Reissue' : 'Temp. 2'}
+                    </span>
+                  </div>
+                  <span
+                    class:list={[
+                      'font-mono text-[9px]',
+                      entry.rank === 1 ? 'text-[var(--color-red)]' : 'opacity-50',
+                    ]}
+                  >
+                    #{entry.rank}
+                  </span>
+                </a>
+              ))}
             </div>
           </aside>
         </div>
@@ -197,8 +188,7 @@ Astro.response.headers.set(
       <div
         class="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-paper to-transparent pointer-events-none"
         aria-hidden="true"
-      >
-      </div>
+      ></div>
     </section>
 
     <!-- ─── TRENDING STRIP ─── -->
@@ -222,7 +212,9 @@ Astro.response.headers.set(
       </SectionHeading>
 
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mt-8">
-        {FEATURED.map((manga) => <MangaCard {manga} />)}
+        {FEATURED.map((manga) => (
+          <MangaCard {manga} />
+        ))}
       </div>
 
       <a

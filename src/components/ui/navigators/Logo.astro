@@ -25,14 +25,12 @@ const { href = '/', compact = false, class: className = '' } = Astro.props;
     <span class="logo-mark__glyph">!</span>
   </span>
 
-  {
-    !compact && (
-      <span class="flex flex-col leading-none">
-        <span class="font-display text-xl tracking-tighter text-ink">{SITE.name}</span>
-        <span class="font-mono text-[10px] uppercase tracking-[0.22em] opacity-60 mt-1">
-          {SITE.volume}
-        </span>
+  {!compact && (
+    <span class="flex flex-col leading-none">
+      <span class="font-display text-xl tracking-tighter text-ink">{SITE.name}</span>
+      <span class="font-mono text-[10px] uppercase tracking-[0.22em] opacity-60 mt-1">
+        {SITE.volume}
       </span>
-    )
-  }
+    </span>
+  )}
 </a>

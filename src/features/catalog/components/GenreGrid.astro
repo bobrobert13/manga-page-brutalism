@@ -23,6 +23,8 @@ const { genres, heading = 'EXPLORA POR GÉNERO', size = 'md', id } = Astro.props
   </div>
 
   <div class="flex flex-wrap gap-3">
-    {genres.map((genre) => <GenreChip label={genre} size={size} />)}
+    {genres.map((genre) => (
+      <GenreChip label={genre} size={size} />
+    ))}
   </div>
 </section>

@@ -40,6 +40,8 @@ const {
   </div>
 
   <div class="trend-scroll flex gap-4 overflow-x-auto pb-4 no-scrollbar">
-    {items.map((manga) => <TrendingCard manga={manga} />)}
+    {items.map((manga) => (
+      <TrendingCard manga={manga} />
+    ))}
   </div>
 </section>

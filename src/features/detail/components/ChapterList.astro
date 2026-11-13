@@ -21,30 +21,26 @@ const { chapters, totalLabel, readMoreHref = '#', slug } = Astro.props;
       <h2 id="chapters-heading" class="font-display text-2xl md:text-3xl tracking-tighter">
         CAPÍTULOS
       </h2>
-      {
-        totalLabel && (
-          <p class="font-mono text-[11px] uppercase tracking-[0.2em] opacity-60 mt-1">
-            {totalLabel}
-          </p>
-        )
-      }
+      {totalLabel && (
+        <p class="font-mono text-[11px] uppercase tracking-[0.2em] opacity-60 mt-1">{totalLabel}</p>
+      )}
     </div>
 
     <div class="flex items-center gap-3">
       <div class="relative">
         <span
           class="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-xs opacity-60"
-          aria-hidden="true">⌕</span
+          aria-hidden="true"
         >
+          ⌕
+        </span>
         <input
           type="search"
           placeholder="Buscar capítulo…"
           class="w-full md:w-56 brutal-border bg-paper px-8 py-2.5 font-mono text-xs uppercase tracking-[0.15em] outline-none focus:bg-ink focus:text-paper transition-colors placeholder:text-ink/40"
         />
       </div>
-      <select
-        class="brutal-border bg-paper px-3 py-2.5 font-mono text-xs uppercase tracking-[0.15em] outline-none"
-      >
+      <select class="brutal-border bg-paper px-3 py-2.5 font-mono text-xs uppercase tracking-[0.15em] outline-none">
         <option>Más recientes</option>
         <option>Más antiguos</option>
       </select>
@@ -52,7 +48,9 @@ const { chapters, totalLabel, readMoreHref = '#', slug } = Astro.props;
   </div>
 
   <div class="brutal-border bg-paper divide-y divide-[color:var(--color-ink-alpha-10)]">
-    {chapters.map((chapter) => <ChapterRow chapter={chapter} slug={slug} />)}
+    {chapters.map((chapter) => (
+      <ChapterRow chapter={chapter} slug={slug} />
+    ))}
   </div>
 
   <a

@@ -34,35 +34,31 @@ const size = badgeSize === 'sm' ? 'text-[7px] px-1.5 py-0.5' : 'text-[9px] px-2 
   <div class:list={['absolute inset-0 pointer-events-none', patternClass]}></div>
 
   {/* optional type badge (top-left) */}
-  {
-    badges && (
-      <span
-        class:list={[
-          'absolute top-2 left-2 z-10 bg-ink text-paper font-mono uppercase tracking-[0.15em]',
-          size,
-        ]}
-      >
-        {manga.type}
-      </span>
-    )
-  }
+  {badges && (
+    <span
+      class:list={[
+        'absolute top-2 left-2 z-10 bg-ink text-paper font-mono uppercase tracking-[0.15em]',
+        size,
+      ]}
+    >
+      {manga.type}
+    </span>
+  )}
 
   {/* optional status badge (top-right) */}
-  {
-    badges && (
-      <span
-        class:list={[
-          'absolute top-2 right-2 z-10 font-mono uppercase tracking-[0.15em]',
-          manga.status === SERIES_STATUS.ongoing && 'bg-yellow text-ink',
-          manga.status === SERIES_STATUS.completed && 'bg-yellow text-ink',
-          manga.status === SERIES_STATUS.hiatus && 'bg-red text-paper',
-          size,
-        ]}
-      >
-        {manga.status}
-      </span>
-    )
-  }
+  {badges && (
+    <span
+      class:list={[
+        'absolute top-2 right-2 z-10 font-mono uppercase tracking-[0.15em]',
+        manga.status === SERIES_STATUS.ongoing && 'bg-yellow text-ink',
+        manga.status === SERIES_STATUS.completed && 'bg-yellow text-ink',
+        manga.status === SERIES_STATUS.hiatus && 'bg-red text-paper',
+        size,
+      ]}
+    >
+      {manga.status}
+    </span>
+  )}
 
   {/* centered acronym */}
   <div class="absolute inset-0 grid place-items-center">

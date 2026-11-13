@@ -48,29 +48,25 @@ const authorClass = isMini
     </h3>
     <p class={authorClass}>{manga.author}</p>
 
-    {
-      !isMini && (
-        <>
-          <div class="flex flex-wrap gap-1.5 mt-2">
-            {manga.genres.slice(0, 3).map((g) => (
-              <span class="bg-[color:var(--color-ink-alpha-10)] px-2 py-0.5 font-mono text-[8px] uppercase tracking-[0.12em]">
-                {g}
-              </span>
-            ))}
-          </div>
+    {!isMini && (
+      <>
+        <div class="flex flex-wrap gap-1.5 mt-2">
+          {manga.genres.slice(0, 3).map((g) => (
+            <span class="bg-[color:var(--color-ink-alpha-10)] px-2 py-0.5 font-mono text-[8px] uppercase tracking-[0.12em]">
+              {g}
+            </span>
+          ))}
+        </div>
 
-          <div class="flex items-center justify-between mt-2 font-mono text-[9px] uppercase tracking-[0.15em] opacity-60">
-            <span>{manga.volumeCount}</span>
-            <span aria-label={`Calificación ${manga.rating}`}>★ {manga.rating}</span>
-          </div>
-        </>
-      )
-    }
+        <div class="flex items-center justify-between mt-2 font-mono text-[9px] uppercase tracking-[0.15em] opacity-60">
+          <span>{manga.volumeCount}</span>
+          <span aria-label={`Calificación ${manga.rating}`}>★ {manga.rating}</span>
+        </div>
+      </>
+    )}
 
-    {
-      isMini && manga.volumeCount && (
-        <p class="font-mono text-[8px] uppercase opacity-60 truncate mt-0.5">{manga.volumeCount}</p>
-      )
-    }
+    {isMini && manga.volumeCount && (
+      <p class="font-mono text-[8px] uppercase opacity-60 truncate mt-0.5">{manga.volumeCount}</p>
+    )}
   </div>
 </a>
